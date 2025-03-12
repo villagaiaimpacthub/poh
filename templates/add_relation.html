@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Family Member - Proof of Humanity{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/family_tree.css') }}">
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-title {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .form-info {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .relationship-info {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #e8f4fd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add Family Member</h1>
+    <p>Connect with your family to build your verification network</p>
+</div>
+
+<div class="form-container">
+    <h2 class="form-title">Add a New Family Relation</h2>
+    
+    <div class="form-info">
+        <p><strong>How it works:</strong> Enter the email address of your family member and select your relationship to them. If they're already on the platform, they'll be notified of your connection request. If not, they'll receive an invitation to join.</p>
+        <p>Once they verify the relationship, your connection will be established and contribute to your verification level.</p>
+    </div>
+    
+    <form method="post" action="{{ url_for('family.add_relation') }}" id="add-relation-form">
+        <div class="form-group">
+            <label for="relative_email" class="form-label">Family Member's Email</label>
+            <input type="email" id="relative_email" name="relative_email" class="form-control" required>
+            <small class="form-text">This must be the email they use on the platform.</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="relationship_type" class="form-label">Your Relationship to This Person</label>
+            <select id="relationship_type" name="relationship_type" class="form-control" required>
+                <option value="">Select relationship type...</option>
+                <option value="parent">Parent</option>
+                <option value="child">Child</option>
+                <option value="sibling">Sibling</option>
+                <option value="spouse">Spouse</option>
+                <option value="grandparent">Grandparent</option>
+                <option value="grandchild">Grandchild</option>
+                <option value="aunt/uncle">Aunt/Uncle</option>
+                <option value="niece/nephew">Niece/Nephew</option>
+                <option value="cousin">Cousin</option>
+            </select>
+        </div>
+        
+        <div id="parent-info" class="relationship-info">
+            <h4>Parent Relationship</h4>
+            <p>The person you're adding is your parent. They will be added as having a "child" relationship to you.</p>
+            <p>This relationship requires verification from both sides to be counted towards your verification level.</p>
+        </div>
+        
+        <div id="child-info" class="relationship-info">
+            <h4>Child Relationship</h4>
+            <p>The person you're adding is your child. They will be added as having a "parent" relationship to you.</p>
+            <p>This relationship requires verification from both sides to be counted towards your verification level.</p>
+        </div>
+        
+        <div id="sibling-info" class="relationship-info">
+            <h4>Sibling Relationship</h4>
+            <p>The person you're adding is your brother or sister. They will also be added as having a "sibling" relationship to you.</p>
+            <p>This relationship requires verification from both sides to be counted towards your verification level.</p>
+        </div>
+        
+        <div id="spouse-info" class="relationship-info">
+            <h4>Spouse Relationship</h4>
+            <p>The person you're adding is your spouse. They will also be added as having a "spouse" relationship to you.</p>
+            <p>This relationship requires verification from both sides to be counted towards your verification level.</p>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{{ url_for('family.view_tree') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Add Family Member</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const relationshipSelect = document.getElementById('relationship_type');
+        const infoBoxes = document.querySelectorAll('.relationship-info');
+        
+        relationshipSelect.addEventListener('change', function() {
+            // Hide all info boxes
+            infoBoxes.forEach(box => box.style.display = 'none');
+            
+            // Show relevant info box
+            const selectedValue = this.value;
+            const infoBox = document.getElementById(`${selectedValue}-info`);
+            
+            if (infoBox) {
+                infoBox.style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %} 

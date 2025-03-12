@@ -1,0 +1,255 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: true
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+
+jobs:
+  test:
+    name: E2E Tests on ${{ matrix.os }} with ${{ matrix.browser }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-12, ubuntu-latest]
+        browser: [chromium]
+        include:
+          # Additional browser configurations for Mac (optimize for M-series chips)
+          - os: macos-12
+            browser: firefox
+          - os: macos-12
+            browser: webkit
+          # Visual regression tests only on chromium
+          - os: macos-12
+            browser: visual-tests
+            
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+          
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          
+      - name: Install Node.js dependencies
+        run: |
+          npm ci
+          
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser == 'all' && '' || matrix.browser }}
+        
+      - name: Create test database
+        run: |
+          mkdir -p instance
+          python -c "
+          import os
+          os.environ['DATABASE_URI'] = 'sqlite:///instance/test_poh.sqlite'
+          from app import create_app
+          app = create_app()
+          with app.app_context():
+              from models.database import Database
+              db = Database(app.config['DATABASE_URI'])
+              schema_path = os.path.join(os.path.dirname(os.path.abspath('__file__')), 'schema.sql')
+              db.init_db(schema_path)
+              print('Test database initialized')
+          "
+          
+      - name: Seed test data
+        run: |
+          DATABASE_URI=sqlite:///instance/test_poh.sqlite python e2e_tests/fixtures/seed_data.py
+          
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.browser }}" = "all" ]; then
+            npm test
+          elif [ "${{ matrix.browser }}" = "visual-tests" ]; then
+            npm run test:visual
+          else
+            npm run test:${{ matrix.browser }}
+          fi
+        env:
+          CI: true
+          DATABASE_URI: sqlite:///instance/test_poh.sqlite
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+            
+      - name: Upload visual snapshots
+        if: matrix.browser == 'visual-tests'
+        uses: actions/upload-artifact@v3
+        with:
+          name: visual-snapshots
+          path: e2e_tests/visual/snapshots
+      
+  # Job to detect flaky tests by running multiple times
+  flaky-detection:
+    name: Flaky Test Detection
+    runs-on: macos-12
+    needs: test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          npm ci
+          npx playwright install --with-deps chromium
+          
+      - name: Create test database
+        run: |
+          mkdir -p instance
+          python -c "
+          import os
+          os.environ['DATABASE_URI'] = 'sqlite:///instance/test_poh.sqlite'
+          from app import create_app
+          app = create_app()
+          with app.app_context():
+              from models.database import Database
+              db = Database(app.config['DATABASE_URI'])
+              schema_path = os.path.join(os.path.dirname(os.path.abspath('__file__')), 'schema.sql')
+              db.init_db(schema_path)
+              print('Test database initialized')
+          "
+          
+      - name: Seed test data
+        run: |
+          DATABASE_URI=sqlite:///instance/test_poh.sqlite python e2e_tests/fixtures/seed_data.py
+          
+      - name: Run multiple test iterations
+        run: |
+          for i in {1..3}; do
+            echo "Running test iteration $i"
+            npm run test:chromium || echo "Test iteration $i failed"
+            rm -rf instance/test_poh.sqlite
+            DATABASE_URI=sqlite:///instance/test_poh.sqlite python e2e_tests/fixtures/seed_data.py
+          done
+        env:
+          CI: true
+          DATABASE_URI: sqlite:///instance/test_poh.sqlite
+          
+      - name: Upload flaky test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: flaky-test-results
+          path: |
+            playwright-report/
+            test-results/
+  
+  # Job for performance testing
+  performance:
+    name: Performance Testing
+    runs-on: macos-12
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          npm ci
+          npx playwright install --with-deps chromium
+          
+      - name: Create test database
+        run: |
+          mkdir -p instance
+          python -c "
+          import os
+          os.environ['DATABASE_URI'] = 'sqlite:///instance/test_poh.sqlite'
+          from app import create_app
+          app = create_app()
+          with app.app_context():
+              from models.database import Database
+              db = Database(app.config['DATABASE_URI'])
+              schema_path = os.path.join(os.path.dirname(os.path.abspath('__file__')), 'schema.sql')
+              db.init_db(schema_path)
+              print('Test database initialized')
+          "
+          
+      - name: Seed test data
+        run: |
+          DATABASE_URI=sqlite:///instance/test_poh.sqlite python e2e_tests/fixtures/seed_data.py
+          
+      - name: Run performance tests
+        run: |
+          # Run API performance tests specifically
+          npx playwright test e2e_tests/api-integration.spec.js --grep "API response time"
+          
+          # Run custom performance script that uses PerformanceHelper
+          node scripts/performance-benchmark.js
+        env:
+          CI: true
+          DATABASE_URI: sqlite:///instance/test_poh.sqlite
+          
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            playwright-report/
+            test-results/
+            perf-results/ 

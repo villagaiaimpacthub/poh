@@ -1,0 +1,316 @@
+import os
+import logging
+import time
+from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, jsonify, session, send_from_directory
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
+import sqlite3
+from datetime import datetime
+from models.database import Database
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def create_app(test_config=None):
+    # Create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    
+    # Ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    
+    # Load configuration
+    app.config.from_mapping(
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'dev_key_highly_secret'),
+        DATABASE_PATH=os.path.join(app.instance_path, 'poh.sqlite'),
+        MAX_CONTENT_LENGTH=8 * 1024 * 1024,  # 8MB max upload
+        TEMPLATES_AUTO_RELOAD=True,
+        JSON_SORT_KEYS=False,  # Preserve order of keys in JSON responses
+        SESSION_COOKIE_SECURE=False,  # Set to True in production with HTTPS
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        SEND_FILE_MAX_AGE_DEFAULT=31536000,  # 1 year cache for static files
+        PERMANENT_SESSION_LIFETIME=3600,  # 1 hour
+    )
+
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
+        
+    # Initialize database
+    db = Database(app.config['DATABASE_PATH'])
+    
+    # Before request - ensure db connection is available
+    @app.before_request
+    def before_request():
+        g.request_start_time = time.time()
+        g.db = db
+        
+        # Ensure we have an active database connection for this request
+        try:
+            g.db.get_db()
+        except Exception as e:
+            logger.error(f"Database connection error: {e}")
+            # Continue with the request, individual routes should handle any DB errors
+    
+    # After request - log request duration
+    @app.after_request
+    def after_request(response):
+        try:
+            # Calculate request duration
+            duration = time.time() - g.get('request_start_time', time.time())
+            # Log slow requests (>500ms)
+            if duration > 0.5:
+                logger.warning(f"Slow request: {request.path} took {duration:.2f}s")
+            
+            # Add security headers
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Frame-Options'] = 'DENY'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            return response
+        except Exception as e:
+            logger.error(f"Error in after_request: {e}")
+            return response
+        
+    # Teardown request - close db connection
+    @app.teardown_request
+    def teardown_request(exception):
+        if hasattr(g, 'db'):
+            try:
+                g.db.close()
+            except Exception as e:
+                # Just log, don't raise during teardown
+                logger.error(f"Error closing database: {e}")
+    
+    # Import blueprints here to avoid circular imports
+    from routes.auth import auth_bp
+    from routes.network import network_bp
+    from routes.api import bp as api_bp
+    
+    # Register blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(network_bp)
+    app.register_blueprint(api_bp)
+    
+    # Apply WSGI middleware
+    app.wsgi_app = ProxyFix(app.wsgi_app)
+    
+    # Context processors for templates
+    @app.context_processor
+    def inject_common_variables():
+        """Inject common variables into all templates."""
+        return {
+            'app_name': 'Proof of Humanity',
+            'current_year': datetime.now().year,
+            'version': '1.0.1',
+            'now': datetime.now,
+        }
+    
+    # Add context processor for current user
+    @app.context_processor
+    def inject_user():
+        # Create a mock user object for templates
+        class MockUser:
+            is_authenticated = False
+            username = None
+            avatar = None
+        
+        # Check if user is in session
+        if 'user_id' in session:
+            mock_user = MockUser()
+            mock_user.is_authenticated = True
+            mock_user.username = session.get('username', 'User')
+            mock_user.avatar = None
+            return {'current_user': mock_user}
+        return {'current_user': MockUser()}
+    
+    # Routes
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+    
+    @app.route('/profile')
+    def profile():
+        return render_template('profile.html')
+    
+    @app.route('/verification')
+    def verification_manage():
+        """
+        Manage user's verification status and progress.
+        Shows current verification level, progress, and next steps.
+        """
+        try:
+            # Mock data for user verification
+            user_verification_level = 'child'  # Could be 'none', 'child', 'parent', 'grandparent'
+            verification_stage = 'parent'  # The stage they're working on
+            
+            # Mock verification progress
+            verification_progress = {
+                'child': {
+                    'completed': True,
+                    'calls_made': 2,
+                    'calls_required': 2
+                },
+                'parent': {
+                    'completed': False,
+                    'calls_made': 1,
+                    'calls_required': 3
+                },
+                'grandparent': {
+                    'completed': False,
+                    'calls_made': 0,
+                    'calls_required': 2
+                }
+            }
+            
+            # Calculate progress percentage
+            total_steps = 7  # Total steps across all verification levels
+            completed_steps = 2  # Child verification + 1 parent call
+            verification_progress['percent'] = int((completed_steps / total_steps) * 100)
+            
+            return render_template(
+                'verification.html',
+                user_verification_level=user_verification_level,
+                verification_stage=verification_stage,
+                verification_progress=verification_progress
+            )
+        except Exception as e:
+            logger.error(f"Error in verification_manage route: {e}")
+            flash('An error occurred while loading verification data.', 'error')
+            return render_template('verification.html', 
+                                  user_verification_level='none',
+                                  verification_stage='none',
+                                  verification_progress={'percent': 0})
+    
+    @app.route('/family-tree')
+    def family_tree():
+        """Redirect to the family tree page on the network blueprint"""
+        return redirect(url_for('network.family_tree'))
+    
+    @app.route('/terms')
+    def terms():
+        return render_template('terms.html')
+    
+    @app.route('/privacy')
+    def privacy():
+        return render_template('privacy.html')
+    
+    @app.route('/did_manage')
+    def did_manage():
+        return render_template('did_manage.html')
+    
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            # Mock successful login
+            session['user_id'] = 1
+            session['username'] = request.form.get('email', 'User')
+            return redirect(url_for('verification_manage'))
+        return render_template('login.html')
+    
+    @app.route('/register', methods=['GET', 'POST'])
+    def register():
+        if request.method == 'POST':
+            # Mock successful registration
+            return redirect(url_for('verification_manage'))
+        return render_template('register.html')
+    
+    @app.route('/logout')
+    def logout():
+        session.clear()
+        return redirect(url_for('index'))
+    
+    @app.route('/settings')
+    def settings():
+        return "Settings Page"
+    
+    @app.route('/forgot-password')
+    def forgot_password():
+        return render_template('login.html', reset_message="Please check your email for password reset instructions.")
+    
+    @app.route('/schedule-call')
+    def schedule_call():
+        """
+        Page for scheduling verification calls with other users.
+        Displays an interactive calendar with color-coded availability.
+        """
+        try:
+            return render_template('schedule_call.html')
+        except Exception as e:
+            logger.error(f"Error in schedule_call route: {e}")
+            flash('An error occurred while loading the scheduling page.', 'error')
+            return redirect(url_for('verification_manage'))
+    
+    @app.route('/network-viz')
+    def network_viz():
+        """Serve the network visualization page without authentication."""
+        try:
+            app.logger.info('Serving network visualization page')
+            # Ensure static files are accessible
+            if not app.static_folder:
+                app.static_folder = 'static'
+            return render_template('network_viz_standalone.html')
+        except Exception as e:
+            app.logger.error(f'Error serving network visualization: {e}')
+            return str(e), 500
+    
+    # Add a route to serve the JS file directly if needed
+    @app.route('/js/network_viz.js')
+    def network_viz_js():
+        """Serve the network visualization JavaScript file directly."""
+        try:
+            app.logger.info('Serving network visualization JavaScript')
+            return send_from_directory('static/js', 'network_viz.js')
+        except Exception as e:
+            app.logger.error(f'Error serving JavaScript: {e}')
+            return str(e), 500
+    
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        logger.error(f"Internal server error: {e}")
+        return render_template('errors/500.html'), 500
+    
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        logger.error(f"Unhandled exception: {e}", exc_info=True)
+        return render_template('errors/500.html'), 500
+    
+    return app
+
+# Create app instance for direct running
+app = create_app()
+
+# Optimize SQLite connection
+# Ensure directory exists before running
+os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
+
+if __name__ == '__main__':
+    # Check if the instance directory exists
+    if not os.path.exists(app.instance_path):
+        os.makedirs(app.instance_path)
+        
+    # Check if the database file exists, if not initialize it
+    if not os.path.exists(app.config['DATABASE_PATH']):
+        with app.app_context():
+            db = Database(app.config['DATABASE_PATH'])
+            db.init_db()
+            
+    # Run the app
+    app.run(debug=True, host='0.0.0.0', port=5002, threaded=True) 

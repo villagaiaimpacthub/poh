@@ -1,0 +1,585 @@
+{% extends 'base.html' %}
+
+{% block title %}Family Tree - Proof of Humanity{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/family-tree.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="family-tree-section">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">Your Family Tree</h1>
+            <p class="section-subtitle">Visualize and manage your family connections</p>
+        </div>
+        
+        <div class="family-tree-container">
+            <div class="family-tree-sidebar">
+                <div class="sidebar-section">
+                    <h3>Tree Controls</h3>
+                    <div class="control-group">
+                        <button id="zoom-in" class="btn btn-icon" aria-label="Zoom in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button id="zoom-out" class="btn btn-icon" aria-label="Zoom out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button id="reset-view" class="btn btn-icon" aria-label="Reset view">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="fullscreen-toggle" class="btn btn-icon" aria-label="Toggle fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Family Members</h3>
+                    <div class="search-box">
+                        <input type="text" id="member-search" placeholder="Search family members..." class="form-control">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="member-list" id="member-list">
+                        {% if family_members %}
+                            {% for member in family_members %}
+                                <div class="member-item" data-id="{{ member.id }}">
+                                    <div class="member-avatar" style="background-image: url('{{ member.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
+                                    <div class="member-info">
+                                        <div class="member-name">{{ member.name }}</div>
+                                        <div class="member-relation">{{ member.relation }}</div>
+                                    </div>
+                                    <div class="member-status {{ 'verified' if member.verified else 'pending' }}">
+                                        <i class="fas {{ 'fa-check-circle' if member.verified else 'fa-clock' }}"></i>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <p>No family members added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Add Family Member</h3>
+                    <button id="add-member-btn" class="btn btn-primary btn-block">
+                        <i class="fas fa-user-plus"></i> Add New Member
+                    </button>
+                </div>
+            </div>
+            
+            <div class="family-tree-visualization">
+                <div class="visualization-header">
+                    <div class="visualization-title">
+                        <h2>Family Network</h2>
+                        <span class="member-count">{{ family_members|length if family_members else 0 }} members</span>
+                    </div>
+                    <div class="visualization-legend">
+                        <div class="legend-item">
+                            <span class="legend-icon verified"></span>
+                            <span class="legend-label">Verified</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-icon pending"></span>
+                            <span class="legend-label">Pending</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-icon you"></span>
+                            <span class="legend-label">You</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="network-visualization" class="network-container">
+                    {% if not family_members or family_members|length == 0 %}
+                        <div class="empty-visualization">
+                            <div class="empty-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>Your Family Tree is Empty</h3>
+                            <p>Start by adding family members to build your verification network.</p>
+                            <button id="empty-add-btn" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Add First Member
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Add Member Modal -->
+<div class="modal" id="add-member-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Add Family Member</h3>
+            <button class="modal-close" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="add-member-form" class="form">
+                <div class="form-group">
+                    <label for="member-name">Full Name</label>
+                    <input type="text" id="member-name" name="name" class="form-control" placeholder="Enter full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-email">Email Address</label>
+                    <input type="email" id="member-email" name="email" class="form-control" placeholder="Enter email address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-relation">Relationship</label>
+                    <select id="member-relation" name="relation" class="form-control" required>
+                        <option value="">Select relationship</option>
+                        <option value="parent">Parent</option>
+                        <option value="child">Child</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="grandchild">Grandchild</option>
+                        <option value="aunt-uncle">Aunt/Uncle</option>
+                        <option value="niece-nephew">Niece/Nephew</option>
+                        <option value="cousin">Cousin</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-note">Personal Note (Optional)</label>
+                    <textarea id="member-note" name="note" class="form-control" placeholder="Add a personal note to include in the invitation"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" id="cancel-add-member">Cancel</button>
+            <button class="btn btn-primary" id="submit-add-member">Send Invitation</button>
+        </div>
+    </div>
+</div>
+
+<!-- Member Details Modal -->
+<div class="modal" id="member-details-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Family Member Details</h3>
+            <button class="modal-close" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="member-details">
+                <div class="member-profile">
+                    <div class="member-avatar-large" id="detail-avatar"></div>
+                    <div class="member-profile-info">
+                        <h2 id="detail-name"></h2>
+                        <div class="member-relation-badge" id="detail-relation"></div>
+                        <div class="member-status-badge" id="detail-status"></div>
+                    </div>
+                </div>
+                
+                <div class="member-details-section">
+                    <h4>Contact Information</h4>
+                    <div class="detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <span id="detail-email"></span>
+                    </div>
+                    <div class="detail-item" id="detail-phone-container">
+                        <i class="fas fa-phone"></i>
+                        <span id="detail-phone"></span>
+                    </div>
+                </div>
+                
+                <div class="member-details-section">
+                    <h4>Verification Status</h4>
+                    <div class="verification-timeline" id="verification-timeline">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" id="remove-member">Remove Member</button>
+            <button class="btn btn-primary" id="verify-member">Verify Identity</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize network visualization
+        let networkVis;
+        const networkContainer = document.getElementById('network-visualization');
+        
+        if (networkContainer) {
+            {% if family_members and family_members|length > 0 %}
+                // Initialize with actual data
+                const familyData = {
+                    nodes: [
+                        // Current user is always the central node
+                        {
+                            id: 'current-user',
+                            name: '{{ current_user.username }}',
+                            type: 'you',
+                            verified: true,
+                            avatar: '{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}'
+                        },
+                        {% for member in family_members %}
+                        {
+                            id: '{{ member.id }}',
+                            name: '{{ member.name }}',
+                            type: '{{ member.relation }}',
+                            verified: {{ 'true' if member.verified else 'false' }},
+                            avatar: '{{ member.avatar or url_for('static', filename='images/default-avatar.png') }}'
+                        }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    links: [
+                        {% for member in family_members %}
+                        {
+                            source: 'current-user',
+                            target: '{{ member.id }}',
+                            type: '{{ member.relation }}'
+                        }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                };
+                
+                networkVis = createNetworkVisualization('network-visualization', {
+                    data: familyData,
+                    width: networkContainer.clientWidth,
+                    height: networkContainer.clientHeight
+                });
+            {% else %}
+                // Initialize with demo data if no family members
+                networkVis = createNetworkVisualization('network-visualization', {
+                    useDemo: true,
+                    width: networkContainer.clientWidth,
+                    height: networkContainer.clientHeight
+                });
+            {% endif %}
+        }
+        
+        // Zoom controls
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const resetView = document.getElementById('reset-view');
+        
+        if (zoomIn && networkVis) {
+            zoomIn.addEventListener('click', function() {
+                networkVis.zoomIn();
+            });
+        }
+        
+        if (zoomOut && networkVis) {
+            zoomOut.addEventListener('click', function() {
+                networkVis.zoomOut();
+            });
+        }
+        
+        if (resetView && networkVis) {
+            resetView.addEventListener('click', function() {
+                networkVis.resetView();
+            });
+        }
+        
+        // Fullscreen toggle
+        const fullscreenToggle = document.getElementById('fullscreen-toggle');
+        const visualizationContainer = document.querySelector('.family-tree-visualization');
+        
+        if (fullscreenToggle && visualizationContainer) {
+            fullscreenToggle.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    visualizationContainer.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                    fullscreenToggle.querySelector('i').classList.remove('fa-expand');
+                    fullscreenToggle.querySelector('i').classList.add('fa-compress');
+                } else {
+                    document.exitFullscreen();
+                    fullscreenToggle.querySelector('i').classList.remove('fa-compress');
+                    fullscreenToggle.querySelector('i').classList.add('fa-expand');
+                }
+            });
+            
+            // Update icon when exiting fullscreen via Escape key
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    fullscreenToggle.querySelector('i').classList.remove('fa-compress');
+                    fullscreenToggle.querySelector('i').classList.add('fa-expand');
+                }
+            });
+        }
+        
+        // Member search functionality
+        const memberSearch = document.getElementById('member-search');
+        const memberList = document.getElementById('member-list');
+        
+        if (memberSearch && memberList) {
+            memberSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const memberItems = memberList.querySelectorAll('.member-item');
+                
+                memberItems.forEach(item => {
+                    const name = item.querySelector('.member-name').textContent.toLowerCase();
+                    const relation = item.querySelector('.member-relation').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || relation.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Modal functionality
+        const addMemberBtn = document.getElementById('add-member-btn');
+        const emptyAddBtn = document.getElementById('empty-add-btn');
+        const addMemberModal = document.getElementById('add-member-modal');
+        const memberDetailsModal = document.getElementById('member-details-modal');
+        const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-backdrop');
+        const cancelAddMember = document.getElementById('cancel-add-member');
+        const submitAddMember = document.getElementById('submit-add-member');
+        const addMemberForm = document.getElementById('add-member-form');
+        
+        // Open add member modal
+        const openAddMemberModal = () => {
+            if (addMemberModal) {
+                addMemberModal.classList.add('active');
+                document.body.classList.add('modal-open');
+            }
+        };
+        
+        if (addMemberBtn) {
+            addMemberBtn.addEventListener('click', openAddMemberModal);
+        }
+        
+        if (emptyAddBtn) {
+            emptyAddBtn.addEventListener('click', openAddMemberModal);
+        }
+        
+        // Close modals
+        modalCloseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.classList.remove('modal-open');
+                }
+            });
+        });
+        
+        if (cancelAddMember) {
+            cancelAddMember.addEventListener('click', function() {
+                addMemberModal.classList.remove('active');
+                document.body.classList.remove('modal-open');
+            });
+        }
+        
+        // Submit add member form
+        if (submitAddMember && addMemberForm) {
+            submitAddMember.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Validate form
+                if (!addMemberForm.checkValidity()) {
+                    addMemberForm.reportValidity();
+                    return;
+                }
+                
+                // Get form data
+                const formData = new FormData(addMemberForm);
+                const memberData = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    relation: formData.get('relation'),
+                    note: formData.get('note')
+                };
+                
+                // Send invitation (AJAX request would go here)
+                console.log('Sending invitation to:', memberData);
+                
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'flash-message success';
+                successMessage.textContent = `Invitation sent to ${memberData.name}`;
+                document.querySelector('.flash-messages').appendChild(successMessage);
+                
+                // Close modal and reset form
+                addMemberModal.classList.remove('active');
+                document.body.classList.remove('modal-open');
+                addMemberForm.reset();
+                
+                // Auto-remove success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 300);
+                }, 5000);
+            });
+        }
+        
+        // Member item click to show details
+        const memberItems = document.querySelectorAll('.member-item');
+        
+        memberItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const memberId = this.getAttribute('data-id');
+                const memberName = this.querySelector('.member-name').textContent;
+                const memberRelation = this.querySelector('.member-relation').textContent;
+                const memberStatus = this.querySelector('.member-status').classList.contains('verified') ? 'Verified' : 'Pending';
+                const memberAvatar = this.querySelector('.member-avatar').style.backgroundImage;
+                
+                // Populate member details modal
+                document.getElementById('detail-name').textContent = memberName;
+                document.getElementById('detail-relation').textContent = memberRelation;
+                document.getElementById('detail-status').textContent = memberStatus;
+                document.getElementById('detail-status').className = 'member-status-badge ' + (memberStatus === 'Verified' ? 'verified' : 'pending');
+                document.getElementById('detail-avatar').style.backgroundImage = memberAvatar;
+                
+                // Example email - in a real app, this would come from the server
+                document.getElementById('detail-email').textContent = `${memberName.toLowerCase().replace(/\s+/g, '.')}@example.com`;
+                
+                // Show/hide phone based on verification status
+                const phoneContainer = document.getElementById('detail-phone-container');
+                if (memberStatus === 'Verified') {
+                    phoneContainer.style.display = 'flex';
+                    document.getElementById('detail-phone').textContent = '+1 (555) 123-4567'; // Example phone
+                } else {
+                    phoneContainer.style.display = 'none';
+                }
+                
+                // Populate verification timeline
+                const timeline = document.getElementById('verification-timeline');
+                timeline.innerHTML = '';
+                
+                const timelineItems = [
+                    { date: '2023-06-15', status: 'Invitation Sent', completed: true },
+                    { date: '2023-06-16', status: 'Invitation Accepted', completed: true },
+                    { date: '2023-06-18', status: 'Identity Verification', completed: memberStatus === 'Verified' },
+                    { date: '2023-06-20', status: 'Relationship Confirmed', completed: memberStatus === 'Verified' }
+                ];
+                
+                timelineItems.forEach(item => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = `timeline-item ${item.completed ? 'completed' : 'pending'}`;
+                    
+                    const timelineIcon = document.createElement('div');
+                    timelineIcon.className = 'timeline-icon';
+                    timelineIcon.innerHTML = `<i class="fas ${item.completed ? 'fa-check' : 'fa-clock'}"></i>`;
+                    
+                    const timelineContent = document.createElement('div');
+                    timelineContent.className = 'timeline-content';
+                    
+                    const timelineDate = document.createElement('div');
+                    timelineDate.className = 'timeline-date';
+                    timelineDate.textContent = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    const timelineStatus = document.createElement('div');
+                    timelineStatus.className = 'timeline-status';
+                    timelineStatus.textContent = item.status;
+                    
+                    timelineContent.appendChild(timelineDate);
+                    timelineContent.appendChild(timelineStatus);
+                    
+                    timelineItem.appendChild(timelineIcon);
+                    timelineItem.appendChild(timelineContent);
+                    
+                    timeline.appendChild(timelineItem);
+                });
+                
+                // Update button states based on verification status
+                const verifyButton = document.getElementById('verify-member');
+                if (memberStatus === 'Verified') {
+                    verifyButton.textContent = 'Already Verified';
+                    verifyButton.disabled = true;
+                } else {
+                    verifyButton.textContent = 'Verify Identity';
+                    verifyButton.disabled = false;
+                }
+                
+                // Show modal
+                memberDetailsModal.classList.add('active');
+                document.body.classList.add('modal-open');
+                
+                // Highlight the node in the visualization
+                if (networkVis) {
+                    networkVis.highlightNode(memberId);
+                }
+            });
+        });
+        
+        // Verify member button
+        const verifyMemberBtn = document.getElementById('verify-member');
+        if (verifyMemberBtn) {
+            verifyMemberBtn.addEventListener('click', function() {
+                // In a real app, this would trigger the verification process
+                // For demo purposes, just show a message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'flash-message info';
+                successMessage.textContent = 'Verification process initiated. You will be redirected to the verification page.';
+                document.querySelector('.flash-messages').appendChild(successMessage);
+                
+                // Close modal
+                memberDetailsModal.classList.remove('active');
+                document.body.classList.remove('modal-open');
+                
+                // Auto-remove message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 300);
+                }, 5000);
+                
+                // In a real app, redirect to verification page
+                // window.location.href = '/verification/new';
+            });
+        }
+        
+        // Remove member button
+        const removeMemberBtn = document.getElementById('remove-member');
+        if (removeMemberBtn) {
+            removeMemberBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove this family member? This action cannot be undone.')) {
+                    // In a real app, this would send a request to remove the member
+                    // For demo purposes, just show a message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'flash-message success';
+                    successMessage.textContent = 'Family member has been removed.';
+                    document.querySelector('.flash-messages').appendChild(successMessage);
+                    
+                    // Close modal
+                    memberDetailsModal.classList.remove('active');
+                    document.body.classList.remove('modal-open');
+                    
+                    // Auto-remove message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            successMessage.remove();
+                        }, 300);
+                    }, 5000);
+                }
+            });
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (networkVis && networkContainer) {
+                networkVis.resize(networkContainer.clientWidth, networkContainer.clientHeight);
+            }
+        });
+    });
+</script>
+{% endblock %} 

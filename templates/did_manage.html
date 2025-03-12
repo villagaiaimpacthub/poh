@@ -1,0 +1,907 @@
+{% extends 'base.html' %}
+
+{% block title %}DID Management - Proof of Humanity{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Digital Identity Management</h1>
+        <p>Manage your Decentralized Identifier (DID) and digital credentials.</p>
+    </div>
+    
+    <div class="did-status-container">
+        <div class="did-status-card">
+            <div class="did-status-icon {% if user_did %}active{% else %}inactive{% endif %}">
+                <i class="icon icon-{% if user_did %}check-circle{% else %}alert-circle{% endif %}"></i>
+            </div>
+            <div class="did-status-info">
+                <h2>DID Status</h2>
+                {% if user_did %}
+                    <div class="status-badge active">Active</div>
+                    <p class="did-identifier">{{ user_did }}</p>
+                    <p class="did-description">Your decentralized identifier is active and can be used to verify your identity across services.</p>
+                {% else %}
+                    <div class="status-badge inactive">Not Created</div>
+                    <p class="did-description">You haven't created a decentralized identifier yet. Create one to manage your digital identity.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-tabs">
+        <button class="tab-btn active" data-tab="did-document">DID Document</button>
+        <button class="tab-btn" data-tab="credentials">Credentials</button>
+        <button class="tab-btn" data-tab="history">History</button>
+    </div>
+    
+    <div class="tab-content" id="did-document">
+        <div class="did-document-container">
+            {% if user_did %}
+                <div class="document-actions">
+                    <button class="btn btn-secondary" id="view-raw-did">View Raw</button>
+                    <button class="btn btn-primary" id="update-did">Update DID</button>
+                </div>
+                
+                <div class="did-document-section">
+                    <h3>Document Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Created</div>
+                            <div class="info-value">{{ did_created_at }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Updated</div>
+                            <div class="info-value">{{ did_updated_at }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Verification Methods</div>
+                            <div class="info-value">{{ verification_methods|length }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Services</div>
+                            <div class="info-value">{{ services|length }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="did-document-section">
+                    <h3>Verification Methods</h3>
+                    {% if verification_methods %}
+                        <div class="verification-methods-list">
+                            {% for method in verification_methods %}
+                                <div class="verification-method-item">
+                                    <div class="method-header">
+                                        <div class="method-id">{{ method.id }}</div>
+                                        <div class="method-type">{{ method.type }}</div>
+                                    </div>
+                                    <div class="method-details">
+                                        <div class="method-controller">Controller: {{ method.controller }}</div>
+                                        <div class="method-key">
+                                            <div class="key-label">Public Key (Base58):</div>
+                                            <div class="key-value">{{ method.publicKeyBase58 }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="method-actions">
+                                        <button class="btn btn-small btn-secondary" data-method-id="{{ method.id }}">Edit</button>
+                                        <button class="btn btn-small btn-danger" data-method-id="{{ method.id }}">Remove</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-secondary mt-3" id="add-verification-method">Add Verification Method</button>
+                    {% else %}
+                        <div class="empty-state">
+                            <p>No verification methods found. Add one to enhance your DID document.</p>
+                            <button class="btn btn-primary mt-2" id="add-first-verification-method">Add Verification Method</button>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="did-document-section">
+                    <h3>Services</h3>
+                    {% if services %}
+                        <div class="services-list">
+                            {% for service in services %}
+                                <div class="service-item">
+                                    <div class="service-header">
+                                        <div class="service-id">{{ service.id }}</div>
+                                        <div class="service-type">{{ service.type }}</div>
+                                    </div>
+                                    <div class="service-details">
+                                        <div class="service-endpoint">Endpoint: {{ service.serviceEndpoint }}</div>
+                                    </div>
+                                    <div class="service-actions">
+                                        <button class="btn btn-small btn-secondary" data-service-id="{{ service.id }}">Edit</button>
+                                        <button class="btn btn-small btn-danger" data-service-id="{{ service.id }}">Remove</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-secondary mt-3" id="add-service">Add Service</button>
+                    {% else %}
+                        <div class="empty-state">
+                            <p>No services found. Add one to enhance your DID document.</p>
+                            <button class="btn btn-primary mt-2" id="add-first-service">Add Service</button>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="empty-state did-creation">
+                    <div class="did-empty-icon">
+                        <i class="icon icon-fingerprint"></i>
+                    </div>
+                    <h3>Create Your Decentralized Identifier</h3>
+                    <p>A Decentralized Identifier (DID) gives you control over your digital identity and allows you to prove who you are without relying on centralized authorities.</p>
+                    <button class="btn btn-primary mt-3" id="create-did">Create DID</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="tab-content hidden" id="credentials">
+        <div class="credentials-container">
+            <div class="credentials-header">
+                <h3>Verifiable Credentials</h3>
+                <button class="btn btn-primary" id="add-credential">Add Credential</button>
+            </div>
+            
+            {% if credentials %}
+                <div class="credentials-list">
+                    {% for credential in credentials %}
+                        <div class="credential-card">
+                            <div class="credential-header">
+                                <div class="credential-title">{{ credential.type|last }}</div>
+                                <div class="credential-date">Issued: {{ credential.issuanceDate }}</div>
+                            </div>
+                            <div class="credential-content">
+                                <div class="credential-issuer">
+                                    <div class="issuer-label">Issuer</div>
+                                    <div class="issuer-value">{{ credential.issuer }}</div>
+                                </div>
+                                <div class="credential-subject">
+                                    <div class="subject-label">Subject</div>
+                                    <div class="subject-value">{{ credential.credentialSubject.id }}</div>
+                                </div>
+                                <div class="credential-status">
+                                    <div class="status-label">Status</div>
+                                    <div class="status-value {% if credential.active %}active{% else %}revoked{% endif %}">
+                                        {% if credential.active %}Active{% else %}Revoked{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="credential-actions">
+                                <button class="btn btn-small btn-secondary" data-credential-id="{{ credential.id }}">View Details</button>
+                                <button class="btn btn-small btn-secondary" data-credential-id="{{ credential.id }}">Share</button>
+                                <button class="btn btn-small btn-danger" data-credential-id="{{ credential.id }}">Delete</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You don't have any verifiable credentials yet. Credentials are digital attestations issued to your DID.</p>
+                    <p>Complete verification steps to receive credentials that prove your identity.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="tab-content hidden" id="history">
+        <div class="history-container">
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <input type="text" placeholder="Search events...">
+                    <button><i class="icon icon-search"></i></button>
+                </div>
+                <select class="event-filter">
+                    <option value="all">All Events</option>
+                    <option value="creation">Creation</option>
+                    <option value="update">Updates</option>
+                    <option value="credential">Credential Events</option>
+                </select>
+            </div>
+            
+            <div class="history-timeline">
+                {% if did_events %}
+                    {% for event in did_events %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">{{ event.timestamp }}</div>
+                                <div class="timeline-title">{{ event.title }}</div>
+                                <div class="timeline-description">{{ event.description }}</div>
+                                {% if event.details %}
+                                    <button class="btn btn-small btn-secondary timeline-details-btn" data-event-id="{{ event.id }}">
+                                        View Details
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No history events found for your DID.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for raw DID document -->
+    <div class="modal" id="raw-did-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Raw DID Document</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="raw-did-content" class="code-block"></pre>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="copy-did">Copy to Clipboard</button>
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show selected tab content
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                    if (content.id === tabId) {
+                        content.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+        
+        // Create DID functionality
+        const createDidBtn = document.getElementById('create-did');
+        if (createDidBtn) {
+            createDidBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to create a new DID? This will be your digital identity in the system.')) {
+                    // Here you would make an API call to create a DID
+                    fetch('/api/did/document', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Error creating DID: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while creating your DID.');
+                    });
+                }
+            });
+        }
+        
+        // View raw DID document
+        const viewRawDidBtn = document.getElementById('view-raw-did');
+        const rawDidModal = document.getElementById('raw-did-modal');
+        const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-close-btn, .modal-backdrop');
+        
+        if (viewRawDidBtn) {
+            viewRawDidBtn.addEventListener('click', function() {
+                // Here you would fetch the raw DID document
+                fetch('/api/did/document')
+                    .then(response => response.json())
+                    .then(data => {
+                        const rawDidContent = document.getElementById('raw-did-content');
+                        rawDidContent.textContent = JSON.stringify(data, null, 2);
+                        rawDidModal.classList.add('active');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while fetching your DID document.');
+                    });
+            });
+        }
+        
+        // Close modal
+        modalCloseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const openModals = document.querySelectorAll('.modal.active');
+                openModals.forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            });
+        });
+        
+        // Copy DID to clipboard
+        const copyDidBtn = document.getElementById('copy-did');
+        if (copyDidBtn) {
+            copyDidBtn.addEventListener('click', function() {
+                const rawDidContent = document.getElementById('raw-did-content');
+                
+                // Create a temporary textarea element
+                const textarea = document.createElement('textarea');
+                textarea.value = rawDidContent.textContent;
+                document.body.appendChild(textarea);
+                
+                // Select and copy the text
+                textarea.select();
+                document.execCommand('copy');
+                
+                // Clean up
+                document.body.removeChild(textarea);
+                
+                // Update button text temporarily
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .page-header h1 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .did-status-container {
+        margin-bottom: 3rem;
+    }
+    
+    .did-status-card {
+        display: flex;
+        align-items: center;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .did-status-icon {
+        font-size: 3rem;
+        margin-right: 2rem;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .did-status-icon.active {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4CAF50;
+    }
+    
+    .did-status-icon.inactive {
+        background-color: rgba(244, 67, 54, 0.1);
+        color: #F44336;
+    }
+    
+    .did-status-info {
+        flex: 1;
+    }
+    
+    .did-status-info h2 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .did-identifier {
+        font-family: monospace;
+        background: var(--bg-primary);
+        padding: 0.5rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 1rem 0;
+    }
+    
+    .did-description {
+        margin-top: 1rem;
+        color: var(--light-text);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-badge.active {
+        background: rgba(76, 175, 80, 0.1);
+        color: #4CAF50;
+    }
+    
+    .status-badge.inactive {
+        background: rgba(244, 67, 54, 0.1);
+        color: #F44336;
+    }
+    
+    .status-badge.revoked {
+        background: rgba(244, 67, 54, 0.1);
+        color: #F44336;
+    }
+    
+    .section-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+    }
+    
+    .tab-btn {
+        padding: 1rem 1.5rem;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .tab-btn:hover {
+        color: var(--primary-color);
+    }
+    
+    .tab-btn.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+    
+    .tab-content {
+        display: block;
+    }
+    
+    .tab-content.hidden {
+        display: none;
+    }
+    
+    .did-document-container, 
+    .credentials-container, 
+    .history-container {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .document-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .did-document-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .did-document-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .did-document-section h3 {
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        background: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 6px;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+        color: var(--light-text);
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-value {
+        font-weight: 500;
+    }
+    
+    .verification-methods-list, 
+    .services-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .verification-method-item, 
+    .service-item {
+        background: var(--bg-primary);
+        border-radius: 6px;
+        padding: 1.5rem;
+    }
+    
+    .method-header, 
+    .service-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+    
+    .method-id, 
+    .service-id {
+        font-weight: 500;
+    }
+    
+    .method-type, 
+    .service-type {
+        font-size: 0.8rem;
+        background: var(--bg-secondary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .method-details, 
+    .service-details {
+        margin-bottom: 1.5rem;
+    }
+    
+    .method-controller, 
+    .service-endpoint {
+        margin-bottom: 0.5rem;
+    }
+    
+    .method-key {
+        background: var(--bg-secondary);
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+    }
+    
+    .key-label {
+        font-size: 0.8rem;
+        color: var(--light-text);
+        margin-bottom: 0.5rem;
+    }
+    
+    .key-value {
+        font-family: monospace;
+        word-break: break-all;
+    }
+    
+    .method-actions, 
+    .service-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--light-text);
+    }
+    
+    .did-creation {
+        padding: 4rem 2rem;
+    }
+    
+    .did-empty-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        opacity: 0.8;
+    }
+    
+    .credentials-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .credentials-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .credential-card {
+        background: var(--bg-primary);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .credential-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .credential-date {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+    
+    .credential-content {
+        padding: 1.5rem;
+    }
+    
+    .credential-issuer, 
+    .credential-subject, 
+    .credential-status {
+        margin-bottom: 1rem;
+    }
+    
+    .issuer-label, 
+    .subject-label, 
+    .status-label {
+        font-size: 0.8rem;
+        color: var(--light-text);
+        margin-bottom: 0.25rem;
+    }
+    
+    .issuer-value, 
+    .subject-value {
+        font-family: monospace;
+        word-break: break-all;
+    }
+    
+    .credential-actions {
+        display: flex;
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .search-filter-bar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+    
+    .search-box {
+        display: flex;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        width: 60%;
+    }
+    
+    .search-box input {
+        flex-grow: 1;
+        padding: 0.75rem 1rem;
+        border: none;
+        background: var(--bg-primary);
+    }
+    
+    .search-box button {
+        background: var(--bg-primary);
+        border: none;
+        padding: 0 1rem;
+        cursor: pointer;
+    }
+    
+    .search-box button:hover {
+        background: var(--bg-hover);
+    }
+    
+    .event-filter {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-primary);
+        width: 35%;
+    }
+    
+    .history-timeline {
+        position: relative;
+        margin-left: 1.5rem;
+        margin-top: 3rem;
+    }
+    
+    .history-timeline:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: var(--border-color);
+        transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 2.5rem;
+        padding-left: 2.5rem;
+    }
+    
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: 3px solid var(--bg-secondary);
+        transform: translateX(-50%);
+    }
+    
+    .timeline-content {
+        background: var(--bg-primary);
+        border-radius: 8px;
+        padding: 1.5rem;
+    }
+    
+    .timeline-date {
+        color: var(--light-text);
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .timeline-title {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .timeline-description {
+        margin-bottom: 1rem;
+    }
+    
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+    
+    .modal-content {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--light-text);
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+    
+    .code-block {
+        background: var(--bg-primary);
+        padding: 1.5rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-family: monospace;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .did-status-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .did-status-icon {
+            margin-right: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .credentials-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .search-filter-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .search-box, .event-filter {
+            width: 100%;
+        }
+        
+        .document-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %} 

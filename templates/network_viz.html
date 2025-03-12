@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Proof of Humanity Network{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/network_viz.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div id="network" class="network"></div>
+  
+  <div class="header">
+    <div class="title-section">
+      <h1>Proof of Humanity Network</h1>
+      <p>Human-to-human verification system that builds trust through personal connections</p>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--gold);"></div>
+        <span class="legend-text">Trusted Members</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--purple);"></div>
+        <span class="legend-text">Children</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--blue);"></div>
+        <span class="legend-text">Parents</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-label">Network Size</div>
+      <div class="stat-value" id="user-count">8</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Est. Days</div>
+      <div class="stat-value" id="days-count">0</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Progress</div>
+      <div class="stat-value" id="progress">0.01%</div>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <div class="toggle-container">
+      <span class="toggle-label">Auto-grow:</span>
+      <label class="toggle">
+        <input type="checkbox" id="auto-grow">
+        <span class="slider"></span>
+      </label>
+    </div>
+    
+    <div class="slider-container">
+      <span class="toggle-label">Invitation frequency:</span>
+      <input type="range" min="1" max="10" value="5" class="range-slider" id="invite-frequency">
+      <div class="slider-value" id="invite-value">5 days</div>
+    </div>
+    
+    <div class="buttons">
+      <button id="grow-btn">Grow Network</button>
+      <button id="reset-btn">Reset</button>
+      <button id="center-btn">Center</button>
+    </div>
+  </div>
+  
+  <div class="zoom-controls">
+    <button class="zoom-btn" id="zoom-in">+</button>
+    <button class="zoom-btn" id="zoom-out">−</button>
+    <button class="zoom-btn" id="zoom-reset">↺</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/network_viz.js') }}"></script>
+{% endblock %} 

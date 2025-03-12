@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Proof of Humanity{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-visual">
+                <div class="auth-illustration">
+                    <div class="blob-animation"></div>
+                    <div class="connection-lines"></div>
+                    <div class="auth-icon-container">
+                        <div class="auth-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="auth-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="auth-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-info">
+                    <h2>Trusted Digital Identity</h2>
+                    <p>Access secure web3 services with your family-verified human identity.</p>
+                </div>
+            </div>
+            
+            <div class="auth-form-container">
+                <div class="auth-form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your Proof of Humanity account</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+                    {{ form.csrf_token }}
+                    
+                    <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                        <label for="email">Email Address</label>
+                        {{ form.email(class="form-control", placeholder="Enter your email address", autocomplete="email") }}
+                        {% if form.email.errors %}
+                            <div class="error-message">
+                                {{ form.email.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            {{ form.password(class="form-control", placeholder="Enter your password", autocomplete="current-password") }}
+                            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="error-message">
+                                {{ form.password.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="remember-me">
+                            {{ form.remember(class="form-checkbox") }}
+                            <label for="remember">Remember me</label>
+                        </div>
+                        <a href="{{ url_for('reset_password_request') }}" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <div class="social-login">
+                        <a href="{{ url_for('oauth_login', provider='google') }}" class="btn btn-social btn-google">
+                            <i class="fab fa-google"></i>
+                            <span>Continue with Google</span>
+                        </a>
+                        <a href="{{ url_for('oauth_login', provider='github') }}" class="btn btn-social btn-github">
+                            <i class="fab fa-github"></i>
+                            <span>Continue with GitHub</span>
+                        </a>
+                    </div>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle
+        const passwordToggle = document.querySelector('.password-toggle');
+        const passwordInput = document.querySelector('#password');
+        
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle eye icon
+                const eyeIcon = passwordToggle.querySelector('i');
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        }
+        
+        // Animation for auth icons
+        const authIcons = document.querySelectorAll('.auth-icon');
+        authIcons.forEach((icon, index) => {
+            setTimeout(() => {
+                icon.classList.add('animate');
+            }, index * 300);
+        });
+        
+        // Create connection lines SVG animation
+        const connectionLines = document.querySelector('.connection-lines');
+        if (connectionLines) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            connectionLines.appendChild(svg);
+            
+            const iconContainers = document.querySelectorAll('.auth-icon');
+            
+            // Create connections between icons
+            if (iconContainers.length >= 2) {
+                for (let i = 0; i < iconContainers.length - 1; i++) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('class', 'connection-line');
+                    svg.appendChild(line);
+                    
+                    // Position the line based on icon positions
+                    const updateLinePosition = () => {
+                        const rect1 = iconContainers[i].getBoundingClientRect();
+                        const rect2 = iconContainers[i + 1].getBoundingClientRect();
+                        const containerRect = connectionLines.getBoundingClientRect();
+                        
+                        const x1 = rect1.left + rect1.width / 2 - containerRect.left;
+                        const y1 = rect1.top + rect1.height / 2 - containerRect.top;
+                        const x2 = rect2.left + rect2.width / 2 - containerRect.left;
+                        const y2 = rect2.top + rect2.height / 2 - containerRect.top;
+                        
+                        line.setAttribute('x1', x1);
+                        line.setAttribute('y1', y1);
+                        line.setAttribute('x2', x2);
+                        line.setAttribute('y2', y2);
+                    };
+                    
+                    // Initial positioning
+                    updateLinePosition();
+                    
+                    // Update on resize
+                    window.addEventListener('resize', updateLinePosition);
+                    
+                    // Animate the line
+                    setTimeout(() => {
+                        line.classList.add('animate');
+                    }, (i + 1) * 300);
+                }
+            }
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms of Service - Proof of Humanity{% endblock %}
+
+{% block content %}
+<div class="page-container legal-container">
+    <div class="page-header">
+        <h1>Terms of Service</h1>
+        <p>Last updated: {{ last_updated|default('June 15, 2023') }}</p>
+    </div>
+    
+    <div class="legal-content">
+        <section class="legal-section">
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing or using the Proof of Humanity platform ("Service"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>2. Description of Service</h2>
+            <p>Proof of Humanity is a decentralized identity verification service that enables users to create and manage their digital identities, establish family relationships, and verify their humanity through various methods.</p>
+            <p>Our service includes:</p>
+            <ul>
+                <li>Digital identity management through Decentralized Identifiers (DIDs)</li>
+                <li>Family relationship verification</li>
+                <li>Document-based identity verification</li>
+                <li>Video verification processes</li>
+                <li>Integration with third-party verification services</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>3. User Accounts</h2>
+            <p>To use certain features of the Service, you must register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
+            <p>You are responsible for safeguarding the password and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account or any other breach of security.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>4. Privacy and Data Protection</h2>
+            <p>Your privacy is important to us. Our <a href="{{ url_for('privacy') }}">Privacy Policy</a> describes how we collect, use, and protect your personal information. By using our Service, you consent to the data practices described in the Privacy Policy.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>5. User Conduct</h2>
+            <p>You agree not to use the Service for any unlawful purpose or in any way that could damage, disable, overburden, or impair the Service. Specifically, you agree not to:</p>
+            <ul>
+                <li>Impersonate any person or entity</li>
+                <li>Submit false or misleading information</li>
+                <li>Upload or transmit any viruses, malware, or other malicious code</li>
+                <li>Attempt to gain unauthorized access to the Service or other user accounts</li>
+                <li>Use the Service for any fraudulent purpose</li>
+                <li>Harass, intimidate, or threaten any other users</li>
+                <li>Use the Service in any manner that could interfere with, disrupt, adversely affect or inhibit other users from fully enjoying the Service</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>6. Identity Verification</h2>
+            <p>Our Service relies on various methods of identity verification. You acknowledge that:</p>
+            <ul>
+                <li>You will only submit genuine and accurate information for verification purposes</li>
+                <li>Any documents or identification you provide are authentic and belong to you</li>
+                <li>You have the legal right to use and share any information you provide</li>
+                <li>Verification is not guaranteed and may be rejected if requirements are not met</li>
+                <li>We may use third-party services to verify your information</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>7. Family Relationships</h2>
+            <p>When establishing family relationships through our Service:</p>
+            <ul>
+                <li>You may only claim verifiable family relationships</li>
+                <li>The other party must consent to the relationship claim</li>
+                <li>We may require additional verification for certain relationship claims</li>
+                <li>You understand that relationship data may be stored on a distributed ledger</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>8. Decentralized Identifiers (DIDs)</h2>
+            <p>Our Service uses DIDs as part of the identity verification process. You acknowledge that:</p>
+            <ul>
+                <li>You are responsible for the security of your private keys</li>
+                <li>Lost private keys may result in loss of control over your digital identity</li>
+                <li>Information associated with your DID may be stored on distributed ledgers</li>
+                <li>You retain ownership of your DID and associated data</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>9. Intellectual Property</h2>
+            <p>The Service and its original content, features, and functionality are owned by Proof of Humanity and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>10. Termination</h2>
+            <p>We may terminate or suspend your account and access to the Service immediately, without prior notice or liability, for any reason, including without limitation if you breach the Terms.</p>
+            <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your account, you may simply discontinue using the Service or contact us to request account deletion.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>11. Limitation of Liability</h2>
+            <p>In no event shall Proof of Humanity, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
+            <ul>
+                <li>Your access to or use of or inability to access or use the Service</li>
+                <li>Any conduct or content of any third party on the Service</li>
+                <li>Any unauthorized access, use, or alteration of your transmissions or content</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>12. Disclaimer</h2>
+            <p>Your use of the Service is at your sole risk. The Service is provided on an "AS IS" and "AS AVAILABLE" basis. The Service is provided without warranties of any kind, whether express or implied.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>13. Governing Law</h2>
+            <p>These Terms shall be governed and construed in accordance with the laws applicable in the jurisdiction of incorporation of Proof of Humanity, without regard to its conflict of law provisions.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>14. Changes to Terms</h2>
+            <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>15. Contact Us</h2>
+            <p>If you have any questions about these Terms, please contact us at:</p>
+            <p><a href="mailto:support@proofofhumanity.example.com">support@proofofhumanity.example.com</a></p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .page-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .page-header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    
+    .page-header h1 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .legal-content {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .legal-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .legal-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .legal-section h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .legal-section p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .legal-section ul {
+        margin-bottom: 1.5rem;
+        padding-left: 1.5rem;
+    }
+    
+    .legal-section ul li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .legal-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %} 

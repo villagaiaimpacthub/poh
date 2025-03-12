@@ -1,0 +1,32 @@
+[flake8]
+# Match black's default line length
+max-line-length = 88
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    .env,
+    .venv,
+    migrations
+
+# Disable some errors
+ignore =
+    # Line break before binary operator (conflicts with black)
+    W503,
+    # Whitespace before ':'
+    E203,
+    # Module level import not at top of file (necessary for some Flask imports)
+    E402,
+    # Line too long (handled by black)
+    E501
+
+# Complexity
+max-complexity = 10
+
+# Output formatting
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s
+show-source = True
+statistics = True
+count = True 

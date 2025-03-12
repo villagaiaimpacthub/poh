@@ -1,0 +1,197 @@
+/* 
+ * Network Visualization Styling
+ * Contains styles for the interactive network visualization
+ */
+
+#network-visualization {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  background: linear-gradient(135deg, rgba(25, 25, 35, 0.03), rgba(35, 35, 45, 0.05));
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Make the visualization full-height when in landing hero */
+.hero #network-visualization {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: auto;
+  border-radius: 0;
+}
+
+/* Node styling */
+.node {
+  cursor: pointer;
+  transition: stroke-width 0.2s ease;
+}
+
+.node:hover {
+  stroke-width: 4px;
+}
+
+.node-central {
+  filter: drop-shadow(0 0 10px rgba(249, 168, 38, 0.5));
+}
+
+.node-primary {
+  filter: drop-shadow(0 0 6px rgba(155, 89, 182, 0.4));
+}
+
+.node-secondary {
+  filter: drop-shadow(0 0 4px rgba(52, 152, 219, 0.3));
+}
+
+/* Link styling */
+.link {
+  pointer-events: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2, 2;
+}
+
+/* Label styling */
+.labels text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  user-select: none;
+}
+
+/* Network visualization container with stats overlay */
+.network-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  margin: 2rem 0;
+}
+
+.network-stats {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.network-stats:hover {
+  opacity: 1;
+}
+
+.network-stats h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.network-stat-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.network-stat-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.network-stat-central {
+  background: #F9A826;
+}
+
+.network-stat-primary {
+  background: #9B59B6;
+}
+
+.network-stat-secondary {
+  background: #3498DB;
+}
+
+.network-stat-label {
+  flex-grow: 1;
+  color: var(--text-secondary);
+}
+
+.network-stat-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Network visualization controls */
+.network-controls {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.network-control-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.network-control-button:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.network-control-button:active {
+  transform: translateY(1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #network-visualization {
+    min-height: 350px;
+  }
+  
+  .network-container {
+    height: 350px;
+  }
+  
+  .network-stats {
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    font-size: 0.75rem;
+  }
+  
+  .network-controls {
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  .network-control-button {
+    width: 36px;
+    height: 36px;
+  }
+} 

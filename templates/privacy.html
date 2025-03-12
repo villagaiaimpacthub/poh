@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Policy - Proof of Humanity{% endblock %}
+
+{% block content %}
+<div class="page-container legal-container">
+    <div class="page-header">
+        <h1>Privacy Policy</h1>
+        <p>Last updated: {{ last_updated|default('June 15, 2023') }}</p>
+    </div>
+    
+    <div class="legal-content">
+        <section class="legal-section">
+            <h2>1. Introduction</h2>
+            <p>Welcome to Proof of Humanity's Privacy Policy. This policy explains how we collect, use, and protect your personal information when you use our service.</p>
+            <p>We respect your privacy and are committed to protecting your personal data. This privacy policy informs you about how we handle your personal data when you visit our website or use our services and tells you about your privacy rights.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>2. Data We Collect</h2>
+            <p>We may collect the following types of information when you use our service:</p>
+            <h3>2.1 Personal Information</h3>
+            <ul>
+                <li>Identity information: name, date of birth, government-issued identification</li>
+                <li>Contact information: email address, phone number, physical address</li>
+                <li>Biometric data: facial images (for video verification)</li>
+                <li>Family relationship data: information about your family connections</li>
+                <li>Account credentials: username, password (encrypted)</li>
+            </ul>
+            
+            <h3>2.2 Technical Information</h3>
+            <ul>
+                <li>IP address and location data</li>
+                <li>Browser type and version</li>
+                <li>Device type and operating system</li>
+                <li>Session information</li>
+                <li>Usage patterns and preferences</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>3. How We Use Your Data</h2>
+            <p>We use your personal information for the following purposes:</p>
+            <ul>
+                <li>To verify your identity and humanity</li>
+                <li>To create and manage your decentralized identifier (DID)</li>
+                <li>To establish and verify family relationships</li>
+                <li>To provide customer support and respond to your requests</li>
+                <li>To improve our services and develop new features</li>
+                <li>To detect and prevent fraud, spam, and abuse</li>
+                <li>To comply with legal obligations</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>4. Legal Basis for Processing</h2>
+            <p>We process your data based on the following legal grounds:</p>
+            <ul>
+                <li><strong>Consent:</strong> You have given explicit consent for us to process your personal data for specific purposes, such as identity verification.</li>
+                <li><strong>Contract Performance:</strong> Processing is necessary to fulfill our contractual obligations to you.</li>
+                <li><strong>Legitimate Interests:</strong> Processing is necessary for our legitimate interests, such as fraud prevention and service improvement.</li>
+                <li><strong>Legal Obligation:</strong> Processing is necessary to comply with legal requirements.</li>
+            </ul>
+        </section>
+        
+        <section class="legal-section">
+            <h2>5. How We Store and Protect Your Data</h2>
+            <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized or unlawful processing, accidental loss, destruction, or damage.</p>
+            
+            <h3>5.1 Data Security</h3>
+            <ul>
+                <li>All data is encrypted in transit and at rest using industry-standard encryption</li>
+                <li>We maintain strict access controls for staff members</li>
+                <li>Regular security assessments and penetration testing</li>
+                <li>Private keys for DIDs are encrypted with user-controlled passwords</li>
+            </ul>
+            
+            <h3>5.2 Data Storage</h3>
+            <p>Your personal information may be stored in the following ways:</p>
+            <ul>
+                <li>Centralized databases (encrypted and secured)</li>
+                <li>Decentralized systems (with appropriate privacy protections)</li>
+                <li>Third-party service providers (bound by data processing agreements)</li>
+            </ul>
+            
+            <h3>5.3 Data Retention</h3>
+            <p>We retain your personal information only for as long as necessary to fulfill the purposes for which it was collected, including legal, accounting, or reporting requirements.</p>
+            <p>Identity verification documents are deleted once the verification process is complete, typically within 30 days.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>6. Sharing Your Information</h2>
+            <p>We may share your information with the following categories of recipients:</p>
+            <ul>
+                <li><strong>Service Providers:</strong> Third parties that help us deliver our services (identity verification providers, hosting services, etc.)</li>
+                <li><strong>Family Members:</strong> When you establish family relationships, certain information is shared with those you connect with</li>
+                <li><strong>Legal Authorities:</strong> When required by law, court order, or governmental regulation</li>
+                <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+            </ul>
+            <p>We do not sell your personal information to third parties.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>7. Decentralized Data</h2>
+            <p>As part of our service, certain information may be stored on decentralized networks:</p>
+            <ul>
+                <li>Your DID and associated public keys</li>
+                <li>Verification status indicators (without personal details)</li>
+                <li>Relationship attestations (with consent from all parties)</li>
+            </ul>
+            <p>Please note that information stored on public blockchains or distributed ledgers cannot be deleted once published. We carefully limit what personal information is stored in decentralized systems.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>8. Your Privacy Rights</h2>
+            <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+            <ul>
+                <li><strong>Access:</strong> You can request a copy of your personal data</li>
+                <li><strong>Rectification:</strong> You can request correction of inaccurate data</li>
+                <li><strong>Erasure:</strong> You can request deletion of your data (with limitations for information on decentralized systems)</li>
+                <li><strong>Restriction:</strong> You can request restriction of processing</li>
+                <li><strong>Data Portability:</strong> You can request a copy of your data in a structured format</li>
+                <li><strong>Objection:</strong> You can object to certain processing of your data</li>
+                <li><strong>Withdraw Consent:</strong> You can withdraw previously given consent</li>
+            </ul>
+            <p>To exercise these rights, please contact us using the information in the "Contact Us" section.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>9. Cookies and Tracking</h2>
+            <p>We use cookies and similar tracking technologies to enhance your experience on our website. These technologies may collect information about your browsing behavior and preferences.</p>
+            <p>You can control cookies through your browser settings. However, disabling cookies may limit your ability to use certain features of our service.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>10. International Transfers</h2>
+            <p>Your personal data may be transferred to and processed in countries outside of your country of residence. We ensure appropriate safeguards are in place to protect your information in accordance with applicable data protection laws.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>11. Children's Privacy</h2>
+            <p>Our service is not intended for individuals under the age of 16. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>12. Changes to This Privacy Policy</h2>
+            <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date. We encourage you to review this privacy policy periodically.</p>
+        </section>
+        
+        <section class="legal-section">
+            <h2>13. Contact Us</h2>
+            <p>If you have any questions about this privacy policy or our data practices, please contact us at:</p>
+            <p><a href="mailto:privacy@proofofhumanity.example.com">privacy@proofofhumanity.example.com</a></p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .page-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .page-header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    
+    .page-header h1 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .legal-content {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .legal-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .legal-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .legal-section h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .legal-section h3 {
+        margin: 1.5rem 0 1rem;
+        color: var(--primary-color);
+    }
+    
+    .legal-section p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .legal-section ul {
+        margin-bottom: 1.5rem;
+        padding-left: 1.5rem;
+    }
+    
+    .legal-section ul li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .legal-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %} 
