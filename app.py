@@ -4,6 +4,7 @@ import time
 from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, jsonify, session, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_cors import CORS
 import sqlite3
 from datetime import datetime
 from models.database import Database
@@ -35,6 +36,9 @@ def write_network_log(data):
 def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    
+    # Enable CORS
+    CORS(app)
     
     # Ensure the instance folder exists
     try:
@@ -248,7 +252,7 @@ def create_app(test_config=None):
     
     @app.route('/settings')
     def settings():
-        return "Settings Page"
+        return render_template('settings.html')
     
     @app.route('/forgot-password')
     def forgot_password():
@@ -327,23 +331,22 @@ def create_app(test_config=None):
     
     return app
 
-# Create app instance for direct running
-app = create_app()
-
-# Optimize SQLite connection
-# Ensure directory exists before running
-os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
-
 if __name__ == '__main__':
-    # Check if the instance directory exists
-    if not os.path.exists(app.instance_path):
-        os.makedirs(app.instance_path)
-        
-    # Check if the database file exists, if not initialize it
-    if not os.path.exists(app.config['DATABASE_PATH']):
-        with app.app_context():
-            db = Database(app.config['DATABASE_PATH'])
-            db.init_db()
-            
-    # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5002, threaded=True) 
+    import signal
+    import sys
+
+    def signal_handler(sig, frame):
+        print('Shutting down gracefully...')
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    app = create_app()
+    port = int(os.environ.get('FLASK_RUN_PORT', 5003))
+    app.run(
+        host='0.0.0.0',  # Bind to all interfaces
+        port=port,
+        debug=True,
+        use_reloader=False  # Disable auto-reloader to prevent duplicate processes
+    ) 

@@ -26,7 +26,8 @@ const globals = {
         lastGrowthTimestamp: null,
         verificationPeriod: 3,
         foundersVerified: false,
-        founderPairs: null
+        founderPairs: null,
+        growthClickCount: 0
     },
     currentlyDisplayedNodeId: null,
     networkHistory: [],
@@ -246,10 +247,11 @@ function verifyHumanity(nodes) {
             
             // Verify all founders together
             nodes.forEach(founder => {
-                founder.type = 'parent';
+                founder.type = 'parent'; // Promote from child to parent
                 founder.personalDIDs = 1;
                 founder.familyDIDs = 1;
                 founder.verifiedBy = nodes.filter(n => n.id !== founder.id).map(n => n.id);
+                updateNodeAppearance(founder); // Update appearance immediately
             });
             
             // Create verification links between all founders
@@ -394,22 +396,38 @@ function checkNodeProgression(node) {
 }
 
 function updateNodeAppearance(node) {
-    debugLog(`Updating appearance for node ${node.id}`);
+    debugLog(`Updating appearance for node ${node.id} to type ${node.type}`);
     
     try {
+        // Get the expected color for this node type
+        const expectedColor = config.nodeColors[node.type];
+        
         // Update node color based on type
         const nodeElement = globals.nodeGroup.select(`circle[data-id="${node.id}"]`);
+        if (nodeElement.empty()) {
+            debugLog(`WARNING: Could not find node element for ${node.id}`);
+            return;
+        }
+        
         nodeElement
             .transition()
             .duration(500)
-            .style('fill', config.nodeColors[node.type])
+            .style('fill', expectedColor)
             .attr('r', config.nodeRadius[node.type]);
             
         // Update node label if needed
         const labelElement = globals.labelGroup.select(`text[data-id="${node.id}"]`);
         labelElement.text(node.id);
         
-        debugLog('Node appearance updated');
+        // Verify the color was applied
+        // Note: This will get the pre-transition color since transitions are asynchronous
+        // But it's still useful for debugging
+        const currentColor = nodeElement.style('fill');
+        if (currentColor && currentColor !== expectedColor) {
+            debugLog(`Node ${node.id} color transition: ${currentColor} -> ${expectedColor}`);
+        }
+        
+        debugLog(`Node ${node.id} appearance updated to ${node.type}`);
     } catch (error) {
         debugLog('Error updating node appearance:', error);
     }
@@ -419,56 +437,44 @@ function resetNetwork() {
     debugLog('Resetting network...');
     
     try {
-        // Clear existing network
-        globals.nodes = [];
-        globals.links = [];
-        globals.nodeCounter = 0;
-        globals.networkState.foundersVerified = false;
-        
+        // Reset click counter
+        globals.networkState.growthClickCount = 0;
+        const clickCountDisplay = document.getElementById('click-counter');
+        if (clickCountDisplay) {
+            clickCountDisplay.textContent = 'Click Count: 0';
+        }
+
         // Get founder count from slider
         const founderSlider = document.getElementById('founder-count');
         const founderCount = founderSlider ? parseInt(founderSlider.value) : 8;
         
+        // Clear existing network
+        globals.nodes = [];
+        globals.links = [];
+        globals.nodeCounter = 0;
+        
         // Create founder nodes in a perfect polygon
-        const radius = Math.min(config.width, config.height) * 0.3; // Increased radius
+        const radius = Math.min(config.width, config.height) * 0.3;
         
-        // Create containing shape for founders
-        const containingShape = globals.container.select('.containing-shape');
-        if (containingShape.size() > 0) containingShape.remove();
-        
-        // Calculate points for containing polygon with fixed spacing
-        const shapePoints = [];
+        // Create nodes in a circle
         for (let i = 0; i < founderCount; i++) {
-            const angle = (i / founderCount) * 2 * Math.PI - Math.PI/2; // Start from top
+            const angle = (i / founderCount) * 2 * Math.PI - Math.PI/2;
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);
-            shapePoints.push([x, y]);
             
-            // Create founder node with fixed position
             globals.nodes.push({
                 id: `C${++globals.nodeCounter}`,
                 type: 'child',
                 generation: 0,
                 x: x,
                 y: y,
-                fx: x, // Fix X position
-                fy: y, // Fix Y position
                 personalDIDs: 0,
                 familyDIDs: 0,
                 children: []
             });
         }
         
-        // Create containing shape path
-        globals.container.append('path')
-            .attr('class', 'containing-shape')
-            .attr('d', d3.line()(shapePoints.map(p => [p[0] * 1.2, p[1] * 1.2])) + 'Z')
-            .style('fill', 'none')
-            .style('stroke', 'rgba(255, 215, 0, 0.3)')
-            .style('stroke-width', '2px')
-            .style('stroke-dasharray', '5,5');
-        
-        // Create links between adjacent nodes to form a circle
+        // Create links between adjacent nodes
         for (let i = 0; i < globals.nodes.length; i++) {
             const nextIndex = (i + 1) % globals.nodes.length;
             globals.links.push({
@@ -480,24 +486,24 @@ function resetNetwork() {
             });
         }
         
-        // Initialize force simulation with stronger forces
+        // Initialize force simulation
         globals.simulation = d3.forceSimulation(globals.nodes)
             .force('link', d3.forceLink(globals.links)
                 .id(d => d.id)
                 .distance(d => d.isFounderLink ? d.distance : config.linkDistance.family)
                 .strength(d => d.isFounderLink ? 1.0 : 0.3))
             .force('charge', d3.forceManyBody()
-                .strength(-3000) // Increased repulsion
+                .strength(-3000)
                 .distanceMax(2000))
             .force('collision', d3.forceCollide()
-                .radius(d => (config.nodeRadius[d.type] || 10) * 3) // Increased collision radius
+                .radius(d => (config.nodeRadius[d.type] || 10) * 3)
                 .strength(1))
             .force('center', d3.forceCenter(0, 0)
-                .strength(0.5)) // Increased centering force
-            .velocityDecay(0.6) // Increased decay for more stability
+                .strength(0.5))
+            .velocityDecay(0.6)
             .on('tick', ticked);
         
-        // Update the visualization
+        // Update visualization
         updateNetwork();
         centerNetwork();
         
@@ -508,189 +514,350 @@ function resetNetwork() {
     }
 }
 
-// Add event listener for founder count slider
-document.addEventListener('DOMContentLoaded', () => {
-    const founderSlider = document.getElementById('founder-count');
-    const founderValue = document.getElementById('founder-value');
-    
-    if (founderSlider && founderValue) {
-        founderSlider.addEventListener('input', (e) => {
-            const count = e.target.value;
-            founderValue.textContent = `${count} founder${count > 1 ? 's' : ''}`;
-            if (globals.networkState.foundersVerified) {
-                resetNetwork();
-            }
-        });
-    }
-});
-
 function growNetwork() {
     debugLog('Growing network...');
+    // Save previous state before incrementing click count
+    const previousClickCount = globals.networkState.growthClickCount;
+    globals.networkState.growthClickCount++;
+    
+    // Update click counter display
+    const clickCountDisplay = document.getElementById('click-counter');
+    if (clickCountDisplay) {
+        clickCountDisplay.textContent = `Click Count: ${globals.networkState.growthClickCount}`;
+    }
     
     try {
-        // Get current network state
-        const grandparents = globals.nodes.filter(n => n.type === 'grandparent');
-        const parents = globals.nodes.filter(n => n.type === 'parent');
-        const children = globals.nodes.filter(n => n.type === 'child');
-
-        // Helper function to check and update node type based on DIDs
-        function checkAndUpdateNodeType(node) {
-            const totalDIDs = (node.personalDIDs || 0) + (node.familyDIDs || 0);
+        // Enhanced logging at the start of each grow operation
+        const founderCountBefore = globals.nodes.filter(n => n.generation === 0).length;
+        const founderTypesBefore = globals.nodes
+            .filter(n => n.generation === 0)
+            .map(n => n.type);
+        
+        debugLog(`GROW START - Click ${globals.networkState.growthClickCount}`);
+        debugLog(`Initial state: Found ${founderCountBefore} founders with types: ${founderTypesBefore.join(', ')}`);
+        
+        // First click: Convert all founders to parents (blue) and give them children
+        if (globals.networkState.growthClickCount === 1) {
+            const founders = globals.nodes.filter(n => n.generation === 0);
+            debugLog(`Click 1: Found ${founders.length} generation 0 nodes to convert to parents`);
             
-            // First ensure proper progression through parent and grandparent stages
-            if (node.type === 'parent' && node.children?.length >= 3) {
-                node.type = 'grandparent';
-                node.familyDIDs += 2; // Add 2 family DIDs for becoming grandparent
-                debugLog(`Node ${node.id} promoted to grandparent with ${totalDIDs + 2} DIDs`);
-            }
-            
-            // Only progress to founder after being a grandparent with enough DIDs
-            if (node.type === 'grandparent' && totalDIDs >= 6) {
-                node.type = 'founder';
-                debugLog(`Node ${node.id} achieved full network access with ${totalDIDs} DIDs`);
-            }
-        }
-
-        // If network is empty, create initial children
-        if (globals.nodes.length === 0) {
-            // Create initial 8 children with fixed positions
-            const founderCount = 8;
-            const radius = Math.min(config.width, config.height) * 0.3;
-            
-            for (let i = 0; i < founderCount; i++) {
-                const angle = (i / founderCount) * 2 * Math.PI - Math.PI/2;
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
+            founders.forEach(founder => {
+                const oldType = founder.type;
+                founder.type = 'parent';
+                founder.personalDIDs = 1;
+                founder.familyDIDs = 1;
                 
-                globals.nodes.push({
-                    id: `C${++globals.nodeCounter}`,
-                    type: 'child',
-                    generation: 0,
-                    x: x,
-                    y: y,
-                    fx: x,
-                    fy: y,
-                    personalDIDs: 1,
-                    familyDIDs: 0,
-                    children: []
-                });
-            }
-            
-            // Create circular links
-            for (let i = 0; i < founderCount; i++) {
-                const nextIndex = (i + 1) % founderCount;
-                globals.links.push({
-                    source: globals.nodes[i],
-                    target: globals.nodes[nextIndex],
-                    distance: radius * Math.sin(Math.PI / founderCount) * 2,
-                    isFounderLink: true,
-                    strength: 1.0
-                });
-            }
-        }
-        // Second click: Convert children to parents
-        else if (children.length > 0 && parents.length === 0) {
-            children.forEach(child => {
-                child.type = 'parent';
-                child.familyDIDs += 1; // Add 1 family DID for becoming parent
-                child.fx = null;
-                child.fy = null;
-            });
-        }
-        // Third click: Parents invite children
-        else if (parents.length > 0 && parents.every(p => !p.children || p.children.length === 0)) {
-            parents.forEach(parent => {
-                parent.children = [];
-                
+                // Give each founder 3 children
                 for (let i = 0; i < 3; i++) {
-                    const pos = calculateNewPosition(parent, i, 3);
-                    
+                    const pos = calculateNewPosition(founder, i, 3);
                     const child = {
                         id: `C${++globals.nodeCounter}`,
                         type: 'child',
-                        generation: parent.generation + 1,
+                        generation: founder.generation + 1,
                         x: pos.x,
                         y: pos.y,
-                        personalDIDs: 1,
+                        personalDIDs: 0,
                         familyDIDs: 0,
                         children: []
                     };
-                    
                     globals.nodes.push(child);
-                    parent.children.push(child.id);
+                    founder.children.push(child.id);
                     
                     globals.links.push({
-                        source: parent,
+                        source: founder,
                         target: child,
                         distance: config.linkDistance.family,
                         isFamilyLink: true
                     });
                 }
-                
-                // Update parent's DIDs and check for promotion
-                parent.familyDIDs += 1;
-                checkAndUpdateNodeType(parent);
+                updateNodeAppearance(founder);
+                debugLog(`Changed founder ${founder.id} from ${oldType} to ${founder.type}`);
             });
+            debugLog('Click 1: Converted founders to parents (blue) and gave them children');
         }
-        // Fourth click: Progress parents to grandparents if they have enough children
-        else if (parents.length > 0 && children.length > 0) {
-            parents.forEach(parent => {
-                if (parent.children?.length >= 3) {
-                    parent.type = 'grandparent';
-                    parent.familyDIDs += 2; // Add 2 family DIDs for becoming grandparent
-                }
-                checkAndUpdateNodeType(parent);
-            });
+        // Second click: Convert children to parents and give them children, AND promote founders to grandparents
+        else if (globals.networkState.growthClickCount === 2) {
+            // First convert first generation children to parents
+            const gen1Children = globals.nodes.filter(n => n.type === 'child' && n.generation === 1);
+            debugLog(`Click 2: Found ${gen1Children.length} generation 1 children to convert to parents`);
             
-            children.forEach(child => {
+            gen1Children.forEach(child => {
+                const oldType = child.type;
                 child.type = 'parent';
-                child.familyDIDs += 1; // Add 1 family DID for becoming parent
-            });
-        }
-        // Fifth click and beyond: Continue growth
-        else if (grandparents.length > 0) {
-            parents.forEach(parent => {
-                if (!parent.children) parent.children = [];
-                const childrenNeeded = 3 - parent.children.length;
+                child.personalDIDs = 1;
+                child.familyDIDs = 1;
                 
-                for (let i = 0; i < childrenNeeded; i++) {
-                    const pos = calculateNewPosition(parent, i, childrenNeeded);
-                    
-                    const child = {
+                // Give each new parent 3 children
+                for (let i = 0; i < 3; i++) {
+                    const pos = calculateNewPosition(child, i, 3);
+                    const newChild = {
                         id: `C${++globals.nodeCounter}`,
                         type: 'child',
-                        generation: parent.generation + 1,
+                        generation: child.generation + 1,
                         x: pos.x,
                         y: pos.y,
-                        personalDIDs: 1,
+                        personalDIDs: 0,
                         familyDIDs: 0,
                         children: []
                     };
-                    
-                    globals.nodes.push(child);
-                    parent.children.push(child.id);
+                    globals.nodes.push(newChild);
+                    if (!child.children) child.children = [];
+                    child.children.push(newChild.id);
                     
                     globals.links.push({
-                        source: parent,
-                        target: child,
+                        source: child,
+                        target: newChild,
                         distance: config.linkDistance.family,
                         isFamilyLink: true
                     });
                 }
-                
-                // Update parent's DIDs and check for promotion
-                if (parent.children.length >= 3) {
-                    parent.familyDIDs += 1;
-                    checkAndUpdateNodeType(parent);
-                }
+                updateNodeAppearance(child);
+                debugLog(`Changed child ${child.id} from ${oldType} to ${child.type}`);
+            });
+
+            // Now promote founders to grandparents
+            const founders = globals.nodes.filter(n => n.generation === 0);
+            debugLog(`Click 2: Found ${founders.length} generation 0 nodes to promote to grandparents`);
+            
+            founders.forEach(founder => {
+                const oldType = founder.type;
+                founder.type = 'grandparent';
+                founder.familyDIDs = 2;
+                updateNodeAppearance(founder);
+                debugLog(`Changed founder ${founder.id} from ${oldType} to ${founder.type}`);
             });
             
-            // Check all nodes for promotions
-            globals.nodes.forEach(node => {
-                checkAndUpdateNodeType(node);
+            // Verify founders are now grandparents
+            const foundersAfter = globals.nodes.filter(n => n.generation === 0);
+            const founderTypesAfter = foundersAfter.map(n => n.type);
+            debugLog(`Click 2 VERIFY: Founders are now types: ${founderTypesAfter.join(', ')}`);
+            
+            debugLog('Click 2: Converted children to parents, gave them children, and promoted founders to grandparents (purple)');
+            
+            // Ensure founders are all correctly processed
+            const allFounders = globals.nodes.filter(n => n.generation === 0);
+            allFounders.forEach(founder => {
+                if (founder.type !== 'grandparent') {
+                    debugLog(`Ensuring founder ${founder.id} is set to grandparent (was ${founder.type})`);
+                    founder.type = 'grandparent';
+                    founder.familyDIDs = 2;
+                    updateNodeAppearance(founder);
+                }
             });
+        }
+        // Third click: Convert generation 2 children to parents, keep generation 1 as parents, promote founders to gold
+        else if (globals.networkState.growthClickCount === 3) {
+            // Only convert generation 2 children to parents
+            const gen2Children = globals.nodes.filter(n => n.type === 'child' && n.generation === 2);
+            debugLog(`Click 3: Found ${gen2Children.length} generation 2 children to convert to parents`);
+            
+            gen2Children.forEach(child => {
+                const oldType = child.type;
+                child.type = 'parent';
+                child.personalDIDs = 1;
+                child.familyDIDs = 1;
+                
+                // Give each new parent 3 children
+                for (let i = 0; i < 3; i++) {
+                    const pos = calculateNewPosition(child, i, 3);
+                    const newChild = {
+                        id: `C${++globals.nodeCounter}`,
+                        type: 'child',
+                        generation: child.generation + 1,
+                        x: pos.x,
+                        y: pos.y,
+                        personalDIDs: 0,
+                        familyDIDs: 0,
+                        children: []
+                    };
+                    globals.nodes.push(newChild);
+                    if (!child.children) child.children = [];
+                    child.children.push(newChild.id);
+                    
+                    globals.links.push({
+                        source: child,
+                        target: newChild,
+                        distance: config.linkDistance.family,
+                        isFamilyLink: true
+                    });
+                }
+                updateNodeAppearance(child);
+                debugLog(`Changed child ${child.id} from ${oldType} to ${child.type}`);
+            });
+
+            // Now ONLY promote generation 1 parents to grandparents, don't promote newer parents
+            const gen1Parents = globals.nodes.filter(n => n.type === 'parent' && n.generation === 1);
+            debugLog(`Click 3: Found ${gen1Parents.length} generation 1 parents to promote to grandparents`);
+            
+            gen1Parents.forEach(parent => {
+                const oldType = parent.type;
+                parent.type = 'grandparent';
+                parent.familyDIDs = 2;
+                updateNodeAppearance(parent);
+                debugLog(`Changed parent ${parent.id} from ${oldType} to ${parent.type}`);
+            });
+
+            // Finally, promote founders to gold
+            const founders = globals.nodes.filter(n => n.generation === 0);
+            debugLog(`Click 3: Found ${founders.length} generation 0 nodes to promote to gold`);
+            
+            founders.forEach(founder => {
+                const oldType = founder.type;
+                // Force the type change regardless of prior state
+                founder.type = 'founder';  
+                founder.familyDIDs = 5;
+                updateNodeAppearance(founder);
+                debugLog(`Changed founder ${founder.id} from ${oldType} to ${founder.type} (gold)`);
+            });
+            
+            // Verify founders are now gold
+            const foundersAfter = globals.nodes.filter(n => n.generation === 0);
+            const founderTypesAfter = foundersAfter.map(n => n.type);
+            debugLog(`Click 3 VERIFY: Founders are now types: ${founderTypesAfter.join(', ')}`);
+        }
+        // Fourth click and beyond: Continue the pattern with generation-based promotion
+        else if (globals.networkState.growthClickCount >= 4) {
+            // Get the current max generation
+            const maxGen = Math.max(...globals.nodes.map(n => n.generation));
+            
+            // Only convert the latest generation of children to parents
+            const latestChildren = globals.nodes.filter(n => n.type === 'child' && n.generation === maxGen);
+            debugLog(`Click ${globals.networkState.growthClickCount}: Converting ${latestChildren.length} latest generation children to parents`);
+            
+            latestChildren.forEach(child => {
+                const oldType = child.type;
+                child.type = 'parent';
+                child.personalDIDs = 1;
+                child.familyDIDs = 1;
+                
+                // Give each new parent 3 children
+                for (let i = 0; i < 3; i++) {
+                    const pos = calculateNewPosition(child, i, 3);
+                    const newChild = {
+                        id: `C${++globals.nodeCounter}`,
+                        type: 'child',
+                        generation: child.generation + 1,
+                        x: pos.x,
+                        y: pos.y,
+                        personalDIDs: 0,
+                        familyDIDs: 0,
+                        children: []
+                    };
+                    globals.nodes.push(newChild);
+                    if (!child.children) child.children = [];
+                    child.children.push(newChild.id);
+                    
+                    globals.links.push({
+                        source: child,
+                        target: newChild,
+                        distance: config.linkDistance.family,
+                        isFamilyLink: true
+                    });
+                }
+                updateNodeAppearance(child);
+                debugLog(`Changed child ${child.id} from ${oldType} to ${child.type}`);
+            });
+
+            // Only promote parents from generation (maxGen-2) to grandparents
+            // This ensures parents stay as parents for one full generation cycle
+            const parentsToPromote = globals.nodes.filter(n => n.type === 'parent' && n.generation === (maxGen-2));
+            debugLog(`Click ${globals.networkState.growthClickCount}: Promoting ${parentsToPromote.length} parents from generation ${maxGen-2} to grandparents`);
+            
+            parentsToPromote.forEach(parent => {
+                // Only promote if they have the required number of children
+                if (parent.children && parent.children.length >= 3) {
+                    const oldType = parent.type;
+                    parent.type = 'grandparent';
+                    parent.familyDIDs = 2;
+                    updateNodeAppearance(parent);
+                    debugLog(`Changed parent ${parent.id} from ${oldType} to ${parent.type}`);
+                }
+            });
+
+            // Check if any grandparents should be promoted to founders (gold)
+            // Only look at grandparents that have been in that state for at least one generation
+            const grandparentsToCheck = globals.nodes.filter(n => n.type === 'grandparent' && n.generation <= (maxGen-3));
+            
+            grandparentsToCheck.forEach(grandparent => {
+                // Get all direct children of this grandparent
+                const children = globals.nodes.filter(n => grandparent.children && grandparent.children.includes(n.id));
+                
+                // Check if ALL children are parents/grandparents and have their own complete set of children
+                const allChildrenAreCompleteParents = children.every(child => 
+                    (child.type === 'parent' || child.type === 'grandparent') && 
+                    child.children && 
+                    child.children.length >= 3
+                );
+                
+                // Only promote to gold if all children are complete parents
+                if (allChildrenAreCompleteParents) {
+                    grandparent.type = 'founder';
+                    grandparent.familyDIDs = 5;
+                    updateNodeAppearance(grandparent);
+                }
+            });
+            debugLog(`Click ${globals.networkState.growthClickCount}: Continued progression pattern`);
         }
 
+        // Special check for click count issues
+        if (globals.networkState.growthClickCount === 2) {
+            // We already added this check
+        } else if (globals.networkState.growthClickCount === 3) {
+            // Verify that founders are properly set as gold
+            const founderCheck = globals.nodes.filter(n => n.generation === 0);
+            const nonGoldFounders = founderCheck.filter(f => f.type !== 'founder');
+            
+            if (nonGoldFounders.length > 0) {
+                debugLog(`WARNING: Found ${nonGoldFounders.length} founders that are not gold at click 3!`);
+                
+                nonGoldFounders.forEach(founder => {
+                    debugLog(`Fixing founder ${founder.id} from ${founder.type} to gold`);
+                    founder.type = 'founder';
+                    founder.familyDIDs = 5;
+                    
+                    // Update directly in the DOM
+                    const founderElement = globals.nodeGroup.select(`circle[data-id="${founder.id}"]`);
+                    if (!founderElement.empty()) {
+                        founderElement
+                            .transition()
+                            .duration(500)
+                            .style('fill', config.nodeColors.founder)
+                            .attr('r', config.nodeRadius.founder);
+                    }
+                });
+            }
+        }
+
+        // Add additional logging for node types by generation
+        const typesByGeneration = {};
+        globals.nodes.forEach(node => {
+            if (!typesByGeneration[node.generation]) {
+                typesByGeneration[node.generation] = { founder: 0, grandparent: 0, parent: 0, child: 0 };
+            }
+            typesByGeneration[node.generation][node.type]++;
+        });
+        
+        debugLog('Node types by generation:');
+        Object.keys(typesByGeneration).sort((a, b) => a - b).forEach(gen => {
+            const stats = typesByGeneration[gen];
+            debugLog(`Generation ${gen}: F:${stats.founder} G:${stats.grandparent} P:${stats.parent} C:${stats.child}`);
+        });
+        
+        // ADDED: After processing, verify node counts by type for debugging
+        const typeStats = {
+            founder: globals.nodes.filter(n => n.type === 'founder').length,
+            grandparent: globals.nodes.filter(n => n.type === 'grandparent').length,
+            parent: globals.nodes.filter(n => n.type === 'parent').length,
+            child: globals.nodes.filter(n => n.type === 'child').length
+        };
+        
+        debugLog(`GROW END - Current node types: F:${typeStats.founder} G:${typeStats.grandparent} P:${typeStats.parent} C:${typeStats.child}`);
+        
+        // Update simulation
+        globals.simulation.nodes(globals.nodes);
+        globals.simulation.force('link').links(globals.links);
+        globals.simulation.alpha(1).restart();
+        
         // Update network visualization
         updateNetwork();
         
@@ -706,6 +873,41 @@ function initializeVisualization() {
     debugLog('Initializing visualization...');
     
     try {
+        // Add click counter display
+        const clickCounter = document.createElement('div');
+        clickCounter.id = 'click-counter';
+        clickCounter.textContent = 'Click Count: 0';
+        clickCounter.style.backgroundColor = '#1a1b26';
+        clickCounter.style.color = '#fff';
+        clickCounter.style.padding = '10px';
+        clickCounter.style.borderRadius = '5px';
+        clickCounter.style.position = 'fixed';
+        clickCounter.style.top = '20px';
+        clickCounter.style.right = '20px';
+        clickCounter.style.zIndex = '1000';
+        clickCounter.style.fontSize = '16px';
+        clickCounter.style.fontWeight = 'bold';
+        document.body.appendChild(clickCounter);
+        
+        // Add tooltip div if it doesn't exist
+        if (!document.querySelector('.tooltip')) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.style.position = 'absolute';
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.backgroundColor = 'rgba(26, 27, 38, 0.95)';
+            tooltip.style.color = '#fff';
+            tooltip.style.padding = '15px';
+            tooltip.style.borderRadius = '8px';
+            tooltip.style.fontSize = '14px';
+            tooltip.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+            tooltip.style.zIndex = '1000';
+            tooltip.style.maxWidth = '300px';
+            tooltip.style.lineHeight = '1.5';
+            tooltip.style.border = '1px solid rgba(255,255,255,0.2)';
+            document.body.appendChild(tooltip);
+        }
+        
         const viewport = calculateViewport();
         const networkContainer = document.getElementById('network');
         if (!networkContainer) {
@@ -772,6 +974,18 @@ function initializeVisualization() {
                 .attr('height', newViewport.height);
             centerNetwork();
         });
+        
+        // Add event listener for founder count slider
+        const founderSlider = document.getElementById('founder-count');
+        const founderValue = document.getElementById('founder-value');
+        
+        if (founderSlider && founderValue) {
+            founderSlider.addEventListener('input', (e) => {
+                const count = e.target.value;
+                founderValue.textContent = `${count} founder${count > 1 ? 's' : ''}`;
+                resetNetwork(); // Reset network whenever slider changes
+            });
+        }
         
         debugLog('Visualization initialized successfully');
     } catch (error) {
@@ -1034,40 +1248,125 @@ function updateNodeInfoPanel(node) {
     showNodeInfo(node);
 }
 
-function checkAndPromoteNode(node) {
-    debugLog(`Checking promotion for node ${node.id}`);
+function createFounderCircle() {
+    debugLog('Creating founder circle...');
     
-    try {
-        const oldType = node.type;
+    const founderCount = parseInt(document.getElementById('founder-count')?.value || config.founderCount);
+    const viewport = calculateViewport();
+    const radius = Math.min(viewport.width, viewport.height) * 0.3;
+    
+    const founderNodes = [];
+    const founderLinks = [];
+    
+    // Create founder nodes in a circle
+    for (let i = 0; i < founderCount; i++) {
+        const angle = (i / founderCount) * 2 * Math.PI;
+        const node = {
+            id: `C${++globals.nodeCounter}`,
+            type: 'child', // Start as child type instead of parent
+            generation: 0,
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle),
+            children: [],
+            isFounder: true, // Mark as founder for special handling
+            personalDIDs: 0,
+            familyDIDs: 0
+        };
+        founderNodes.push(node);
+    }
+    
+    // Create circular links between founders
+    for (let i = 0; i < founderCount; i++) {
+        const source = founderNodes[i];
+        const target = founderNodes[(i + 1) % founderCount];
+        founderLinks.push({
+            source: source.id,
+            target: target.id,
+            isFounderLink: true,
+            distance: 2 * radius * Math.sin(Math.PI / founderCount)
+        });
+    }
+    
+    // Initialize DIDs for the founder circle
+    initializeFounderDIDs(founderNodes);
+    
+    debugLog(`Created founder circle with ${founderCount} nodes`);
+    return { founderNodes, founderLinks };
+}
+
+function initializeFounderDIDs(nodes) {
+    if (!nodes || nodes.length === 0) return;
+    
+    // Create a shared founder circle DID for all founders
+    const founderCircleId = `founder-circle-${Date.now()}`;
+    
+    nodes.forEach(node => {
+        // Start with no DIDs - they should be green children initially
+        node.personalDIDs = 0;
+        node.familyDIDs = 0;
+        node.founderCircleId = founderCircleId;
+        debugLog(`Initialized founder ${node.id} as child with no DIDs`);
+    });
+}
+
+function checkAndUpdateNodeType(node) {
+    if (!node) return;
+    
+    // Initialize DIDs if not set
+    if (!node.personalDIDs) node.personalDIDs = 0;
+    if (!node.familyDIDs) node.familyDIDs = 0;
+    
+    const oldType = node.type;
+    debugLog(`Checking type progression for node ${node.id} (${node.type}) - Personal DIDs: ${node.personalDIDs}, Family DIDs: ${node.familyDIDs}`);
+    
+    // Child -> Parent: Requires 1 Personal + 1 Family DID from verification
+    if (node.type === 'child' && node.personalDIDs >= 1 && node.familyDIDs >= 1) {
+        node.type = 'parent';
+        debugLog(`Node ${node.id} promoted to parent with ${node.personalDIDs} Personal + ${node.familyDIDs} Family DIDs`);
+    }
+    
+    // Parent completes family (gets 3 children) -> gets additional Family DID and becomes Grandparent
+    if (node.type === 'parent' && node.children?.length >= 3) {
+        node.familyDIDs += 1; // Additional Family DID for completing parent status
+        node.type = 'grandparent';
+        debugLog(`Node ${node.id} completed parent status and promoted to grandparent with ${node.personalDIDs} Personal + ${node.familyDIDs} Family DIDs`);
+    }
+    
+    // Grandparent -> Founder: Track Family DIDs from children's completed families
+    if (node.type === 'grandparent') {
+        // Count completed families (children with 3 children each)
+        const completedFamilies = node.children?.filter(childId => {
+            const child = globals.nodes.find(n => n.id === childId);
+            return child && child.children?.length >= 3;
+        }).length || 0;
         
-        // Count unique DIDs associated with this node
-        const uniqueDIDs = new Set();
-        if (node.did) uniqueDIDs.add(node.did);
-        node.familyUnits.forEach(did => uniqueDIDs.add(did));
+        // Calculate new Family DIDs (1 for each completed family)
+        const currentFamilyDIDs = node.familyDIDs;
+        const expectedFamilyDIDs = 2 + completedFamilies; // 2 = initial family DID + parent completion DID
+        const newFamilyDIDs = Math.max(0, expectedFamilyDIDs - currentFamilyDIDs);
         
-        // Check if children are verified
-        const hasVerifiedChildren = node.children?.length === 3 && 
-            node.children.every(childId => {
-                const child = globals.nodes.find(n => n.id === childId);
-                return child && child.did;
-            });
+        if (newFamilyDIDs > 0) {
+            node.familyDIDs = expectedFamilyDIDs;
+            debugLog(`Node ${node.id} received ${newFamilyDIDs} new Family DIDs for completed families, now has ${node.familyDIDs} Family DIDs`);
+        }
         
-        // Determine new type based on criteria
-        if (node.type === 'child' && hasVerifiedChildren) {
-            node.type = 'parent';
-        } else if (node.type === 'parent' && uniqueDIDs.size >= 3) {
-            node.type = 'grandparent';
-        } else if (node.type === 'grandparent' && uniqueDIDs.size >= 5) {
+        // Check for promotion to founder (requires 1 Personal + 5 Family DIDs)
+        if (node.personalDIDs >= 1 && node.familyDIDs >= 5) {
             node.type = 'founder';
+            debugLog(`Node ${node.id} promoted to founder with ${node.personalDIDs} Personal + ${node.familyDIDs} Family DIDs`);
         }
-        
-        // If type changed, update visualization
-        if (oldType !== node.type) {
-            debugLog(`Node ${node.id} promoted from ${oldType} to ${node.type}`);
-            updateNetwork();
+    }
+    
+    // Update node appearance if type changed
+    if (oldType !== node.type) {
+        const nodeElement = globals.nodeGroup.select(`circle[data-id="${node.id}"]`);
+        if (nodeElement.size() > 0) {
+            nodeElement
+                .transition()
+                .duration(500)
+                .style('fill', config.nodeColors[node.type])
+                .attr('r', config.nodeRadius[node.type]);
         }
-    } catch (error) {
-        debugLog('Error checking node promotion:', error);
     }
 }
 
@@ -1109,21 +1408,19 @@ function verifyFounders() {
 }
 
 function calculateNewPosition(parent, index, total) {
-    const centerX = 0;
-    const centerY = 0;
-    const parentDistanceFromCenter = Math.sqrt(parent.x * parent.x + parent.y * parent.y);
-    const newDistance = parentDistanceFromCenter + 300; // Increased distance from parent
+    // Use parent's position as the center point
+    const centerX = parent.x;
+    const centerY = parent.y;
+    const distance = 200; // Fixed distance from parent
     
-    // Calculate base angle from center to parent
-    const parentAngle = Math.atan2(parent.y - centerY, parent.x - centerX);
-    
-    // Spread children evenly in a 120-degree arc facing outward
+    // Spread children evenly in a 120-degree arc facing outward from parent
     const spreadAngle = Math.PI / 1.5; // 120 degrees
-    const childAngle = parentAngle + (index - 1) * (spreadAngle / (total - 1)) - spreadAngle/2;
+    const startAngle = -spreadAngle / 2; // Start from the middle and spread outward
+    const childAngle = startAngle + (index * spreadAngle / (total - 1));
     
     return {
-        x: centerX + newDistance * Math.cos(childAngle),
-        y: centerY + newDistance * Math.sin(childAngle)
+        x: centerX + distance * Math.cos(childAngle),
+        y: centerY + distance * Math.sin(childAngle)
     };
 }
 
@@ -1242,7 +1539,7 @@ function initializeNetwork() {
             .strength(0.5)) // Increased centering force
         .velocityDecay(0.6) // Increased decay for more stability
         .on('tick', ticked);
-    
+        
     // Update visualization
     updateNetwork();
     centerNetwork();
@@ -1254,6 +1551,21 @@ function updateNetwork() {
     debugLog('Updating network visualization...');
     
     try {
+        // Debug report on node types before updating visualization
+        const nodeTypes = {
+            founder: globals.nodes.filter(n => n.type === 'founder').length,
+            grandparent: globals.nodes.filter(n => n.type === 'grandparent').length,
+            parent: globals.nodes.filter(n => n.type === 'parent').length,
+            child: globals.nodes.filter(n => n.type === 'child').length
+        };
+        debugLog(`UPDATE: Visualizing nodes - F:${nodeTypes.founder} G:${nodeTypes.grandparent} P:${nodeTypes.parent} C:${nodeTypes.child}`);
+        
+        // Report on founders specifically
+        const founders = globals.nodes.filter(n => n.generation === 0);
+        if (founders.length > 0) {
+            debugLog(`UPDATE: Founder types: ${founders.map(f => f.type).join(', ')}`);
+        }
+        
         // Update links
         const links = globals.linkGroup
             .selectAll('line')
@@ -1281,7 +1593,11 @@ function updateNetwork() {
             .attr('class', 'node')
             .attr('data-id', d => d.id)
             .attr('r', d => config.nodeRadius[d.type])
-            .style('fill', d => config.nodeColors[d.type])
+            .style('fill', d => {
+                const color = config.nodeColors[d.type];
+                debugLog(`Setting node ${d.id} (type: ${d.type}) to color: ${color}`);
+                return color;
+            })
             .style('stroke', 'white')
             .style('stroke-width', '2px')
             .call(drag)
@@ -1293,8 +1609,10 @@ function updateNetwork() {
                     <strong>Type:</strong> ${d.type}<br>
                     <strong>Generation:</strong> ${d.generation}<br>
                     <strong>Children:</strong> ${d.children?.length || 0}<br>
-                    ${d.personalDIDs ? `<strong>Personal DIDs:</strong> ${d.personalDIDs}<br>` : ''}
-                    ${d.familyDIDs ? `<strong>Family DIDs:</strong> ${d.familyDIDs}<br>` : ''}
+                    <strong>Personal DIDs:</strong> ${d.personalDIDs || 0}<br>
+                    <strong>Family DIDs:</strong> ${d.familyDIDs || 0}<br>
+                    <strong>Total DIDs:</strong> ${(d.personalDIDs || 0) + (d.familyDIDs || 0)}<br>
+                    <strong>Status:</strong> ${getStatusMessage(d)}
                 `)
                 .style('visibility', 'visible')
                 .style('left', (event.pageX + 10) + 'px')
@@ -1304,11 +1622,23 @@ function updateNetwork() {
                 d3.select('.tooltip').style('visibility', 'hidden');
             });
         
-        globals.nodeElements = nodesEnter.merge(nodes)
+        // Update existing nodes
+        const existingNodes = nodes.transition()
+            .duration(500)
             .attr('r', d => selectedNodes.find(n => n.id === d.id) ? 
                 config.nodeRadius[d.type] * 1.5 : config.nodeRadius[d.type])
-            .style('fill', d => config.nodeColors[d.type])
+            .style('fill', d => {
+                const color = config.nodeColors[d.type];
+                // Only log changes for important nodes
+                if (d.generation === 0) {
+                    debugLog(`Updating founder node ${d.id} (type: ${d.type}) to color: ${color}`);
+                }
+                return color;
+            })
             .style('stroke-width', d => selectedNodes.find(n => n.id === d.id) ? '3px' : '2px');
+        
+        // Merge new and existing nodes
+        globals.nodeElements = nodesEnter.merge(nodes);
         
         // Update labels
         const labels = globals.labelGroup
@@ -1335,6 +1665,35 @@ function updateNetwork() {
         
         // Update statistics
         updateNetworkStats();
+        
+        // Special check for click count issues
+        if (globals.networkState.growthClickCount === 2) {
+            // We already added this check
+        } else if (globals.networkState.growthClickCount === 3) {
+            // Verify that founders are properly set as gold
+            const founderCheck = globals.nodes.filter(n => n.generation === 0);
+            const nonGoldFounders = founderCheck.filter(f => f.type !== 'founder');
+            
+            if (nonGoldFounders.length > 0) {
+                debugLog(`WARNING: Found ${nonGoldFounders.length} founders that are not gold at click 3!`);
+                
+                nonGoldFounders.forEach(founder => {
+                    debugLog(`Fixing founder ${founder.id} from ${founder.type} to gold`);
+                    founder.type = 'founder';
+                    founder.familyDIDs = 5;
+                    
+                    // Update directly in the DOM
+                    const founderElement = globals.nodeGroup.select(`circle[data-id="${founder.id}"]`);
+                    if (!founderElement.empty()) {
+                        founderElement
+                            .transition()
+                            .duration(500)
+                            .style('fill', config.nodeColors.founder)
+                            .attr('r', config.nodeRadius.founder);
+                    }
+                });
+            }
+        }
         
         debugLog('Network visualization updated');
     } catch (error) {
