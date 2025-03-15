@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Verification Status - Proof of Humanity{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verification_status.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="web3-background">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="verification-container">
+    <div class="page-header">
+        <span class="badge badge-web5">Human Verification</span>
+        <h1>Your Current Stage: <span class="gradient-text">{{ user_status }}</span></h1>
+        <p>Complete the verification steps to progress through the network and unlock new abilities</p>
+    </div>
+    
+    <div class="verification-cards">
+        <div class="verification-card {% if user_status == 'Child' %}active{% endif %} {% if user_status != 'Child' %}completed{% endif %}">
+            <div class="card-header">
+                <div class="stage-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2>Child Verification</h2>
+                <div class="status-badge {% if user_status == 'Child' %}in-progress{% elif user_status != 'Child' and user_status != 'New' %}completed{% endif %}">
+                    {% if user_status == 'Child' %}In Progress{% elif user_status != 'Child' and user_status != 'New' %}Completed{% else %}Locked{% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>Complete a short video call with our verification team to confirm your identity.</p>
+                <div class="verification-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Calls Made:</div>
+                        <div class="stat-value">1/1</div>
+                    </div>
+                </div>
+                {% if user_status == 'Child' %}
+                <a href="{{ url_for('schedule_call') }}" class="btn-web5">Schedule Verification Call</a>
+                {% elif user_status == 'New' %}
+                <button class="btn-ghost" disabled>Verification Required</button>
+                {% else %}
+                <button class="btn-secondary" disabled>Completed</button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="verification-card {% if user_status == 'Parent' %}active{% endif %} {% if user_status == 'Grandparent' or user_status == 'Founder' %}completed{% endif %}">
+            <div class="card-header">
+                <div class="stage-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h2>Parent Verification</h2>
+                <div class="status-badge {% if user_status == 'Parent' %}in-progress{% elif user_status == 'Grandparent' or user_status == 'Founder' %}completed{% else %}locked{% endif %}">
+                    {% if user_status == 'Parent' %}In Progress{% elif user_status == 'Grandparent' or user_status == 'Founder' %}Completed{% else %}Locked{% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>Invite three new users to the network and verify your connection with them.</p>
+                <div class="verification-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Calls Made:</div>
+                        <div class="stat-value">1/1</div>
+                    </div>
+                </div>
+                {% if user_status == 'Parent' %}
+                <a href="{{ url_for('invite_new_members') }}" class="btn-web5">Invite New Users</a>
+                {% elif user_status == 'New' or user_status == 'Child' %}
+                <button class="btn-ghost" disabled>Complete Previous Stage First</button>
+                {% else %}
+                <button class="btn-secondary" disabled>Completed</button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="verification-card {% if user_status == 'Grandparent' %}active{% endif %} {% if user_status == 'Founder' %}completed{% endif %}">
+            <div class="card-header">
+                <div class="stage-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Grandparent Verification</h2>
+                <div class="status-badge {% if user_status == 'Grandparent' %}in-progress{% elif user_status == 'Founder' %}completed{% else %}locked{% endif %}">
+                    {% if user_status == 'Grandparent' %}In Progress{% elif user_status == 'Founder' %}Completed{% else %}Locked{% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>Verify all users in your family unit as real humans to establish complete trust.</p>
+                <div class="verification-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Calls Made:</div>
+                        <div class="stat-value">3/3</div>
+                    </div>
+                </div>
+                {% if user_status == 'Grandparent' %}
+                <a href="{{ url_for('council_dashboard') }}" class="btn-web5">Join Council</a>
+                {% elif user_status == 'New' or user_status == 'Child' or user_status == 'Parent' %}
+                <button class="btn-ghost" disabled>Complete Parent Stage First</button>
+                {% else %}
+                <button class="btn-secondary" disabled>Completed</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="benefits-section">
+        <h2 class="section-title-web5">Benefits of Verification</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>Trust Network</h3>
+                    <p>Establish connections in a secure network of verified humans, enabling trusted interactions.</p>
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>Privacy-Preserving</h3>
+                    <p>Verify your humanity without exposing sensitive personal information to third parties.</p>
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>HIVE Mind</h3>
+                    <p>Access collective intelligence and collaborative problem-solving within the verified community.</p>
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>Do Meaningful Work & Earn Tokens</h3>
+                    <p>Contribute to the network by verifying others and earn tokens for your participation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add animation to orbs
+    const orbs = document.querySelectorAll('.orb');
+    orbs.forEach(orb => {
+        const randomX = Math.random() * 10 - 5;
+        const randomY = Math.random() * 10 - 5;
+        const randomDelay = Math.random() * 2;
+        const randomDuration = 3 + Math.random() * 2;
+        
+        orb.style.animation = `float ${randomDuration}s ease-in-out ${randomDelay}s infinite alternate`;
+        orb.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    });
+});
+</script>
+{% endblock %} 

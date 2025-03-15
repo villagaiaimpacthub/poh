@@ -25,8 +25,8 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- Web3 Background Elements -->
-    <div class="web3-background">
+    <!-- Web5 Background Elements -->
+    <div class="web5-background">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
@@ -82,7 +82,7 @@
                             </div>
                         {% else %}
                             <a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a>
-                            <a href="{{ url_for('register') }}" class="btn-web3">Sign Up</a>
+                            <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
                         {% endif %}
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                     <p>Subscribe to our newsletter for the latest updates and news.</p>
                     <form class="newsletter-form">
                         <input type="email" placeholder="Your email address" required>
-                        <button type="submit" class="btn-web3">Subscribe</button>
+                        <button type="submit" class="btn-web5">Subscribe</button>
                     </form>
                 </div>
             </div>
@@ -240,7 +240,7 @@
                 });
             }
             
-            // Animate background orbs for web3 feel
+            // Animate background orbs for web5 feel
             const orbs = document.querySelectorAll('.orb');
             if (orbs.length) {
                 orbs.forEach(orb => {
