@@ -10,16 +10,36 @@
 <section class="hero">
     <div class="container">
         <div class="hero-content">
+            <div class="badge badge-primary pulse-animation" style="margin-bottom: 1rem;">Web3 Identity Solution</div>
             <h1 class="hero-title">Redefining <span class="gradient-text">Digital Identity</span> with Human Connection</h1>
             <p class="hero-subtitle">A revolutionary approach to human verification leveraging trusted family relationships, enhancing security without compromising privacy.</p>
             <div class="hero-cta">
-                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
-                <a href="#how-it-works" class="btn btn-ghost btn-lg">Learn More</a>
+                <a href="{{ url_for('register') }}" class="btn-web3">Get Started <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i></a>
+                <a href="#how-it-works" class="btn btn-ghost btn-lg glow">Learn More</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Verified Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Family Connections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Verification Accuracy</div>
+                </div>
             </div>
         </div>
         <div class="hero-visual">
-            <div id="network-visualization" class="network-visual"></div>
+            <div id="network-visualization" class="network-visual float-animation"></div>
             <div class="glow-effect"></div>
+            <div class="hero-badges">
+                <div class="tech-badge">Decentralized</div>
+                <div class="tech-badge">Privacy-Focused</div>
+                <div class="tech-badge">Secure</div>
+            </div>
         </div>
     </div>
     <div class="hero-wave">
@@ -31,13 +51,13 @@
 
 <section id="how-it-works" class="section how-it-works">
     <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">Our human verification system leverages the most reliable network: family relationships</p>
+        <div class="section-header-web3">
+            <h2 class="section-title-web3">How It Works</h2>
+            <p class="section-subtitle-web3">Our human verification system leverages the most reliable network: family relationships</p>
         </div>
         
         <div class="steps-container">
-            <div class="step-card">
+            <div class="card-web3 step-card">
                 <div class="step-icon">
                     <i class="fas fa-users"></i>
                 </div>
@@ -45,7 +65,7 @@
                 <p>Create your family tree by inviting trusted family members to join and confirm your relationships.</p>
             </div>
             
-            <div class="step-card">
+            <div class="card-web3 step-card">
                 <div class="step-icon">
                     <i class="fas fa-video"></i>
                 </div>
@@ -53,7 +73,7 @@
                 <p>Complete a simple video verification process with your family members to confirm your identity.</p>
             </div>
             
-            <div class="step-card">
+            <div class="card-web3 step-card">
                 <div class="step-icon">
                     <i class="fas fa-fingerprint"></i>
                 </div>
@@ -61,7 +81,7 @@
                 <p>Once verified by enough family members, you receive a cryptographic proof of your humanity.</p>
             </div>
             
-            <div class="step-card">
+            <div class="card-web3 step-card">
                 <div class="step-icon">
                     <i class="fas fa-globe"></i>
                 </div>

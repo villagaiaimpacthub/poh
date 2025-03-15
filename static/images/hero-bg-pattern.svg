@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1440" height="800" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.1">
+    <circle cx="110" cy="100" r="2" fill="white"/>
+    <circle cx="210" cy="150" r="1" fill="white"/>
+    <circle cx="310" cy="200" r="1.5" fill="white"/>
+    <circle cx="410" cy="110" r="1" fill="white"/>
+    <circle cx="510" cy="190" r="2" fill="white"/>
+    <circle cx="610" cy="130" r="1" fill="white"/>
+    <circle cx="710" cy="250" r="1.5" fill="white"/>
+    <circle cx="810" cy="90" r="1" fill="white"/>
+    <circle cx="910" cy="180" r="2" fill="white"/>
+    <circle cx="1010" cy="120" r="1" fill="white"/>
+    <circle cx="1110" cy="220" r="1.5" fill="white"/>
+    <circle cx="1210" cy="80" r="1" fill="white"/>
+    <circle cx="1310" cy="170" r="2" fill="white"/>
+    <circle cx="1410" cy="140" r="1" fill="white"/>
+    
+    <circle cx="60" cy="300" r="1.5" fill="white"/>
+    <circle cx="160" cy="350" r="1" fill="white"/>
+    <circle cx="260" cy="290" r="2" fill="white"/>
+    <circle cx="360" cy="400" r="1" fill="white"/>
+    <circle cx="460" cy="310" r="1.5" fill="white"/>
+    <circle cx="560" cy="380" r="1" fill="white"/>
+    <circle cx="660" cy="320" r="2" fill="white"/>
+    <circle cx="760" cy="390" r="1" fill="white"/>
+    <circle cx="860" cy="330" r="1.5" fill="white"/>
+    <circle cx="960" cy="410" r="1" fill="white"/>
+    <circle cx="1060" cy="280" r="2" fill="white"/>
+    <circle cx="1160" cy="370" r="1" fill="white"/>
+    <circle cx="1260" cy="310" r="1.5" fill="white"/>
+    <circle cx="1360" cy="360" r="1" fill="white"/>
+    <circle cx="1420" cy="300" r="2" fill="white"/>
+    
+    <circle cx="130" cy="500" r="1" fill="white"/>
+    <circle cx="230" cy="450" r="2" fill="white"/>
+    <circle cx="330" cy="520" r="1" fill="white"/>
+    <circle cx="430" cy="440" r="1.5" fill="white"/>
+    <circle cx="530" cy="510" r="1" fill="white"/>
+    <circle cx="630" cy="470" r="2" fill="white"/>
+    <circle cx="730" cy="530" r="1" fill="white"/>
+    <circle cx="830" cy="460" r="1.5" fill="white"/>
+    <circle cx="930" cy="540" r="1" fill="white"/>
+    <circle cx="1030" cy="480" r="2" fill="white"/>
+    <circle cx="1130" cy="550" r="1" fill="white"/>
+    <circle cx="1230" cy="430" r="1.5" fill="white"/>
+    <circle cx="1330" cy="490" r="1" fill="white"/>
+    <circle cx="1390" cy="540" r="2" fill="white"/>
+    
+    <circle cx="80" cy="620" r="1.5" fill="white"/>
+    <circle cx="180" cy="700" r="1" fill="white"/>
+    <circle cx="280" cy="610" r="2" fill="white"/>
+    <circle cx="380" cy="690" r="1" fill="white"/>
+    <circle cx="480" cy="630" r="1.5" fill="white"/>
+    <circle cx="580" cy="660" r="1" fill="white"/>
+    <circle cx="680" cy="640" r="2" fill="white"/>
+    <circle cx="780" cy="710" r="1" fill="white"/>
+    <circle cx="880" cy="600" r="1.5" fill="white"/>
+    <circle cx="980" cy="670" r="1" fill="white"/>
+    <circle cx="1080" cy="620" r="2" fill="white"/>
+    <circle cx="1180" cy="680" r="1" fill="white"/>
+    <circle cx="1280" cy="650" r="1.5" fill="white"/>
+    <circle cx="1380" cy="630" r="1" fill="white"/>
+    <circle cx="1430" cy="690" r="2" fill="white"/>
+    
+    <!-- Connection lines -->
+    <line x1="110" y1="100" x2="210" y2="150" stroke="white" stroke-width="0.2"/>
+    <line x1="210" y1="150" x2="310" y2="200" stroke="white" stroke-width="0.2"/>
+    <line x1="310" y1="200" x2="410" y2="110" stroke="white" stroke-width="0.2"/>
+    <line x1="410" y1="110" x2="510" y2="190" stroke="white" stroke-width="0.2"/>
+    <line x1="510" y1="190" x2="610" y2="130" stroke="white" stroke-width="0.2"/>
+    <line x1="610" y1="130" x2="710" y2="250" stroke="white" stroke-width="0.2"/>
+    
+    <line x1="560" y1="380" x2="660" y2="320" stroke="white" stroke-width="0.2"/>
+    <line x1="660" y1="320" x2="760" y2="390" stroke="white" stroke-width="0.2"/>
+    <line x1="760" y1="390" x2="860" y2="330" stroke="white" stroke-width="0.2"/>
+    <line x1="860" y1="330" x2="960" y2="410" stroke="white" stroke-width="0.2"/>
+    <line x1="960" y1="410" x2="1060" y2="280" stroke="white" stroke-width="0.2"/>
+    
+    <line x1="330" y1="520" x2="430" y2="440" stroke="white" stroke-width="0.2"/>
+    <line x1="430" y1="440" x2="530" y2="510" stroke="white" stroke-width="0.2"/>
+    <line x1="530" y1="510" x2="630" y2="470" stroke="white" stroke-width="0.2"/>
+    <line x1="630" y1="470" x2="730" y2="530" stroke="white" stroke-width="0.2"/>
+    <line x1="730" y1="530" x2="830" y2="460" stroke="white" stroke-width="0.2"/>
+    
+    <line x1="280" y1="610" x2="380" y2="690" stroke="white" stroke-width="0.2"/>
+    <line x1="380" y1="690" x2="480" y2="630" stroke="white" stroke-width="0.2"/>
+    <line x1="480" y1="630" x2="580" y2="660" stroke="white" stroke-width="0.2"/>
+    <line x1="580" y1="660" x2="680" y2="640" stroke="white" stroke-width="0.2"/>
+    <line x1="680" y1="640" x2="780" y2="710" stroke="white" stroke-width="0.2"/>
+    
+    <!-- Cross-section connections -->
+    <line x1="210" y1="150" x2="160" y2="350" stroke="white" stroke-width="0.2"/>
+    <line x1="510" y1="190" x2="460" y2="310" stroke="white" stroke-width="0.2"/>
+    <line x1="810" y1="90" x2="860" y2="330" stroke="white" stroke-width="0.2"/>
+    <line x1="1110" y1="220" x2="1130" y2="550" stroke="white" stroke-width="0.2"/>
+    <line x1="330" y1="520" x2="280" y2="610" stroke="white" stroke-width="0.2"/>
+    <line x1="630" y1="470" x2="680" y2="640" stroke="white" stroke-width="0.2"/>
+    <line x1="930" y1="540" x2="980" y2="670" stroke="white" stroke-width="0.2"/>
+    <line x1="1230" y1="430" x2="1280" y2="650" stroke="white" stroke-width="0.2"/>
+  </g>
+</svg> 

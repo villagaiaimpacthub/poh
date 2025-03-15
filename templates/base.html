@@ -12,7 +12,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,14 +25,22 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+    <!-- Web3 Background Elements -->
+    <div class="web3-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="header-inner">
                 <div class="logo">
-                    <a href="{{ url_for('index') }}">
+                    <a href="{{ url_for('index') }}" class="logo-link">
                         <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity" 
                              onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/logo-fallback.png') }}'">
+                        <span class="logo-badge">Beta</span>
                     </a>
                 </div>
                 
@@ -47,30 +55,36 @@
                     </ul>
                 </nav>
                 
-                <div class="auth-buttons">
-                    {% if current_user.is_authenticated %}
-                        <div class="user-profile">
-                            <a href="{{ url_for('profile') }}" class="profile-link">
-                                <span class="profile-name">{{ current_user.username }}</span>
-                                <div class="profile-avatar" style="background-image: url('{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a href="{{ url_for('profile') }}" class="dropdown-item">
-                                    <i class="fas fa-user"></i> Profile
+                <div class="header-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <div class="auth-buttons">
+                        {% if current_user.is_authenticated %}
+                            <div class="user-profile">
+                                <a href="{{ url_for('profile') }}" class="profile-link">
+                                    <span class="profile-name">{{ current_user.username }}</span>
+                                    <div class="profile-avatar" style="background-image: url('{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
                                 </a>
-                                <a href="{{ url_for('settings') }}" class="dropdown-item">
-                                    <i class="fas fa-cog"></i> Settings
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="{{ url_for('logout') }}" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a>
+                                <div class="dropdown-menu card-glass">
+                                    <a href="{{ url_for('profile') }}" class="dropdown-item">
+                                        <i class="fas fa-user"></i> Profile
+                                    </a>
+                                    <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                        <i class="fas fa-cog"></i> Settings
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="{{ url_for('logout') }}" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
-                    {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn-web3">Sign Up</a>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
@@ -87,8 +101,19 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        {{ message }}
+                    <div class="flash-message card-glass {{ category }}">
+                        <div class="flash-icon">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flash-content">{{ message }}</div>
                         <button class="flash-close" aria-label="Close">&times;</button>
                     </div>
                 {% endfor %}
@@ -112,10 +137,10 @@
                     </div>
                     <p class="footer-tagline">A revolutionary approach to human verification through trusted family relationships</p>
                     <div class="social-links">
-                        <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link" aria-label="Github"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-link" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                        <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link glow" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link glow" aria-label="Github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link glow" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="#" class="social-link glow" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
                 
@@ -144,7 +169,7 @@
                     <p>Subscribe to our newsletter for the latest updates and news.</p>
                     <form class="newsletter-form">
                         <input type="email" placeholder="Your email address" required>
-                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                        <button type="submit" class="btn-web3">Subscribe</button>
                     </form>
                 </div>
             </div>
@@ -196,6 +221,34 @@
                     } else {
                         header.classList.remove('scrolled');
                     }
+                });
+            }
+            
+            // Theme toggle functionality (placeholder for future implementation)
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-theme');
+                    const icon = themeToggle.querySelector('i');
+                    if (document.body.classList.contains('dark-theme')) {
+                        icon.classList.remove('fa-moon');
+                        icon.classList.add('fa-sun');
+                    } else {
+                        icon.classList.remove('fa-sun');
+                        icon.classList.add('fa-moon');
+                    }
+                });
+            }
+            
+            // Animate background orbs for web3 feel
+            const orbs = document.querySelectorAll('.orb');
+            if (orbs.length) {
+                orbs.forEach(orb => {
+                    setInterval(() => {
+                        const x = Math.random() * 10 - 5;
+                        const y = Math.random() * 10 - 5;
+                        orb.style.transform = `translate(${x}px, ${y}px)`;
+                    }, 3000);
                 });
             }
         });
