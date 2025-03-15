@@ -4,379 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Humanity Network Visualization</title>
-    
-    <!-- Load D3.js first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    
-    <!-- Custom styles -->
+    <script>
+        // Error handling for D3
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof d3 === 'undefined') {
+                document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: D3.js failed to load. Please check your internet connection and refresh.</div>';
+            }
+            console.log('D3 loaded:', typeof d3 !== 'undefined', 'version:', d3?.version);
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/network_viz.js') }}?v={{ now().timestamp() }}" defer></script>
     <style>
-        :root {
-            --gold: #FFD700;
-            --purple: #9575CD;
-            --blue: #64B5F6;
-            --green: #4CAF50;
-        }
-        
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background: #1a1b26;
-            color: #fff;
-            min-height: 100vh;
+            color: white;
             display: flex;
             flex-direction: column;
-        }
-        
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 20px;
-            max-height: 100vh;
-            box-sizing: border-box;
-        }
-        
-        .network {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
+            height: 100vh;
             overflow: hidden;
+        }
+        #control-panel {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        #network-container {
+            flex-grow: 1;
             position: relative;
-            min-height: 800px;
+            overflow: hidden;
+            width: 100%;
+            height: calc(100vh - 200px);
+        }
+        #network {
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .network svg {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100% !important;
-            height: 100% !important;
-            pointer-events: all;
         }
-        
-        /* Node and link styles */
-        .links line {
-            stroke: rgba(255, 255, 255, 0.3);
-            stroke-width: 2px;
-            pointer-events: none;
-        }
-        
-        .nodes circle {
-            stroke: #fff;
-            stroke-width: 2px;
-            cursor: pointer;
-            pointer-events: all;
-        }
-        
-        .viz-container {
-            width: 100%;
-            height: 100%;
-            pointer-events: all;
-        }
-        
-        .header {
-            padding: 20px;
-        }
-        
-        .title-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .title-section h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #fff;
-        }
-        
-        .title-section p {
-            margin: 10px 0 0;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .legend {
+        .button-group {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        
-        .legend-text {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            margin: 0 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            color: #fff;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .controls {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-        }
-        
-        .toggle-container {
-            display: flex;
-            align-items: center;
             gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
         }
-        
-        .toggle-label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-        }
-        
-        .toggle {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #4CAF50;
+            color: white;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: .4s;
-            border-radius: 24px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            white-space: nowrap;
         }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        button:hover {
+            background-color: #388E3C !important;
         }
-        
-        input:checked + .slider {
-            background-color: #4CAF50;
+        button:disabled {
+            background-color: #666 !important;
+            cursor: not-allowed;
         }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        .stats-container {
+            display: flex;
+            gap: 25px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-        
+        .auto-grow-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
         .slider-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
-        .range-slider {
-            width: 200px;
+        input[type="range"] {
+            width: 150px;
         }
-        
-        .slider-value {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-            min-width: 60px;
-        }
-        
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
+        .tooltip {
+            position: absolute;
+            visibility: hidden;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
             border-radius: 4px;
-            color: #fff;
-            padding: 8px 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
         }
-        
-        button:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .zoom-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+        .legend {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .zoom-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            gap: 20px;
+            padding: 10px 15px;
             background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            border-radius: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .legend-item {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            margin: 5px 0;
         }
-        
-        .zoom-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
         }
+        .legend-founder { background: #FFD700; }    /* Gold */
+        .legend-grandparent { background: #800080; } /* Purple */
+        .legend-parent { background: #4169E1; }      /* Royal Blue */
+        .legend-child { background: #32CD32; }       /* Lime Green */
     </style>
 </head>
 <body>
-    <!-- Debug output -->
-    <div id="debug" style="position: fixed; bottom: 10px; left: 10px; color: #666; font-size: 12px;"></div>
-
-    <div class="container">
-        <div class="title-section">
-            <h1>Proof of Humanity Network</h1>
-            <p>Watch the network grow as users invite and verify each other</p>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--gold)"></div>
-                    <span class="legend-text">Founder</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--purple)"></div>
-                    <span class="legend-text">Grandparent</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--blue)"></div>
-                    <span class="legend-text">Parent</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: var(--green)"></div>
-                    <span class="legend-text">Child</span>
-                </div>
-            </div>
+    <div id="control-panel">
+        <div class="button-group">
+            <button id="grow-btn">Grow Network</button>
+            <button id="verify-btn">Verify Selected</button>
+            <button id="reset-btn">Reset</button>
+            <button id="center-btn">Center</button>
+            <button id="back-btn" disabled>Back</button>
+            <button id="zoom-in">+</button>
+            <button id="zoom-out">-</button>
+            <button id="zoom-reset">1:1</button>
         </div>
-
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-label">Network Size</div>
-                <div class="stat-value" id="user-count">0</div>
+        
+        <div class="auto-grow-container">
+            <div class="slider-container">
+                <label for="founder-count">Initial Founders:</label>
+                <input type="range" id="founder-count" min="2" max="12" value="8" step="1">
+                <span id="founder-value">8 founders</span>
             </div>
-        </div>
-
-        <div id="network" class="network">
-            <!-- D3.js will insert the SVG here -->
-        </div>
-
-        <div class="controls">
-            <div class="buttons">
-                <button id="grow-btn">Grow Network</button>
-                <button id="reset-btn">Reset</button>
-                <button id="center-btn">Center</button>
+            <div class="slider-container">
+                <label for="invite-frequency">Verification Period:</label>
+                <input type="range" id="invite-frequency" min="1" max="7" value="3" step="1">
+                <span id="invite-value">3 days</span>
             </div>
-            
-            <div class="toggle-container">
-                <span class="toggle-label">Auto-grow</span>
-                <label class="toggle">
-                    <input type="checkbox" id="auto-grow">
-                    <span class="slider"></span>
+            <div>
+                <label>
+                    <input type="checkbox" id="auto-grow"> Auto Verification
                 </label>
             </div>
-            
-            <div class="slider-container">
-                <span class="toggle-label">Frequency:</span>
-                <input type="range" id="invite-frequency" class="range-slider" min="1" max="10" value="3">
-                <span class="slider-value" id="invite-value">3 days</span>
-            </div>
         </div>
-
-        <div class="zoom-controls">
-            <button id="zoom-in" class="zoom-btn">+</button>
-            <button id="zoom-out" class="zoom-btn">-</button>
-            <button id="zoom-reset" class="zoom-btn">⟲</button>
+        
+        <div class="stats-container">
+            <div>Network Size: <span id="user-count">0</span></div>
+            <div>Days: <span id="days-count">0</span></div>
+            <div>Selected Nodes: <span id="selected-nodes">None</span></div>
+            <div>Verification Status: <span id="verification-status">-</span></div>
+        </div>
+        
+        <div class="stats-container">
+            <div>Node Types:</div>
+            <div style="color: #FFD700">● Full Network Access (Gold) - 5 Family DIDs + 1 Personal DID</div>
+            <div style="color: #800080">● Grandparent (Purple) - 2 Family DIDs + 1 Personal DID</div>
+            <div style="color: #4169E1">● Parent (Blue) - 1 Family DID + 1 Personal DID</div>
+            <div style="color: #32CD32">● Child (Green) - No DIDs</div>
         </div>
     </div>
-
-    <!-- Initialize debug logging -->
-    <script>
-        console.log('Page starting...');
-        
-        // Global debug function
-        window.debug = function(msg) {
-            console.log(msg);
-            const debugEl = document.getElementById('debug');
-            if (debugEl) {
-                debugEl.textContent = msg;
-            }
-        };
-        
-        window.debug('Debug initialized');
-    </script>
     
-    <!-- Load visualization code -->
-    <script>
-        window.debug('Loading visualization code...');
-        
-        // Create script element
-        const vizScript = document.createElement('script');
-        vizScript.src = "{{ url_for('static', filename='js/network_viz.js') }}";
-        
-        // Add load handlers
-        vizScript.onload = () => window.debug('Visualization code loaded successfully');
-        vizScript.onerror = (error) => window.debug('Error loading visualization: ' + error);
-        
-        // Append to body
-        document.body.appendChild(vizScript);
-    </script>
+    <div id="network-container">
+        <div id="network"></div>
+    </div>
+    <div class="tooltip"></div>
 </body>
 </html> 

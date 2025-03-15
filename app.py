@@ -19,6 +19,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Add logging directory configuration
+LOGS_DIR = os.path.join(os.path.dirname(__file__), 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+def write_network_log(data):
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file = os.path.join(LOGS_DIR, f'network_viz_{timestamp}.txt')
+    with open(log_file, 'w') as f:
+        f.write(f"=== Network Visualization Log - {timestamp} ===\n\n")
+        f.write(data)
+    return log_file
+
 def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -255,36 +268,56 @@ def create_app(test_config=None):
             return redirect(url_for('verification_manage'))
     
     @app.route('/network-viz')
-    def network_viz():
-        """Serve the network visualization page without authentication."""
+    def network_viz_redirect():
+        """Redirect to the network visualization page on the network blueprint"""
+        return redirect(url_for('network.viz'))
+    
+    # Simplify static file serving
+    @app.route('/static/<path:filename>')
+    def serve_static(filename):
+        """Serve static files with proper caching headers"""
+        response = send_from_directory('static', filename)
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    
+    @app.route('/network/viz/logs', methods=['POST'])
+    def save_network_logs():
         try:
-            app.logger.info('Serving network visualization page')
-            # Ensure static files are accessible
-            if not app.static_folder:
-                app.static_folder = 'static'
-            return render_template('network_viz_standalone.html')
+            data = request.get_json()
+            log_file = write_network_log(data['log_data'])
+            return jsonify({
+                'status': 'success',
+                'message': 'Logs saved successfully',
+                'log_file': log_file
+            })
         except Exception as e:
-            app.logger.error(f'Error serving network visualization: {e}')
+            return jsonify({
+                'status': 'error',
+                'message': str(e)
+            }), 500
+    
+    @app.route('/network/viz/logs/<timestamp>', methods=['GET'])
+    def get_network_logs(timestamp):
+        try:
+            log_file = os.path.join(LOGS_DIR, f'network_viz_{timestamp}.txt')
+            if os.path.exists(log_file):
+                with open(log_file, 'r') as f:
+                    return f.read()
+            return 'Log file not found', 404
+        except Exception as e:
             return str(e), 500
     
-    # Add a route to serve the JS file directly if needed
-    @app.route('/js/network_viz.js')
-    def network_viz_js():
-        """Serve the network visualization JavaScript file directly."""
-        try:
-            app.logger.info('Serving network visualization JavaScript')
-            return send_from_directory('static/js', 'network_viz.js')
-        except Exception as e:
-            app.logger.error(f'Error serving JavaScript: {e}')
-            return str(e), 500
-    
+    # Add error handlers
     @app.errorhandler(404)
-    def page_not_found(e):
+    def not_found_error(error):
+        app.logger.error(f'Page not found: {request.url}')
         return render_template('errors/404.html'), 404
     
     @app.errorhandler(500)
-    def internal_server_error(e):
-        logger.error(f"Internal server error: {e}")
+    def internal_error(error):
+        app.logger.error(f'Server Error: {error}')
         return render_template('errors/500.html'), 500
     
     @app.errorhandler(Exception)

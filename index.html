@@ -12,24 +12,53 @@
             font-family: Arial, sans-serif;
             background: #1a1b26;
             color: white;
-        }
-        #network {
-            width: 100vw;
+            display: flex;
+            flex-direction: column;
             height: 100vh;
-            position: relative;
+            overflow: hidden;
         }
-        #stats {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
+        #control-panel {
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
-            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        #network-container {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: calc(100vh - 200px);
+        }
+        #network {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
         }
         button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #4CAF50;
+            color: white;
             cursor: pointer;
+            font-weight: bold;
             transition: background-color 0.3s;
+            white-space: nowrap;
         }
         button:hover {
             background-color: #388E3C !important;
@@ -38,22 +67,96 @@
             background-color: #666 !important;
             cursor: not-allowed;
         }
-        #auto-grow {
-            margin: 0 10px;
+        .stats-container {
+            display: flex;
+            gap: 25px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .auto-grow-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         #invite-frequency {
-            width: 100px;
-            margin: 0 10px;
+            width: 150px;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid white;
         }
     </style>
 </head>
 <body>
-    <div id="network"></div>
-    <div id="stats">
-        <div>Users: <span id="user-count">0</span></div>
-        <div>Days: <span id="days-count">0</span></div>
-        <div id="network-stats"></div>
-        <div id="did-stats"></div>
+    <div id="control-panel">
+        <div class="stats-container">
+            <div>Network Size: <span id="user-count" style="color: #FFD700; font-weight: bold; font-size: 16px;">0</span></div>
+            <div>Days: <span id="days-count" style="font-weight: bold;">0</span></div>
+            <div id="network-stats" style="color: #e0e0e0;"></div>
+            <div id="did-stats" style="color: #e0e0e0;"></div>
+        </div>
+        <div class="button-group">
+            <button id="back-btn">← Back</button>
+            <button id="center-btn">Center</button>
+            <button id="zoom-in">+</button>
+            <button id="zoom-out">−</button>
+            <button id="zoom-reset">1:1</button>
+            <button id="grow-btn">Grow Network</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+        <div class="auto-grow-container">
+            <label for="auto-grow">Auto Verification</label>
+            <input type="checkbox" id="auto-grow">
+            <label for="invite-frequency">Verification Period:</label>
+            <input type="range" id="invite-frequency" min="1" max="10" value="3">
+            <span id="invite-value">3 days</span>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFD700"></div>
+                <span>Full Network Access/Founder</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4169E1"></div>
+                <span>Grandparent (3+ DIDs)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #32CD32"></div>
+                <span>Parent (Verified)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF6347"></div>
+                <span>Child (Pending)</span>
+            </div>
+        </div>
+    </div>
+    <div id="network-container">
+        <div id="network"></div>
     </div>
     <script src="static/js/network_viz.js"></script>
 </body>
