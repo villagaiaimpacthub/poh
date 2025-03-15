@@ -2,16 +2,27 @@
 
 {% block title %}DID Management - Proof of Humanity{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/did_manage.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="web3-background">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
+        <span class="badge badge-web3">Decentralized Identity</span>
         <h1>Digital Identity Management</h1>
-        <p>Manage your Decentralized Identifier (DID) and digital credentials.</p>
+        <p>Manage your Decentralized Identifier (DID) and digital credentials in the web3 ecosystem.</p>
     </div>
     
     <div class="did-status-container">
         <div class="did-status-card">
-            <div class="did-status-icon {% if user_did %}active{% else %}inactive{% endif %}">
+            <div class="did-status-icon {% if user_did %}active pulse-animation{% else %}inactive{% endif %}">
                 <i class="icon icon-{% if user_did %}check-circle{% else %}alert-circle{% endif %}"></i>
             </div>
             <div class="did-status-info">
@@ -19,10 +30,10 @@
                 {% if user_did %}
                     <div class="status-badge active">Active</div>
                     <p class="did-identifier">{{ user_did }}</p>
-                    <p class="did-description">Your decentralized identifier is active and can be used to verify your identity across services.</p>
+                    <p class="did-description">Your decentralized identifier is active and can be used to verify your identity across services in the web3 ecosystem.</p>
                 {% else %}
                     <div class="status-badge inactive">Not Created</div>
-                    <p class="did-description">You haven't created a decentralized identifier yet. Create one to manage your digital identity.</p>
+                    <p class="did-description">You haven't created a decentralized identifier yet. Create one to manage your digital identity and access web3 services.</p>
                 {% endif %}
             </div>
         </div>
@@ -39,7 +50,7 @@
             {% if user_did %}
                 <div class="document-actions">
                     <button class="btn btn-secondary" id="view-raw-did">View Raw</button>
-                    <button class="btn btn-primary" id="update-did">Update DID</button>
+                    <button class="btn btn-web3" id="update-did">Update DID</button>
                 </div>
                 
                 <div class="did-document-section">
@@ -92,7 +103,7 @@
                     {% else %}
                         <div class="empty-state">
                             <p>No verification methods found. Add one to enhance your DID document.</p>
-                            <button class="btn btn-primary mt-2" id="add-first-verification-method">Add Verification Method</button>
+                            <button class="btn btn-web3 mt-2" id="add-first-verification-method">Add Verification Method</button>
                         </div>
                     {% endif %}
                 </div>
@@ -121,7 +132,7 @@
                     {% else %}
                         <div class="empty-state">
                             <p>No services found. Add one to enhance your DID document.</p>
-                            <button class="btn btn-primary mt-2" id="add-first-service">Add Service</button>
+                            <button class="btn btn-web3 mt-2" id="add-first-service">Add Service</button>
                         </div>
                     {% endif %}
                 </div>
@@ -132,7 +143,7 @@
                     </div>
                     <h3>Create Your Decentralized Identifier</h3>
                     <p>A Decentralized Identifier (DID) gives you control over your digital identity and allows you to prove who you are without relying on centralized authorities.</p>
-                    <button class="btn btn-primary mt-3" id="create-did">Create DID</button>
+                    <button class="btn btn-web3 mt-3" id="create-did">Create DID</button>
                 </div>
             {% endif %}
         </div>
@@ -142,45 +153,44 @@
         <div class="credentials-container">
             <div class="credentials-header">
                 <h3>Verifiable Credentials</h3>
-                <button class="btn btn-primary" id="add-credential">Add Credential</button>
+                <button class="btn btn-web3" id="add-credential">Add Credential</button>
             </div>
             
             {% if credentials %}
                 <div class="credentials-list">
                     {% for credential in credentials %}
-                        <div class="credential-card">
+                        <div class="credential-item">
                             <div class="credential-header">
-                                <div class="credential-title">{{ credential.type|last }}</div>
-                                <div class="credential-date">Issued: {{ credential.issuanceDate }}</div>
+                                <div class="credential-id">{{ credential.id }}</div>
+                                <div class="credential-type">{{ credential.type }}</div>
                             </div>
-                            <div class="credential-content">
-                                <div class="credential-issuer">
-                                    <div class="issuer-label">Issuer</div>
-                                    <div class="issuer-value">{{ credential.issuer }}</div>
-                                </div>
+                            <div class="credential-details">
+                                <div class="credential-issuer">Issuer: {{ credential.issuer }}</div>
                                 <div class="credential-subject">
-                                    <div class="subject-label">Subject</div>
-                                    <div class="subject-value">{{ credential.credentialSubject.id }}</div>
+                                    <div class="subject-label">Subject:</div>
+                                    <div class="subject-value">{{ credential.credentialSubject|tojson }}</div>
                                 </div>
-                                <div class="credential-status">
-                                    <div class="status-label">Status</div>
-                                    <div class="status-value {% if credential.active %}active{% else %}revoked{% endif %}">
-                                        {% if credential.active %}Active{% else %}Revoked{% endif %}
-                                    </div>
+                            </div>
+                            <div class="credential-meta">
+                                <div class="credential-dates">
+                                    <span class="credential-date">Issued: {{ credential.issuanceDate }}</span>
+                                    {% if credential.expirationDate %}
+                                        <span class="credential-date">Expires: {{ credential.expirationDate }}</span>
+                                    {% endif %}
                                 </div>
+                                <div class="credential-status {{ credential.status }}">{{ credential.status|title }}</div>
                             </div>
                             <div class="credential-actions">
-                                <button class="btn btn-small btn-secondary" data-credential-id="{{ credential.id }}">View Details</button>
-                                <button class="btn btn-small btn-secondary" data-credential-id="{{ credential.id }}">Share</button>
-                                <button class="btn btn-small btn-danger" data-credential-id="{{ credential.id }}">Delete</button>
+                                <button class="btn btn-small btn-secondary" data-credential-id="{{ credential.id }}">View</button>
+                                <button class="btn btn-small btn-danger" data-credential-id="{{ credential.id }}">Revoke</button>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
                 <div class="empty-state">
-                    <p>You don't have any verifiable credentials yet. Credentials are digital attestations issued to your DID.</p>
-                    <p>Complete verification steps to receive credentials that prove your identity.</p>
+                    <p>No credentials found. Add a credential to enhance your digital identity.</p>
+                    <button class="btn btn-web3 mt-2" id="add-first-credential">Add Credential</button>
                 </div>
             {% endif %}
         </div>
@@ -188,60 +198,174 @@
     
     <div class="tab-content hidden" id="history">
         <div class="history-container">
-            <div class="search-filter-bar">
-                <div class="search-box">
-                    <input type="text" placeholder="Search events...">
-                    <button><i class="icon icon-search"></i></button>
-                </div>
-                <select class="event-filter">
-                    <option value="all">All Events</option>
-                    <option value="creation">Creation</option>
-                    <option value="update">Updates</option>
-                    <option value="credential">Credential Events</option>
-                </select>
-            </div>
+            <h3 class="section-title">DID History</h3>
             
-            <div class="history-timeline">
-                {% if did_events %}
-                    {% for event in did_events %}
+            {% if history %}
+                <div class="history-timeline">
+                    {% for event in history %}
                         <div class="timeline-item">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
                                 <div class="timeline-date">{{ event.timestamp }}</div>
                                 <div class="timeline-title">{{ event.title }}</div>
                                 <div class="timeline-description">{{ event.description }}</div>
-                                {% if event.details %}
-                                    <button class="btn btn-small btn-secondary timeline-details-btn" data-event-id="{{ event.id }}">
-                                        View Details
-                                    </button>
-                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <p>No history events found for your DID.</p>
-                    </div>
-                {% endif %}
-            </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No history events found. History will be recorded as you interact with your DID.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
-    
-    <!-- Modal for raw DID document -->
-    <div class="modal" id="raw-did-modal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Raw DID Document</h3>
-                <button class="modal-close">&times;</button>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="create-did-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">Create Decentralized Identifier</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">DID Method</label>
+                <select class="form-select" id="did-method">
+                    <option value="key">did:key</option>
+                    <option value="web">did:web</option>
+                    <option value="ethr">did:ethr</option>
+                </select>
+                <div class="form-help">Select the DID method that best suits your needs.</div>
             </div>
-            <div class="modal-body">
-                <pre id="raw-did-content" class="code-block"></pre>
+            <div class="form-group">
+                <label class="form-label">Key Type</label>
+                <select class="form-select" id="key-type">
+                    <option value="Ed25519">Ed25519</option>
+                    <option value="Secp256k1">Secp256k1</option>
+                </select>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="copy-did">Copy to Clipboard</button>
-                <button class="btn btn-secondary modal-close-btn">Close</button>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="backup-key"> Backup Private Key
+                </label>
+                <div class="form-help">We recommend backing up your private key for recovery purposes.</div>
             </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-create-did">Cancel</button>
+            <button class="btn btn-web3" id="confirm-create-did">Create DID</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="add-verification-method-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">Add Verification Method</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Method Type</label>
+                <select class="form-select" id="method-type">
+                    <option value="Ed25519VerificationKey2020">Ed25519VerificationKey2020</option>
+                    <option value="EcdsaSecp256k1VerificationKey2019">EcdsaSecp256k1VerificationKey2019</option>
+                    <option value="JsonWebKey2020">JsonWebKey2020</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Controller</label>
+                <input type="text" class="form-input" id="method-controller" placeholder="did:example:123">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Public Key (Base58)</label>
+                <input type="text" class="form-input" id="method-public-key" placeholder="Enter public key">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-add-method">Cancel</button>
+            <button class="btn btn-web3" id="confirm-add-method">Add Method</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="add-service-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">Add Service</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Service ID</label>
+                <input type="text" class="form-input" id="service-id" placeholder="e.g., messaging">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Service Type</label>
+                <input type="text" class="form-input" id="service-type" placeholder="e.g., MessagingService">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Service Endpoint</label>
+                <input type="text" class="form-input" id="service-endpoint" placeholder="https://example.com/messaging">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-add-service">Cancel</button>
+            <button class="btn btn-web3" id="confirm-add-service">Add Service</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="add-credential-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">Add Credential</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Credential Type</label>
+                <select class="form-select" id="credential-type">
+                    <option value="VerifiableCredential">Verifiable Credential</option>
+                    <option value="ProofOfHumanityCredential">Proof of Humanity Credential</option>
+                    <option value="EducationCredential">Education Credential</option>
+                    <option value="EmploymentCredential">Employment Credential</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Issuer</label>
+                <input type="text" class="form-input" id="credential-issuer" placeholder="did:example:issuer">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject Data (JSON)</label>
+                <textarea class="form-textarea" id="credential-subject-data" placeholder='{"id": "did:example:subject", "name": "John Doe"}'></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Expiration Date</label>
+                <input type="date" class="form-input" id="credential-expiration">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-add-credential">Cancel</button>
+            <button class="btn btn-web3" id="confirm-add-credential">Add Credential</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="view-raw-did-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">Raw DID Document</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <pre id="raw-did-document" class="code-block">{{ did_document|tojson(indent=2) }}</pre>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="copy-raw-did">Copy</button>
+            <button class="btn btn-web3" id="close-raw-did">Close</button>
         </div>
     </div>
 </div>
@@ -250,658 +374,130 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Tab switching functionality
-        const tabButtons = document.querySelectorAll('.tab-btn');
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
         
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
                 
                 // Update active tab button
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
                 
                 // Show selected tab content
                 tabContents.forEach(content => {
-                    content.classList.add('hidden');
                     if (content.id === tabId) {
                         content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
                     }
                 });
             });
         });
         
-        // Create DID functionality
-        const createDidBtn = document.getElementById('create-did');
-        if (createDidBtn) {
-            createDidBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to create a new DID? This will be your digital identity in the system.')) {
-                    // Here you would make an API call to create a DID
-                    fetch('/api/did/document', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.reload();
-                        } else {
-                            alert('Error creating DID: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while creating your DID.');
-                    });
-                }
-            });
-        }
+        // Modal handling
+        const modalTriggers = {
+            'create-did': 'create-did-modal',
+            'add-verification-method': 'add-verification-method-modal',
+            'add-first-verification-method': 'add-verification-method-modal',
+            'add-service': 'add-service-modal',
+            'add-first-service': 'add-service-modal',
+            'add-credential': 'add-credential-modal',
+            'add-first-credential': 'add-credential-modal',
+            'view-raw-did': 'view-raw-did-modal'
+        };
         
-        // View raw DID document
-        const viewRawDidBtn = document.getElementById('view-raw-did');
-        const rawDidModal = document.getElementById('raw-did-modal');
-        const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-close-btn, .modal-backdrop');
-        
-        if (viewRawDidBtn) {
-            viewRawDidBtn.addEventListener('click', function() {
-                // Here you would fetch the raw DID document
-                fetch('/api/did/document')
-                    .then(response => response.json())
-                    .then(data => {
-                        const rawDidContent = document.getElementById('raw-did-content');
-                        rawDidContent.textContent = JSON.stringify(data, null, 2);
-                        rawDidModal.classList.add('active');
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while fetching your DID document.');
-                    });
-            });
-        }
-        
-        // Close modal
-        modalCloseButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const openModals = document.querySelectorAll('.modal.active');
-                openModals.forEach(modal => {
-                    modal.classList.remove('active');
+        // Open modals
+        Object.keys(modalTriggers).forEach(triggerId => {
+            const trigger = document.getElementById(triggerId);
+            if (trigger) {
+                trigger.addEventListener('click', () => {
+                    const modalId = modalTriggers[triggerId];
+                    const modal = document.getElementById(modalId);
+                    modal.classList.add('active');
                 });
+            }
+        });
+        
+        // Close modals
+        const closeButtons = document.querySelectorAll('.modal-close, [id^="cancel-"], [id^="close-"]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.modal-overlay');
+                modal.classList.remove('active');
             });
         });
         
-        // Copy DID to clipboard
-        const copyDidBtn = document.getElementById('copy-did');
-        if (copyDidBtn) {
-            copyDidBtn.addEventListener('click', function() {
-                const rawDidContent = document.getElementById('raw-did-content');
-                
-                // Create a temporary textarea element
-                const textarea = document.createElement('textarea');
-                textarea.value = rawDidContent.textContent;
-                document.body.appendChild(textarea);
-                
-                // Select and copy the text
-                textarea.select();
-                document.execCommand('copy');
-                
-                // Clean up
-                document.body.removeChild(textarea);
-                
-                // Update button text temporarily
-                const originalText = this.textContent;
-                this.textContent = 'Copied!';
-                
-                setTimeout(() => {
-                    this.textContent = originalText;
-                }, 2000);
+        // Copy raw DID document
+        const copyRawDidBtn = document.getElementById('copy-raw-did');
+        if (copyRawDidBtn) {
+            copyRawDidBtn.addEventListener('click', () => {
+                const rawDidDocument = document.getElementById('raw-did-document');
+                navigator.clipboard.writeText(rawDidDocument.textContent)
+                    .then(() => {
+                        copyRawDidBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyRawDidBtn.textContent = 'Copy';
+                        }, 2000);
+                    });
             });
         }
+        
+        // Form submissions
+        const confirmCreateDidBtn = document.getElementById('confirm-create-did');
+        if (confirmCreateDidBtn) {
+            confirmCreateDidBtn.addEventListener('click', () => {
+                const didMethod = document.getElementById('did-method').value;
+                const keyType = document.getElementById('key-type').value;
+                const backupKey = document.getElementById('backup-key').checked;
+                
+                // Show loading state
+                confirmCreateDidBtn.textContent = 'Creating...';
+                confirmCreateDidBtn.disabled = true;
+                
+                // Send request to create DID
+                fetch('/api/did/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method: didMethod,
+                        keyType: keyType,
+                        backupKey: backupKey
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error creating DID: ' + data.error);
+                        confirmCreateDidBtn.textContent = 'Create DID';
+                        confirmCreateDidBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    alert('Error creating DID: ' + error);
+                    confirmCreateDidBtn.textContent = 'Create DID';
+                    confirmCreateDidBtn.disabled = false;
+                });
+            });
+        }
+        
+        // Add animation to orbs
+        const orbs = document.querySelectorAll('.orb');
+        orbs.forEach(orb => {
+            const randomX = Math.random() * 10 - 5;
+            const randomY = Math.random() * 10 - 5;
+            const randomDelay = Math.random() * 2;
+            const randomDuration = 3 + Math.random() * 2;
+            
+            orb.style.animation = `float ${randomDuration}s ease-in-out ${randomDelay}s infinite alternate`;
+            orb.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        });
     });
 </script>
-{% endblock %}
-
-{% block styles %}
-<style>
-    .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-    
-    .page-header {
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    
-    .page-header h1 {
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
-    }
-    
-    .did-status-container {
-        margin-bottom: 3rem;
-    }
-    
-    .did-status-card {
-        display: flex;
-        align-items: center;
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .did-status-icon {
-        font-size: 3rem;
-        margin-right: 2rem;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .did-status-icon.active {
-        background-color: rgba(76, 175, 80, 0.1);
-        color: #4CAF50;
-    }
-    
-    .did-status-icon.inactive {
-        background-color: rgba(244, 67, 54, 0.1);
-        color: #F44336;
-    }
-    
-    .did-status-info {
-        flex: 1;
-    }
-    
-    .did-status-info h2 {
-        margin-bottom: 0.5rem;
-    }
-    
-    .did-identifier {
-        font-family: monospace;
-        background: var(--bg-primary);
-        padding: 0.5rem;
-        border-radius: 4px;
-        overflow-x: auto;
-        margin: 1rem 0;
-    }
-    
-    .did-description {
-        margin-top: 1rem;
-        color: var(--light-text);
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-    
-    .status-badge.active {
-        background: rgba(76, 175, 80, 0.1);
-        color: #4CAF50;
-    }
-    
-    .status-badge.inactive {
-        background: rgba(244, 67, 54, 0.1);
-        color: #F44336;
-    }
-    
-    .status-badge.revoked {
-        background: rgba(244, 67, 54, 0.1);
-        color: #F44336;
-    }
-    
-    .section-tabs {
-        display: flex;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 2rem;
-    }
-    
-    .tab-btn {
-        padding: 1rem 1.5rem;
-        background: none;
-        border: none;
-        border-bottom: 3px solid transparent;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s;
-    }
-    
-    .tab-btn:hover {
-        color: var(--primary-color);
-    }
-    
-    .tab-btn.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
-    }
-    
-    .tab-content {
-        display: block;
-    }
-    
-    .tab-content.hidden {
-        display: none;
-    }
-    
-    .did-document-container, 
-    .credentials-container, 
-    .history-container {
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .document-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-    
-    .did-document-section {
-        margin-bottom: 2.5rem;
-    }
-    
-    .did-document-section:last-child {
-        margin-bottom: 0;
-    }
-    
-    .did-document-section h3 {
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0.5rem;
-    }
-    
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .info-item {
-        background: var(--bg-primary);
-        padding: 1rem;
-        border-radius: 6px;
-    }
-    
-    .info-label {
-        font-size: 0.8rem;
-        color: var(--light-text);
-        margin-bottom: 0.5rem;
-    }
-    
-    .info-value {
-        font-weight: 500;
-    }
-    
-    .verification-methods-list, 
-    .services-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .verification-method-item, 
-    .service-item {
-        background: var(--bg-primary);
-        border-radius: 6px;
-        padding: 1.5rem;
-    }
-    
-    .method-header, 
-    .service-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        align-items: center;
-    }
-    
-    .method-id, 
-    .service-id {
-        font-weight: 500;
-    }
-    
-    .method-type, 
-    .service-type {
-        font-size: 0.8rem;
-        background: var(--bg-secondary);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-    }
-    
-    .method-details, 
-    .service-details {
-        margin-bottom: 1.5rem;
-    }
-    
-    .method-controller, 
-    .service-endpoint {
-        margin-bottom: 0.5rem;
-    }
-    
-    .method-key {
-        background: var(--bg-secondary);
-        padding: 1rem;
-        border-radius: 4px;
-        margin-top: 0.5rem;
-    }
-    
-    .key-label {
-        font-size: 0.8rem;
-        color: var(--light-text);
-        margin-bottom: 0.5rem;
-    }
-    
-    .key-value {
-        font-family: monospace;
-        word-break: break-all;
-    }
-    
-    .method-actions, 
-    .service-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--light-text);
-    }
-    
-    .did-creation {
-        padding: 4rem 2rem;
-    }
-    
-    .did-empty-icon {
-        font-size: 4rem;
-        color: var(--primary-color);
-        margin-bottom: 1.5rem;
-        opacity: 0.8;
-    }
-    
-    .credentials-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    
-    .credentials-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .credential-card {
-        background: var(--bg-primary);
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .credential-header {
-        background: var(--primary-color);
-        color: white;
-        padding: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .credential-date {
-        font-size: 0.8rem;
-        opacity: 0.8;
-    }
-    
-    .credential-content {
-        padding: 1.5rem;
-    }
-    
-    .credential-issuer, 
-    .credential-subject, 
-    .credential-status {
-        margin-bottom: 1rem;
-    }
-    
-    .issuer-label, 
-    .subject-label, 
-    .status-label {
-        font-size: 0.8rem;
-        color: var(--light-text);
-        margin-bottom: 0.25rem;
-    }
-    
-    .issuer-value, 
-    .subject-value {
-        font-family: monospace;
-        word-break: break-all;
-    }
-    
-    .credential-actions {
-        display: flex;
-        padding: 1rem;
-        border-top: 1px solid var(--border-color);
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-    
-    .search-filter-bar {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-    }
-    
-    .search-box {
-        display: flex;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        overflow: hidden;
-        width: 60%;
-    }
-    
-    .search-box input {
-        flex-grow: 1;
-        padding: 0.75rem 1rem;
-        border: none;
-        background: var(--bg-primary);
-    }
-    
-    .search-box button {
-        background: var(--bg-primary);
-        border: none;
-        padding: 0 1rem;
-        cursor: pointer;
-    }
-    
-    .search-box button:hover {
-        background: var(--bg-hover);
-    }
-    
-    .event-filter {
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background: var(--bg-primary);
-        width: 35%;
-    }
-    
-    .history-timeline {
-        position: relative;
-        margin-left: 1.5rem;
-        margin-top: 3rem;
-    }
-    
-    .history-timeline:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 2px;
-        background: var(--border-color);
-        transform: translateX(-50%);
-    }
-    
-    .timeline-item {
-        position: relative;
-        padding-bottom: 2.5rem;
-        padding-left: 2.5rem;
-    }
-    
-    .timeline-dot {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: var(--primary-color);
-        border: 3px solid var(--bg-secondary);
-        transform: translateX(-50%);
-    }
-    
-    .timeline-content {
-        background: var(--bg-primary);
-        border-radius: 8px;
-        padding: 1.5rem;
-    }
-    
-    .timeline-date {
-        color: var(--light-text);
-        font-size: 0.8rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .timeline-title {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    
-    .timeline-description {
-        margin-bottom: 1rem;
-    }
-    
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 100;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    
-    .modal.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .modal-backdrop {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
-    }
-    
-    .modal-content {
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        width: 90%;
-        max-width: 800px;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--light-text);
-    }
-    
-    .modal-body {
-        padding: 1.5rem;
-        overflow-y: auto;
-        flex: 1;
-    }
-    
-    .modal-footer {
-        padding: 1.5rem;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-    }
-    
-    .code-block {
-        background: var(--bg-primary);
-        padding: 1.5rem;
-        border-radius: 6px;
-        overflow-x: auto;
-        font-family: monospace;
-        line-height: 1.5;
-        white-space: pre-wrap;
-    }
-    
-    @media (max-width: 768px) {
-        .did-status-card {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .did-status-icon {
-            margin-right: 0;
-            margin-bottom: 1.5rem;
-        }
-        
-        .credentials-list {
-            grid-template-columns: 1fr;
-        }
-        
-        .search-filter-bar {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .search-box, .event-filter {
-            width: 100%;
-        }
-        
-        .document-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-</style>
 {% endblock %} 
