@@ -31,6 +31,11 @@
         body {
             background-color: #0f172a !important;
             color: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
         }
         ul, ol, li {
             list-style: none !important;
@@ -46,12 +51,22 @@
             z-index: 1000 !important;
             top: 0 !important;
             left: 0 !important;
+        }
+        .header .container {
+            height: 100% !important;
             display: flex !important;
             align-items: center !important;
+        }
+        .header-inner {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
         }
         .nav-list {
             display: flex !important;
             flex-direction: row !important;
+            margin: 0 auto 0 0 !important;
         }
         .nav-list li {
             display: flex !important;
@@ -68,40 +83,46 @@
         .nav-link:hover {
             color: #ffffff !important;
         }
-        /* Auth buttons styling */
+        /* Login/Signup styling */
         .auth-buttons {
             display: flex !important;
             align-items: center !important;
             gap: 1rem !important;
-            margin-left: auto !important;
         }
-        .auth-buttons a {
-            font-weight: 500 !important;
-            border-radius: 0.5rem !important;
-            text-decoration: none !important;
-        }
-        .auth-buttons .btn-ghost {
+        .btn-ghost {
             color: rgba(255, 255, 255, 0.85) !important;
             background: transparent !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             padding: 0.5rem 1.25rem !important;
+            border-radius: 0.5rem !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
         }
-        .auth-buttons .btn-web5 {
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+        .btn-web5 {
             color: #ffffff !important;
             background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
             border: none !important;
             padding: 0.5rem 1.25rem !important;
+            border-radius: 0.5rem !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+        .btn-web5:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(122, 67, 255, 0.4) !important;
         }
         /* Main content padding to avoid header overlap */
         .main-content {
             padding-top: 80px !important;
             background-color: #0f172a !important;
             color: #ffffff !important;
-        }
-        /* Force dark mode styling */
-        body {
-            background-color: #0f172a !important;
-            color: #ffffff !important;
+            flex: 1 0 auto !important;
         }
         /* Footer styling fixes */
         .footer {
@@ -109,6 +130,8 @@
             color: #ffffff !important;
             width: 100% !important;
             display: block !important;
+            margin-top: auto !important;
+            flex-shrink: 0 !important;
         }
     </style>
     
@@ -150,36 +173,31 @@
                     </ul>
                 </nav>
                 
-                <div class="header-actions">
-                    <button class="theme-toggle" aria-label="Toggle dark mode" style="display:none;">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    
-                    <div class="auth-buttons">
-                        {% if current_user.is_authenticated %}
-                            <div class="user-profile">
-                                <a href="{{ url_for('profile') }}" class="profile-link">
-                                    <span class="profile-name">{{ current_user.username }}</span>
-                                    <div class="profile-avatar" style="background-image: url('{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
+                <!-- Auth Buttons moved here directly inside header-inner for better positioning -->
+                <div class="auth-buttons">
+                    {% if current_user.is_authenticated %}
+                        <div class="user-profile">
+                            <a href="{{ url_for('profile') }}" class="profile-link">
+                                <span class="profile-name">{{ current_user.username }}</span>
+                                <div class="profile-avatar" style="background-image: url('{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
+                            </a>
+                            <div class="dropdown-menu card-glass">
+                                <a href="{{ url_for('profile') }}" class="dropdown-item">
+                                    <i class="fas fa-user"></i> Profile
                                 </a>
-                                <div class="dropdown-menu card-glass">
-                                    <a href="{{ url_for('profile') }}" class="dropdown-item">
-                                        <i class="fas fa-user"></i> Profile
-                                    </a>
-                                    <a href="{{ url_for('settings') }}" class="dropdown-item">
-                                        <i class="fas fa-cog"></i> Settings
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a href="{{ url_for('logout') }}" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt"></i> Logout
-                                    </a>
-                                </div>
+                                <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="{{ url_for('logout') }}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
                             </div>
-                        {% else %}
-                            <a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a>
-                            <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn-ghost">Login</a>
+                        <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
+                    {% endif %}
                 </div>
                 
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
