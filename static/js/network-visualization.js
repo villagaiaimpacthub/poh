@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configuration
     const config = {
-        nodeCount: 45,
-        connectionLimit: 4,
+        nodeCount: 32,
+        connectionLimit: 3,
         nodeMinSize: 3,
         nodeMaxSize: 7,
-        nodeSpeed: 0.2,
-        connectionDistance: 150,
-        colorCycleSpeed: 0.01,
+        nodeSpeed: 0.1,
+        connectionDistance: 170,
+        colorCycleSpeed: 0.005,
         colors: {
             green: '#10b981',
             blue: '#43d1ff',
@@ -180,8 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Draw connections first
         ctx.strokeStyle = currentColor;
-        ctx.lineWidth = 0.5;
-        ctx.globalAlpha = 0.5;
+        ctx.lineWidth = 0.8;
+        ctx.globalAlpha = 0.6;
         
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 node.x, node.y, 0,
                 node.x, node.y, node.size * 3
             );
-            gradient.addColorStop(0, currentColor.replace('rgb', 'rgba').replace(')', ', 0.3)'));
+            gradient.addColorStop(0, currentColor.replace('rgb', 'rgba').replace(')', ', 0.4)'));
             gradient.addColorStop(1, currentColor.replace('rgb', 'rgba').replace(')', ', 0)'));
             
             ctx.fillStyle = gradient;

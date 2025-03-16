@@ -297,15 +297,6 @@
 <script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize network visualization
-        if (document.getElementById('network-visualization')) {
-            createNetworkVisualization('network-visualization', {
-                width: 500,
-                height: 400,
-                useDemo: true
-            });
-        }
-        
         // Animate stats counter
         const statNumbers = document.querySelectorAll('.stat-number');
         const animateStats = () => {
