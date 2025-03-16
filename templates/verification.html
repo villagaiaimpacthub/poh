@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <p>Complete a short video call with our verification team to confirm your identity.</p>
+                        <p>Complete a short video call with your first family unit to confirm your identity.</p>
                         <div class="verification-stats">
                             <div class="stat-item">
                                 <span class="stat-label">Calls Made:</span>
@@ -102,7 +102,7 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <p>Verify at least 3 new PoH users by participating in verification calls with them.</p>
+                        <p>Invite 3 new users and validate their humanity by participating in a verification call with them and your inviting parent.</p>
                         <div class="verification-stats">
                             <div class="stat-item">
                                 <span class="stat-label">Verifications Completed:</span>
@@ -112,7 +112,7 @@
                         <a href="/schedule-call" class="btn btn-primary btn-block">
                             <i class="fas fa-users"></i>
                             {% if verification_progress.child.completed and not verification_progress.parent.completed %}
-                            Verify New Members
+                            Scheduled Calls
                             {% else %}
                             View Verification Schedule
                             {% endif %}
@@ -137,10 +137,10 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <p>Join the verification council and help govern the verification process.</p>
+                        <p>Become a grandparent when your children have children and complete the Proof of Humanity verification process.</p>
                         <div class="verification-stats">
                             <div class="stat-item">
-                                <span class="stat-label">Council Votes:</span>
+                                <span class="stat-label">Calls Made:</span>
                                 <span class="stat-value">{{ verification_progress.grandparent.calls_made }}/{{ verification_progress.grandparent.calls_required }}</span>
                             </div>
                         </div>

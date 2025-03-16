@@ -46,6 +46,8 @@
             z-index: 1000 !important;
             top: 0 !important;
             left: 0 !important;
+            display: flex !important;
+            align-items: center !important;
         }
         .nav-list {
             display: flex !important;
@@ -65,6 +67,30 @@
         }
         .nav-link:hover {
             color: #ffffff !important;
+        }
+        /* Auth buttons styling */
+        .auth-buttons {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            margin-left: auto !important;
+        }
+        .auth-buttons a {
+            font-weight: 500 !important;
+            border-radius: 0.5rem !important;
+            text-decoration: none !important;
+        }
+        .auth-buttons .btn-ghost {
+            color: rgba(255, 255, 255, 0.85) !important;
+            background: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            padding: 0.5rem 1.25rem !important;
+        }
+        .auth-buttons .btn-web5 {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
+            border: none !important;
+            padding: 0.5rem 1.25rem !important;
         }
         /* Main content padding to avoid header overlap */
         .main-content {
@@ -125,7 +151,7 @@
                 </nav>
                 
                 <div class="header-actions">
-                    <button class="theme-toggle" aria-label="Toggle dark mode">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" style="display:none;">
                         <i class="fas fa-moon"></i>
                     </button>
                     

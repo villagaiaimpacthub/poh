@@ -1093,18 +1093,18 @@ body.dark-theme .card-glass {
 
 /* Enhanced Header Styles - Fixed for all browsers */
 .header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 80px !important;
+  z-index: 1000 !important;
   background-color: rgba(15, 15, 35, 0.95) !important;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(122, 67, 255, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid rgba(122, 67, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
 }
 
 .header::before {
@@ -1615,4 +1615,38 @@ body.dark-theme .card-glass {
   color: rgba(255, 255, 255, 0.7);
   max-width: 700px;
   margin: 0 auto;
+}
+
+/* Auth Buttons Styling */
+.auth-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.auth-buttons .btn-ghost {
+  color: rgba(255, 255, 255, 0.85) !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 0.5rem 1.25rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.auth-buttons .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.auth-buttons .btn-web5 {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
+  border: none !important;
+  padding: 0.5rem 1.25rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.auth-buttons .btn-web5:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(122, 67, 255, 0.4) !important;
 } 
