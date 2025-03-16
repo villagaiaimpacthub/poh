@@ -1,29 +1,40 @@
 {% extends 'base.html' %}
 
-{% block title %}Family Tree - Proof of Humanity{% endblock %}
+{% block title %}Trust Network - Proof of Humanity{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/family-tree.css') }}">
 <style>
-    .family-tree-container {
+    .network-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 1rem;
     }
     
     .visualization-container {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: rgba(30, 30, 40, 0.7);
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
         margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
-        min-height: 500px;
+        min-height: 600px;
+        border: 1px solid rgba(122, 67, 255, 0.3);
     }
     
-    #family-graph {
-        width: 100%;
-        height: 100%;
+    .visualization-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .visualization-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        margin: 0;
     }
     
     .controls-container {
@@ -32,489 +43,236 @@
         right: 1rem;
         z-index: 10;
         display: flex;
-        flex-direction: column;
         gap: 0.5rem;
     }
     
     .control-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: white;
-        border: 1px solid #ddd;
-        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(122, 67, 255, 0.2);
+        border: 1px solid rgba(122, 67, 255, 0.3);
+        color: white;
+        font-weight: 500;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
     }
     
     .control-btn:hover {
-        background-color: #f0f0f0;
-        transform: scale(1.05);
+        background: rgba(122, 67, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .control-btn i {
+        margin-right: 0.5rem;
     }
     
     .legend-container {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 4px;
-        padding: 0.75rem;
+        background-color: rgba(15, 15, 35, 0.8);
+        border-radius: 12px;
+        padding: 1rem;
         position: absolute;
         bottom: 1rem;
         left: 1rem;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         z-index: 10;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(122, 67, 255, 0.3);
+        color: white;
     }
     
     .legend-item {
         display: flex;
         align-items: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
     }
     
     .legend-color {
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        margin-right: 0.5rem;
+        margin-right: 0.75rem;
     }
     
-    .family-stats {
+    .legend-label {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .network-stats {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
     
     .stats-card {
         flex: 1 1 200px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
+        background-color: rgba(30, 30, 40, 0.7);
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
         text-align: center;
+        border: 1px solid rgba(122, 67, 255, 0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     }
     
     .stats-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #3498db;
+        font-size: 2.5rem;
+        font-weight: 700;
         margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--web5-primary) 0%, var(--web5-accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
     .stats-label {
-        color: #7f8c8d;
-        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
     }
     
-    .family-actions {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+    .iframe-container {
+        width: 100%;
+        height: 600px;
     }
     
-    .node-details {
-        position: absolute;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        padding: 1rem;
-        z-index: 20;
-        min-width: 250px;
-        max-width: 350px;
-        display: none;
-    }
-    
-    .node-details-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-    
-    .node-details-close {
-        cursor: pointer;
-        color: #7f8c8d;
-        font-size: 1.25rem;
-    }
-    
-    .node-profile-pic {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 1rem;
-        border: 3px solid #3498db;
-    }
-    
-    .node-profile-pic img {
+    .iframe-container iframe {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-    }
-    
-    .node-info {
-        margin-bottom: 1rem;
-    }
-    
-    .node-info-item {
-        display: flex;
-        margin-bottom: 0.5rem;
-    }
-    
-    .node-info-label {
-        font-weight: bold;
-        min-width: 120px;
-    }
-    
-    .node-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-    }
-    
-    .empty-state-icon {
-        font-size: 3rem;
-        color: #bdc3c7;
-        margin-bottom: 1rem;
-    }
-    
-    .tooltip {
-        position: absolute;
-        background-color: #333;
-        color: white;
-        padding: 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s;
-        z-index: 100;
-    }
-    
-    .verification-badge {
-        display: inline-block;
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        margin-left: 0.5rem;
-    }
-    
-    .verification-level-0 {
-        background-color: #f5f5f5;
-        color: #7f8c8d;
-    }
-    
-    .verification-level-1 {
-        background-color: #e8f4f8;
-        color: #3498db;
-    }
-    
-    .verification-level-2 {
-        background-color: #e8f8f5;
-        color: #2ecc71;
-    }
-    
-    .verification-level-3 {
-        background-color: #f8e8f5;
-        color: #9b59b6;
-    }
-    
-    @media (max-width: 768px) {
-        .family-actions {
-            flex-direction: column;
-        }
-        
-        .controls-container {
-            top: auto;
-            bottom: 1rem;
-            right: 1rem;
-            flex-direction: row;
-        }
-        
-        .legend-container {
-            bottom: auto;
-            top: 1rem;
-            left: 1rem;
-        }
+        border: none;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="family-tree-section">
+<div class="page-header">
     <div class="container">
-        <div class="section-header">
-            <h1 class="section-title">Your Family Network</h1>
-            <p class="section-subtitle">View and manage your family relationships and verification status</p>
-        </div>
-        
-        <div class="family-tree-container">
-            <div class="family-tree-sidebar">
-                <div class="sidebar-section">
-                    <h3>Network Controls</h3>
-                    <div class="control-group">
-                        <button class="btn btn-icon" id="zoom-in" title="Zoom In">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="btn btn-icon" id="zoom-out" title="Zoom Out">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button class="btn btn-icon" id="reset-view" title="Reset View">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="Search members...">
-                        <span class="search-icon"><i class="fas fa-search"></i></span>
-                    </div>
-                </div>
-                
-                <div class="sidebar-section">
-                    <h3>Family Members</h3>
-                    <div id="member-list" class="member-list">
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            <div class="member-info">
-                                <div class="member-name">John Doe</div>
-                                <div class="member-relation">Grandparent</div>
-                            </div>
-                            <div class="member-status verified" title="Verified"><i class="fas fa-check-circle"></i></div>
-                        </div>
-                        
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            <div class="member-info">
-                                <div class="member-name">Alice Smith</div>
-                                <div class="member-relation">Parent</div>
-                            </div>
-                            <div class="member-status verified" title="Verified"><i class="fas fa-check-circle"></i></div>
-                        </div>
-                        
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            <div class="member-info">
-                                <div class="member-name">You</div>
-                                <div class="member-relation">Child</div>
-                            </div>
-                            <div class="member-status pending" title="Pending Verification"><i class="fas fa-clock"></i></div>
-                        </div>
-                        
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            <div class="member-info">
-                                <div class="member-name">Bob Johnson</div>
-                                <div class="member-relation">Child</div>
-                            </div>
-                            <div class="member-status pending" title="Pending Verification"><i class="fas fa-clock"></i></div>
-                        </div>
-                        
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-image: url('{{ url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            <div class="member-info">
-                                <div class="member-name">Carol Williams</div>
-                                <div class="member-relation">Child</div>
-                            </div>
-                            <div class="member-status pending" title="Pending Verification"><i class="fas fa-clock"></i></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="sidebar-section">
-                    <h3>Your Status</h3>
-                    <div class="progress-indicator">
-                        <div class="progress-label">Child Stage</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 20%"></div>
-                        </div>
-                        <div class="progress-text">1 of 5 verifications complete</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="family-tree-visualization">
-                <div class="visualization-header">
-                    <div class="visualization-title">
-                        <h2>Family Network Visualization</h2>
-                        <div class="member-count">5 members</div>
-                    </div>
-                    <div class="visualization-legend">
-                        <div class="legend-item">
-                            <div class="legend-icon verified"></div>
-                            <span>Verified</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-icon pending"></div>
-                            <span>Pending</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-icon you"></div>
-                            <span>You</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="network-container" class="network-container">
-                    <!-- D3.js visualization will be rendered here -->
-                </div>
-                
-                <!-- Empty state if no family connections -->
-                <div class="empty-visualization" style="display: none;">
-                    <div class="empty-icon">
-                        <i class="fas fa-users-slash"></i>
-                    </div>
-                    <h3>No Family Connections Yet</h3>
-                    <p>Start by accepting your invitation or inviting new members to your family tree.</p>
-                </div>
-            </div>
-        </div>
+        <h1>Trust Network</h1>
+        <p>Explore the interconnected network of verified humans in the Proof of Humanity ecosystem.</p>
     </div>
 </div>
 
-<!-- Member Profile Modal -->
-<div id="member-modal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3>Member Profile</h3>
-            <button class="modal-close" aria-label="Close">&times;</button>
+<div class="network-container">
+    <div class="network-stats">
+        <div class="stats-card">
+            <div class="stats-number" id="network-size">10,285</div>
+            <div class="stats-label">Verified Humans</div>
         </div>
-        <div class="modal-body">
-            <div class="member-profile">
-                <div class="member-avatar-large" id="modal-avatar"></div>
-                <div class="member-profile-info">
-                    <h2 id="modal-name"></h2>
-                    <div class="member-relation-badge" id="modal-relation"></div>
-                    <div class="member-status-badge" id="modal-status"></div>
-                </div>
-            </div>
-            
-            <div class="member-details-section">
-                <h4>Verification Details</h4>
-                <div class="verification-timeline">
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">
-                            <i class="fas fa-envelope-open-text"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="timeline-status">Invitation Accepted</div>
-                            <div class="timeline-date">March 5, 2023</div>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item completed">
-                        <div class="timeline-icon">
-                            <i class="fas fa-video"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="timeline-status">Video Verification</div>
-                            <div class="timeline-date">March 7, 2023</div>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item pending">
-                        <div class="timeline-icon">
-                            <i class="fas fa-check-double"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="timeline-status">DID Credential Issued</div>
-                            <div class="timeline-date">Pending</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        
+        <div class="stats-card">
+            <div class="stats-number" id="connections-count">28,741</div>
+            <div class="stats-label">Trust Connections</div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" id="modal-close-btn">Close</button>
-            <button class="btn btn-primary" id="modal-action-btn">Contact Member</button>
+        
+        <div class="stats-card">
+            <div class="stats-number" id="growth-rate">+7.2%</div>
+            <div class="stats-label">Monthly Growth</div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-number" id="active-verifiers">1,529</div>
+            <div class="stats-label">Active Verifiers</div>
         </div>
     </div>
-</div>
+    
+    <div class="visualization-container">
+        <div class="visualization-header">
+            <h2 class="visualization-title">Trust Network Visualization</h2>
+            
+            <div class="controls-container">
+                <button class="control-btn" id="reset-view"><i class="fas fa-sync-alt"></i>Reset</button>
+                <button class="control-btn" id="zoom-in"><i class="fas fa-search-plus"></i>Zoom In</button>
+                <button class="control-btn" id="zoom-out"><i class="fas fa-search-minus"></i>Zoom Out</button>
+            </div>
+        </div>
+        
+        <div class="iframe-container" id="network-container">
+            <iframe src="http://127.0.0.1:5003/network/viz" frameborder="0"></iframe>
+        </div>
+        
+        <div class="legend-container">
+            <h4 style="margin-bottom: 1rem; color: white; font-size: 1rem;">Network Legend</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffb86c;"></div>
+                <div class="legend-label">Founders</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #cd5ff8;"></div>
+                <div class="legend-label">Grandparents</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #7a43ff;"></div>
+                <div class="legend-label">Parents</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #43d1ff;"></div>
+                <div class="legend-label">Children</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rest of content remains the same -->
 {% endblock %}
 
 {% block scripts %}
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize the network visualization
-        createNetworkVisualization('network-container', {
-            useDemo: true,
-            width: document.querySelector('.network-container').clientWidth,
-            height: 500,
-            nodeRadius: 25,
-            linkDistance: 150
-        });
+        // Simple animation for stats numbers
+        const statsNumbers = document.querySelectorAll('.stats-number');
         
-        // Handle zoom controls
-        document.getElementById('zoom-in').addEventListener('click', function() {
-            const event = new CustomEvent('zoom', { detail: { direction: 'in' } });
-            document.getElementById('network-container').dispatchEvent(event);
-        });
-        
-        document.getElementById('zoom-out').addEventListener('click', function() {
-            const event = new CustomEvent('zoom', { detail: { direction: 'out' } });
-            document.getElementById('network-container').dispatchEvent(event);
-        });
-        
-        document.getElementById('reset-view').addEventListener('click', function() {
-            const event = new CustomEvent('reset-view');
-            document.getElementById('network-container').dispatchEvent(event);
-        });
-        
-        // Show member details when clicking on a member in the sidebar
-        const memberItems = document.querySelectorAll('.member-item');
-        const memberModal = document.getElementById('member-modal');
-        const modalClose = document.querySelector('.modal-close');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        
-        memberItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const name = this.querySelector('.member-name').textContent;
-                const relation = this.querySelector('.member-relation').textContent;
-                const avatarStyle = this.querySelector('.member-avatar').style.backgroundImage;
-                const isVerified = this.querySelector('.member-status').classList.contains('verified');
+        statsNumbers.forEach(number => {
+            const finalValue = number.textContent;
+            const duration = 2000; // 2 seconds
+            const startValue = 0;
+            
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
                 
-                document.getElementById('modal-name').textContent = name;
-                document.getElementById('modal-relation').textContent = relation;
-                document.getElementById('modal-avatar').style.backgroundImage = avatarStyle;
-                
-                if (isVerified) {
-                    document.getElementById('modal-status').textContent = 'Verified';
-                    document.getElementById('modal-status').className = 'member-status-badge verified';
+                // Parse the final value and format appropriately
+                if (finalValue.includes('%')) {
+                    const numericValue = parseFloat(finalValue);
+                    const currentValue = (startValue + (numericValue * progress)).toFixed(1);
+                    number.textContent = `+${currentValue}%`;
                 } else {
-                    document.getElementById('modal-status').textContent = 'Pending';
-                    document.getElementById('modal-status').className = 'member-status-badge pending';
+                    const numericValue = parseInt(finalValue.replace(/,/g, ''), 10);
+                    const currentValue = Math.floor(startValue + (numericValue * progress));
+                    number.textContent = currentValue.toLocaleString();
                 }
                 
-                memberModal.classList.add('active');
-                document.body.classList.add('modal-open');
-            });
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            requestAnimationFrame(animate);
         });
         
-        // Close modal functionality
-        function closeModal() {
-            memberModal.classList.remove('active');
-            document.body.classList.remove('modal-open');
-        }
+        // Handle zoom controls to communicate with iframe
+        const iframe = document.querySelector('iframe');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetBtn = document.getElementById('reset-view');
         
-        modalClose.addEventListener('click', closeModal);
-        modalCloseBtn.addEventListener('click', closeModal);
-        document.querySelector('.modal-backdrop').addEventListener('click', closeModal);
+        zoomInBtn.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'zoom-in' }, '*');
+        });
         
-        // Prevent closing when clicking on modal content
-        document.querySelector('.modal-container').addEventListener('click', function(e) {
-            e.stopPropagation();
+        zoomOutBtn.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'zoom-out' }, '*');
+        });
+        
+        resetBtn.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'reset' }, '*');
         });
     });
 </script>

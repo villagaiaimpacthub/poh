@@ -17,8 +17,39 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Core reset styling -->
+    <style>
+        /* Critical CSS reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        ul, ol, li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        /* Essential header styling */
+        .header {
+            background-color: rgba(15, 15, 35, 0.95) !important;
+            height: 80px !important;
+            position: fixed !important;
+            width: 100% !important;
+            z-index: 1000 !important;
+        }
+        .nav-list {
+            display: flex !important;
+            flex-direction: row !important;
+        }
+        .nav-list li {
+            display: flex !important;
+            height: 100% !important;
+        }
+    </style>
+    
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ now() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ now().timestamp() }}">
     {% block styles %}{% endblock %}
     
     <!-- Head block for page-specific head elements -->
