@@ -3,7 +3,7 @@
 {% block title %}Trust Network - Proof of Humanity{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/family-tree.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/family_tree.css') }}">
 <style>
     .network-container {
         max-width: 1200px;
@@ -193,7 +193,7 @@
         </div>
         
         <div class="iframe-container" id="network-container">
-            <iframe src="http://127.0.0.1:5003/network/viz" frameborder="0"></iframe>
+            <iframe src="{{ url_for('network.viz') }}" frameborder="0" id="viz-iframe"></iframe>
         </div>
         
         <div class="legend-container">
@@ -223,6 +223,43 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("Family tree page loaded");
+        
+        // Debug visualization iframe
+        const iframe = document.querySelector('#viz-iframe');
+        if (iframe) {
+            console.log("Visualization iframe found");
+            
+            // Check when iframe loads or errors
+            iframe.addEventListener('load', function() {
+                console.log("Iframe loaded successfully");
+                window.logDebug && window.logDebug("Visualization iframe loaded", "success");
+            });
+            
+            iframe.addEventListener('error', function(e) {
+                console.error("Iframe failed to load:", e);
+                window.logDebug && window.logDebug("Visualization iframe failed to load", "error");
+                
+                // Show fallback content if iframe fails
+                const container = document.getElementById('network-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 2rem; text-align: center;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                            <h3>Visualization Failed to Load</h3>
+                            <p>We're having trouble loading the network visualization. Please try refreshing the page.</p>
+                            <button class="control-btn" onclick="location.reload()" style="margin-top: 1rem;">
+                                <i class="fas fa-sync-alt"></i> Reload
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        } else {
+            console.error("Visualization iframe not found");
+            window.logDebug && window.logDebug("Visualization iframe not found in DOM", "error");
+        }
+        
         // Simple animation for stats numbers
         const statsNumbers = document.querySelectorAll('.stats-number');
         

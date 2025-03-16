@@ -23,6 +23,30 @@ git clone https://github.com/villagaiaimpacthub/poh.git
 
 2. Open `index.html` in a web browser
 
+## Running the Flask Server
+
+### Standard Method
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+
+# Run the server
+./start.sh
+```
+
+### For macOS Users (especially M2/Apple Silicon)
+macOS users must use `python3` instead of `python` for all commands:
+
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+
+# Run the server with python3
+python3 app.py
+```
+
+The server will automatically try to find an available port if the default port (5003) is already in use. It will try ports 5003-5012 before giving up.
+
 ## Controls
 
 - **Grow Network**: Advance the network simulation one step

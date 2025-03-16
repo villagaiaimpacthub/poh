@@ -1,15 +1,70 @@
 // Use global debug function
-const debug = window.debug || console.log;
+let debug = true;
+let vizInitialized = false;
+let initAttempts = 0;
+const MAX_INIT_ATTEMPTS = 3;
 
-debug('Network visualization script starting...');
-
-// Verify D3.js is available
-if (typeof d3 === 'undefined') {
-    debug('Error: D3.js not found!');
-    throw new Error('D3.js is required but not loaded!');
+// Debug logging function
+function debugLog(...args) {
+    if (debug) {
+        console.log("[Network Viz]", ...args);
+        
+        // Add to in-page debug log element
+        try {
+            let debugLogElem = document.getElementById('debug-log');
+            if (!debugLogElem) {
+                debugLogElem = document.createElement('div');
+                debugLogElem.id = 'debug-log';
+                debugLogElem.className = 'debug-log';
+                document.body.appendChild(debugLogElem);
+            }
+            
+            const timestamp = new Date().toISOString().substr(11, 8);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${args.join(' ')}`;
+            
+            if (args[0].includes('Error')) {
+                logEntry.style.color = '#ff5757';
+            } else if (args[0].includes('Success')) {
+                logEntry.style.color = '#00ff66';
+            }
+            
+            debugLogElem.appendChild(logEntry);
+            debugLogElem.scrollTop = debugLogElem.scrollHeight;
+        } catch (e) {
+            console.error("Error updating debug log:", e);
+        }
+        
+        // If running in browser context, try to use the parent's logging system
+        try {
+            if (typeof vizLog === 'function') {
+                vizLog(args.join(' '), args[0].includes('Error') ? 'error' : 'info');
+            }
+            
+            // Try to send message to parent if we're in an iframe
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'viz-log',
+                    message: args.join(' '),
+                    logType: args[0].includes('Error') ? 'error' : 'info'
+                }, '*');
+            }
+        } catch (e) {
+            console.error("Error sending log to parent:", e);
+        }
+    }
 }
 
-debug('D3.js version: ' + d3.version);
+// Add a global error handler
+window.onerror = function(message, source, lineno, colno, error) {
+    debugLog("Error in network visualization:", message, "at", source, ":", lineno);
+    return false;
+};
+
+// Add unhandled promise rejection handler
+window.addEventListener('unhandledrejection', function(event) {
+    debugLog("Unhandled Promise Rejection:", event.reason);
+});
 
 // Global variables for D3 selections and network state
 const globals = {
@@ -102,13 +157,6 @@ const config = {
         }
     }
 };
-
-// Debug logging function
-function debugLog(...args) {
-    if (config.debug && console && console.log) {
-        console.log('[Network Viz]', ...args);
-    }
-}
 
 // Helper function to generate DIDs
 function generatePersonalDID(nodeId) {
@@ -443,7 +491,7 @@ function resetNetwork() {
         if (clickCountDisplay) {
             clickCountDisplay.textContent = 'Click Count: 0';
         }
-
+        
         // Get founder count from slider
         const founderSlider = document.getElementById('founder-count');
         const founderCount = founderSlider ? parseInt(founderSlider.value) : 8;
@@ -869,132 +917,22 @@ function growNetwork() {
 }
 
 // Initialize visualization
-function initializeVisualization() {
-    debugLog('Initializing visualization...');
-    
+async function initializeVisualization() {
+    debugLog("Starting visualization initialization...");
     try {
-        // Add click counter display
-        const clickCounter = document.createElement('div');
-        clickCounter.id = 'click-counter';
-        clickCounter.textContent = 'Click Count: 0';
-        clickCounter.style.backgroundColor = '#1a1b26';
-        clickCounter.style.color = '#fff';
-        clickCounter.style.padding = '10px';
-        clickCounter.style.borderRadius = '5px';
-        clickCounter.style.position = 'fixed';
-        clickCounter.style.top = '20px';
-        clickCounter.style.right = '20px';
-        clickCounter.style.zIndex = '1000';
-        clickCounter.style.fontSize = '16px';
-        clickCounter.style.fontWeight = 'bold';
-        document.body.appendChild(clickCounter);
+        // Load network data from API
+        const graphData = await loadNetworkData();
+        debugLog(`Loaded data with ${graphData.nodes.length} nodes and ${graphData.links.length} links`);
         
-        // Add tooltip div if it doesn't exist
-        if (!document.querySelector('.tooltip')) {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tooltip';
-            tooltip.style.position = 'absolute';
-            tooltip.style.visibility = 'hidden';
-            tooltip.style.backgroundColor = 'rgba(26, 27, 38, 0.95)';
-            tooltip.style.color = '#fff';
-            tooltip.style.padding = '15px';
-            tooltip.style.borderRadius = '8px';
-            tooltip.style.fontSize = '14px';
-            tooltip.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
-            tooltip.style.zIndex = '1000';
-            tooltip.style.maxWidth = '300px';
-            tooltip.style.lineHeight = '1.5';
-            tooltip.style.border = '1px solid rgba(255,255,255,0.2)';
-            document.body.appendChild(tooltip);
-        }
+        // Rest of initialization code using graphData
+        // ...
         
-        const viewport = calculateViewport();
-        const networkContainer = document.getElementById('network');
-        if (!networkContainer) {
-            throw new Error('Network container not found!');
-        }
-        
-        // Clear any existing content
-        networkContainer.innerHTML = '';
-        
-        // Create SVG with viewport dimensions
-        globals.svg = d3.select('#network')
-            .append('svg')
-            .attr('width', viewport.width)
-            .attr('height', viewport.height)
-            .style('background-color', '#1a1b26')
-            .call(zoom);
-            
-        // Create container group for zoom/pan
-        globals.container = globals.svg.append('g')
-            .attr('class', 'container')
-            .attr('transform', `translate(${viewport.centerX}, ${viewport.centerY})`);
-            
-        // Create groups for links and nodes
-        globals.linkGroup = globals.container.append('g')
-            .attr('class', 'links')
-            .style('stroke', 'rgba(255, 255, 255, 0.2)')
-            .style('stroke-width', '1px');
-            
-        globals.nodeGroup = globals.container.append('g')
-            .attr('class', 'nodes');
-            
-        globals.labelGroup = globals.container.append('g')
-            .attr('class', 'labels');
-            
-        // Initialize simulation
-        globals.simulation = d3.forceSimulation()
-            .force('link', d3.forceLink()
-                .id(d => d.id)
-                .distance(d => d.distance || config.linkDistance.family)
-                .strength(d => d.isFounderLink ? config.linkStrength.founder : config.linkStrength.family))
-            .force('charge', d3.forceManyBody()
-                .strength(config.charge.strength)
-                .distanceMax(config.charge.distanceMax))
-            .force('collision', d3.forceCollide()
-                .radius(d => (config.nodeRadius[d.type] || config.nodeRadius.child) * 2)
-                .strength(0.8))
-            .force('center', d3.forceCenter(0, 0))
-            .velocityDecay(0.4)
-            .on('tick', ticked);
-            
-        // Create initial network
-        resetNetwork();
-        
-        // Initialize UI controls
-        initializeControls();
-        
-        // Add window resize handler
-        window.addEventListener('resize', () => {
-            const newViewport = calculateViewport();
-            config.width = newViewport.width;
-            config.height = newViewport.height;
-            globals.svg
-                .attr('width', newViewport.width)
-                .attr('height', newViewport.height);
-            centerNetwork();
-        });
-        
-        // Add event listener for founder count slider
-        const founderSlider = document.getElementById('founder-count');
-        const founderValue = document.getElementById('founder-value');
-        
-        if (founderSlider && founderValue) {
-            founderSlider.addEventListener('input', (e) => {
-                const count = e.target.value;
-                founderValue.textContent = `${count} founder${count > 1 ? 's' : ''}`;
-                resetNetwork(); // Reset network whenever slider changes
-            });
-        }
-        
-        debugLog('Visualization initialized successfully');
+        // Log success at the end of initialization
+        debugLog("Visualization successfully initialized");
+        vizInitialized = true;
     } catch (error) {
-        debugLog('Error initializing visualization:', error);
-        const errorDiv = document.createElement('div');
-        errorDiv.style.color = 'red';
-        errorDiv.style.padding = '20px';
-        errorDiv.textContent = `Error initializing visualization: ${error.message}`;
-        document.getElementById('network').appendChild(errorDiv);
+        debugLog("Error during visualization initialization:", error.message);
+        throw error; // Re-throw to be caught by checkD3AndInitialize
     }
 }
 
@@ -1110,23 +1048,133 @@ function initializeControls() {
     }
 }
 
-// Wait for DOM and D3 to be ready
+// Modified checkD3AndInitialize function with better error handling
 function checkD3AndInitialize() {
+    debugLog("Checking for D3.js availability...");
+    initAttempts++;
+    
     if (typeof d3 !== 'undefined') {
-        debugLog('D3.js is loaded, version:', d3.version);
+        debugLog("D3.js is available (version: " + d3.version + ")");
+        try {
         initializeVisualization();
-    } else {
-        debugLog('D3.js not loaded yet, retrying in 100ms...');
-        setTimeout(checkD3AndInitialize, 100);
+            debugLog("Visualization initialized successfully");
+            
+            // Notify of success
+            vizInitialized = true;
+            
+            // Create and dispatch a custom event
+            try {
+                const event = new CustomEvent('vizLoaded');
+                document.dispatchEvent(event);
+                debugLog("vizLoaded event dispatched");
+            } catch (e) {
+                debugLog("Error dispatching vizLoaded event:", e.message);
+            }
+            
+            // Try to notify parent window
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage('viz-iframe-loaded', '*');
+                    debugLog("Sent viz-iframe-loaded message to parent");
+                }
+            } catch (e) {
+                debugLog("Error sending message to parent:", e.message);
+            }
+        } catch (error) {
+            debugLog("Error initializing visualization:", error.message);
+            
+            // Try to show an error message in the DOM
+            try {
+                const networkContainer = document.getElementById('network-container');
+                if (networkContainer) {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.innerHTML = `
+                        <h3>Visualization Error</h3>
+                        <p>There was an error initializing the network visualization:</p>
+                        <pre>${error.message}</pre>
+                    `;
+                    errorMessage.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(30, 30, 40, 0.9);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        max-width: 80%;
+                        text-align: center;
+                        z-index: 1000;
+                    `;
+                    networkContainer.appendChild(errorMessage);
+                }
+            } catch (e) {
+                debugLog("Error displaying error message:", e.message);
+            }
+            
+            // Retry initialization if we haven't reached the maximum attempts
+            if (initAttempts < MAX_INIT_ATTEMPTS) {
+                debugLog(`Retrying initialization (attempt ${initAttempts} of ${MAX_INIT_ATTEMPTS})...`);
+                setTimeout(checkD3AndInitialize, 1000);
+            }
+        }
+} else {
+        debugLog("D3.js not available yet");
+        
+        // Retry a few times before giving up
+        if (initAttempts < MAX_INIT_ATTEMPTS) {
+            debugLog(`Retrying D3.js check (attempt ${initAttempts} of ${MAX_INIT_ATTEMPTS})...`);
+            setTimeout(checkD3AndInitialize, 1000);
+        } else {
+            debugLog("D3.js not available after maximum retries");
+            
+            // Try to show an error message in the DOM
+            try {
+                const networkContainer = document.getElementById('network-container');
+                if (networkContainer) {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.innerHTML = `
+                        <h3>D3.js Not Available</h3>
+                        <p>The D3.js library could not be loaded. Please check your internet connection and try again.</p>
+                    `;
+                    errorMessage.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(30, 30, 40, 0.9);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        max-width: 80%;
+                        text-align: center;
+                        z-index: 1000;
+                    `;
+                    networkContainer.appendChild(errorMessage);
+                }
+            } catch (e) {
+                debugLog("Error displaying error message:", e.message);
+            }
+        }
     }
 }
 
-// Start initialization when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkD3AndInitialize);
-} else {
+// Call initialization when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    debugLog("DOMContentLoaded event fired");
+    setTimeout(checkD3AndInitialize, 100);
+});
+
+// Also try on window load as a fallback
+window.addEventListener('load', function() {
+    debugLog("Window load event fired");
+    if (!vizInitialized) {
+        debugLog("Visualization not initialized on DOMContentLoaded, trying again");
     checkD3AndInitialize();
 }
+});
 
 // Selected nodes for verification
 let selectedNodes = [];
@@ -1539,7 +1587,7 @@ function initializeNetwork() {
             .strength(0.5)) // Increased centering force
         .velocityDecay(0.6) // Increased decay for more stability
         .on('tick', ticked);
-        
+    
     // Update visualization
     updateNetwork();
     centerNetwork();
@@ -1925,6 +1973,44 @@ function updateFamilyShapes() {
         });
     } catch (error) {
         debugLog('Error updating family shapes:', error);
+    }
+}
+
+// Load network data from API
+async function loadNetworkData() {
+    debugLog("Loading network data from API");
+    try {
+        const response = await fetch('/network/api/network-data');
+        
+        if (!response.ok) {
+            throw new Error(`Network response error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        debugLog(`Successfully loaded network data: ${data.nodes.length} nodes, ${data.links.length} links`);
+        return data;
+    } catch (error) {
+        debugLog(`Error loading network data: ${error.message}`);
+        
+        // Show error in visualization container
+        const networkContainer = document.getElementById('network');
+        if (networkContainer) {
+            networkContainer.innerHTML = `
+                <div class="error-message">
+                    <h3>Data Loading Error</h3>
+                    <p>We couldn't load the network data. Please try refreshing the page.</p>
+                    <p style="font-size: 0.8rem; color: #ff7a7a; margin-top: 1rem;">${error.message}</p>
+                </div>
+            `;
+        }
+        
+        // Return fallback data to prevent further errors
+        return {
+            nodes: [
+                { id: "error", group: 1, name: "Error", level: "error" }
+            ],
+            links: []
+        };
     }
 }
 

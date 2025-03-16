@@ -25,17 +25,41 @@
             margin: 0;
             padding: 0;
         }
-        html {
-            background-color: #0f172a !important;
+
+        /* Dark theme variables defined at root level */
+        :root {
+            /* Primary colors */
+            --primary: #7a43ff;
+            --secondary: #43d1ff;
+            --accent: #ff57da;
+            
+            /* Dark theme colors */
+            --dark-bg: #0f172a;
+            --dark-surface: rgba(15, 23, 42, 0.5);
+            --dark-border: rgba(122, 67, 255, 0.2);
+            --dark-text: #ffffff;
+            --dark-text-secondary: rgba(255, 255, 255, 0.7);
+            
+            /* Functional colors */
+            --error: #ff5757;
+            --warning: #ffbb00;
+            --success: #00ff66;
+            --info: #43d1ff;
         }
+        
+        html {
+            background-color: var(--dark-bg) !important;
+        }
+        
         body {
-            background-color: #0f172a !important;
-            color: #ffffff !important;
+            background-color: var(--dark-bg) !important;
+            color: var(--dark-text) !important;
             margin: 0 !important;
             padding: 0 !important;
             min-height: 100vh !important;
             display: flex !important;
             flex-direction: column !important;
+            font-family: 'Inter', sans-serif !important;
         }
         ul, ol, li {
             list-style: none !important;
@@ -52,74 +76,112 @@
             top: 0 !important;
             left: 0 !important;
         }
-        .header .container {
+        
+        /* Apple-style header styling */
+        .main-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 60px !important;
+            background-color: rgba(18, 18, 30, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            z-index: 1000 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .main-header .container {
             height: 100% !important;
             display: flex !important;
             align-items: center !important;
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            padding: 0 1rem !important;
         }
+        
         .header-inner {
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
             width: 100% !important;
         }
-        .nav-list {
-            display: flex !important;
-            flex-direction: row !important;
-            margin: 0 auto 0 0 !important;
-        }
-        .nav-list li {
-            display: flex !important;
-            height: 100% !important;
-        }
-        .nav-link {
-            color: rgba(255, 255, 255, 0.85) !important;
+        
+        .logo-link {
             display: flex !important;
             align-items: center !important;
-            height: 100% !important;
-            padding: 0 1.25rem !important;
+        }
+        
+        .logo-image {
+            height: 28px !important;
+            transition: opacity 0.2s ease !important;
+        }
+        
+        .logo-image:hover {
+            opacity: 0.8 !important;
+        }
+        
+        .main-nav {
+            margin: 0 auto !important;
+            justify-self: center !important;
+        }
+        
+        .nav-list {
+            display: flex !important;
+            gap: 1rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
             text-decoration: none !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 4px !important;
+            transition: color 0.2s ease !important;
         }
+        
         .nav-link:hover {
-            color: #ffffff !important;
+            color: rgba(255, 255, 255, 1) !important;
         }
-        /* Login/Signup styling */
+        
         .auth-buttons {
             display: flex !important;
             align-items: center !important;
-            gap: 1rem !important;
+            gap: 1.25rem !important;
         }
-        .btn-ghost {
-            color: rgba(255, 255, 255, 0.85) !important;
-            background: transparent !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 0.5rem 1.25rem !important;
-            border-radius: 0.5rem !important;
+        
+        .btn-signup {
+            background-color: var(--primary, #7a43ff) !important;
+            color: white !important;
+            font-size: 0.875rem !important;
             font-weight: 500 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 100px !important;
             text-decoration: none !important;
-            transition: all 0.3s ease !important;
+            transition: all 0.2s ease !important;
         }
-        .btn-ghost:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: #ffffff !important;
+        
+        .btn-signup:hover {
+            background-color: #8a53ff !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 10px rgba(138, 83, 255, 0.3) !important;
         }
-        .btn-web5 {
-            color: #ffffff !important;
-            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
-            border: none !important;
-            padding: 0.5rem 1.25rem !important;
-            border-radius: 0.5rem !important;
-            font-weight: 500 !important;
-            text-decoration: none !important;
-            transition: all 0.3s ease !important;
+        
+        @media (max-width: 768px) {
+            .main-nav {
+                display: none !important;
+            }
+            
+            .main-header .container {
+                padding: 0 1.5rem !important;
+            }
         }
-        .btn-web5:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 12px rgba(122, 67, 255, 0.4) !important;
-        }
-        /* Main content padding to avoid header overlap */
+        
         .main-content {
-            padding-top: 80px !important;
+            padding-top: 60px !important;
             background-color: #0f172a !important;
             color: #ffffff !important;
             flex: 1 0 auto !important;
@@ -129,9 +191,206 @@
             background-color: rgba(15, 15, 35, 1) !important;
             color: #ffffff !important;
             width: 100% !important;
-            display: block !important;
+            padding: 4rem 0 2rem !important;
             margin-top: auto !important;
             flex-shrink: 0 !important;
+            border-top: 1px solid rgba(122, 67, 255, 0.2) !important;
+        }
+
+        .footer-wrapper {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 3rem !important;
+        }
+
+        .footer-main {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: space-between !important;
+            gap: 3rem !important;
+        }
+
+        .footer-brand {
+            flex: 0 0 250px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+
+        .footer-logo img {
+            height: 40px !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.7) !important;
+            line-height: 1.5 !important;
+            font-size: 0.95rem !important;
+        }
+
+        .footer-nav-columns {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 3rem !important;
+            flex: 1 !important;
+            justify-content: space-around !important;
+        }
+
+        .footer-nav-column {
+            min-width: 140px !important;
+        }
+
+        .footer-heading {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600 !important;
+            margin-bottom: 1.25rem !important;
+            font-size: 1rem !important;
+        }
+
+        .footer-links {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6) !important;
+            text-decoration: none !important;
+            transition: color 0.2s ease !important;
+            font-size: 0.95rem !important;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary, #7a43ff) !important;
+        }
+
+        .footer-bottom {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 1.5rem !important;
+            padding-top: 2rem !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .footer-social {
+            display: flex !important;
+            gap: 1.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .footer-social a {
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 1.2rem !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .footer-social a:hover {
+            color: var(--primary, #7a43ff) !important;
+        }
+
+        .footer-copyright {
+            width: 100% !important;
+            text-align: center !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Global Debug Button & Modal */
+        .debug-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #7a43ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            z-index: 10000;
+            font-family: monospace;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .debug-toggle:hover {
+            background: #6a33ef;
+        }
+        
+        .debug-box {
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: lime;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            z-index: 9999;
+            max-width: 500px;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+            font-size: 12px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 1px solid #7a43ff;
+        }
+
+        @media (max-width: 768px) {
+            .footer-main {
+                flex-direction: column !important;
+                gap: 2rem !important;
+            }
+            
+            .footer-brand {
+                flex: 0 0 auto !important;
+                align-items: center !important;
+                text-align: center !important;
+            }
+            
+            .footer-nav-columns {
+                justify-content: space-between !important;
+            }
+            
+            .footer-nav-column {
+                min-width: 120px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .footer-nav-columns {
+                flex-direction: column !important;
+                gap: 2rem !important;
+                text-align: center !important;
+            }
+            
+            .footer-nav-column {
+                width: 100% !important;
+            }
+            
+            .footer-heading {
+                margin-bottom: 0.75rem !important;
+            }
+        }
+        
+        .debug-mode * {
+            outline: 1px dotted rgba(255, 0, 0, 0.3);
+        }
+        
+        /* Make verification stage cards more consistent */
+        .verification-stage-card {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(122, 67, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .verification-stage-card:hover {
+            border-color: rgba(122, 67, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
         }
     </style>
     
@@ -143,6 +402,10 @@
     {% block head %}{% endblock %}
 </head>
 <body class="dark-theme">
+    <!-- Debug Button (available on all pages) -->
+    <button class="debug-toggle" id="globalDebugToggle">Debug</button>
+    <div class="debug-box" id="globalDebugBox"></div>
+
     <!-- Web5 Background Elements -->
     <div class="web5-background">
         <div class="orb orb-1"></div>
@@ -151,60 +414,26 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <header class="main-header">
         <div class="container">
             <div class="header-inner">
-                <div class="logo">
-                    <a href="{{ url_for('index') }}" class="logo-link">
-                        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity" 
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/logo-fallback.png') }}'">
-                        <span class="logo-badge">Beta</span>
-                    </a>
-                </div>
+                <a href="{{ url_for('index') }}" class="logo-link">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity Logo" class="logo-image" onerror="this.src='{{ url_for('static', filename='images/logo-fallback.png') }}';">
+                </a>
                 
                 <nav class="main-nav">
                     <ul class="nav-list">
-                        <li><a href="{{ url_for('index') }}" class="nav-link{% if request.endpoint == 'index' %} active{% endif %}">Home</a></li>
-                        <li><a href="{{ url_for('family_tree') }}" class="nav-link{% if request.endpoint == 'family_tree' %} active{% endif %}">Trust Network</a></li>
-                        <li><a href="{{ url_for('verification_manage') }}" class="nav-link{% if request.endpoint == 'verification_manage' %} active{% endif %}">Verification</a></li>
-                        <li><a href="{{ url_for('did_manage') }}" class="nav-link{% if request.endpoint == 'did_manage' %} active{% endif %}">Identity</a></li>
-                        <li><a href="{{ url_for('schedule_call') }}" class="nav-link{% if request.endpoint == 'schedule_call' %} active{% endif %}">Schedule Call</a></li>
-                        <li><a href="#" class="nav-link">About</a></li>
+                        <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
+                        <li><a href="{{ url_for('benefits') }}" class="nav-link">Access Services</a></li>
+                        <li><a href="{{ url_for('verification_manage') }}" class="nav-link">Verification</a></li>
+                        <li><a href="{{ url_for('network.family_tree') }}" class="nav-link">Family Tree</a></li>
                     </ul>
                 </nav>
                 
-                <!-- Auth Buttons moved here directly inside header-inner for better positioning -->
                 <div class="auth-buttons">
-                    {% if current_user.is_authenticated %}
-                        <div class="user-profile">
-                            <a href="{{ url_for('profile') }}" class="profile-link">
-                                <span class="profile-name">{{ current_user.username }}</span>
-                                <div class="profile-avatar" style="background-image: url('{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}')"></div>
-                            </a>
-                            <div class="dropdown-menu card-glass">
-                                <a href="{{ url_for('profile') }}" class="dropdown-item">
-                                    <i class="fas fa-user"></i> Profile
-                                </a>
-                                <a href="{{ url_for('settings') }}" class="dropdown-item">
-                                    <i class="fas fa-cog"></i> Settings
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="{{ url_for('logout') }}" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <a href="{{ url_for('login') }}" class="btn-ghost">Login</a>
-                        <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
-                    {% endif %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
+                    <a href="{{ url_for('register') }}" class="btn-signup">Sign Up</a>
                 </div>
-                
-                <button class="mobile-menu-toggle" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
             </div>
         </div>
     </header>
@@ -242,63 +471,184 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity"
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/logo-fallback.png') }}'">
+            <div class="footer-wrapper">
+                <div class="footer-main">
+                    <div class="footer-brand">
+                        <a href="{{ url_for('index') }}" class="footer-logo">
+                            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity" onerror="this.src='{{ url_for('static', filename='images/logo-fallback.png') }}';">
+                        </a>
+                        <p class="footer-tagline">Human verification through trusted relationships</p>
                     </div>
-                    <p class="footer-tagline">A revolutionary approach to human verification through a network of trusted relationships</p>
-                    <div class="social-links">
-                        <a href="#" class="social-link glow" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link glow" aria-label="Github"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-link glow" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                        <a href="#" class="social-link glow" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    
+                    <div class="footer-nav-columns">
+                        <div class="footer-nav-column">
+                            <h5 class="footer-heading">Explore</h5>
+                            <ul class="footer-links">
+                                <li><a href="{{ url_for('index') }}">Home</a></li>
+                                <li><a href="{{ url_for('about') }}">About</a></li>
+                                <li><a href="{{ url_for('benefits') }}">Access Services</a></li>
+                                <li><a href="{{ url_for('verification_manage') }}">Verification</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-nav-column">
+                            <h5 class="footer-heading">Network</h5>
+                            <ul class="footer-links">
+                                <li><a href="{{ url_for('network.family_tree') }}">Family Tree</a></li>
+                                <li><a href="{{ url_for('network.viz') }}">Network Visualization</a></li>
+                                <li><a href="https://vox-v2.replit.app" target="_blank">HIVE Mind</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-nav-column">
+                            <h5 class="footer-heading">Resources</h5>
+                            <ul class="footer-links">
+                                <li><a href="#">Documentation</a></li>
+                                <li><a href="#">Developers</a></li>
+                                <li><a href="#">Community</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-nav-column">
+                            <h5 class="footer-heading">Legal</h5>
+                            <ul class="footer-links">
+                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="#">Privacy Policy</a></li>
+                                <li><a href="#">Cookie Policy</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="footer-links">
-                    <h3>Product</h3>
-                    <ul>
-                        <li><a href="#">Features</a></li>
-                        <li><a href="#">Security</a></li>
-                        <li><a href="#">Roadmap</a></li>
-                        <li><a href="#">Documentation</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-links">
-                    <h3>Company</h3>
-                    <ul>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Team</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-newsletter">
-                    <h3>Stay Updated</h3>
-                    <p>Subscribe to our newsletter for the latest updates and news.</p>
-                    <form class="newsletter-form">
-                        <input type="email" placeholder="Your email address" required>
-                        <button type="submit" class="btn-web5">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <div>&copy; {{ now().year }} Proof of Humanity. All rights reserved.</div>
-                <div class="footer-bottom-links">
-                    <a href="{{ url_for('terms') }}">Terms of Service</a>
-                    <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+                <div class="footer-bottom">
+                    <div class="footer-social">
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                    <div class="footer-copyright">
+                        &copy; 2025 Proof of Humanity. All rights reserved.
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script>
+        // Global error handler to catch all JavaScript errors
+        window.addEventListener('error', function(event) {
+            console.error('GLOBAL ERROR:', event.message, 'at', event.filename, 'line', event.lineno);
+            
+            // Create visible error display on the page
+            const errorDisplay = document.createElement('div');
+            errorDisplay.style.position = 'fixed';
+            errorDisplay.style.bottom = '10px';
+            errorDisplay.style.left = '10px';
+            errorDisplay.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+            errorDisplay.style.color = 'white';
+            errorDisplay.style.padding = '10px';
+            errorDisplay.style.borderRadius = '5px';
+            errorDisplay.style.zIndex = '10000';
+            errorDisplay.style.maxWidth = '80%';
+            errorDisplay.style.fontFamily = 'monospace';
+            errorDisplay.textContent = `JavaScript Error: ${event.message} (${event.filename}:${event.lineno})`;
+            document.body.appendChild(errorDisplay);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => errorDisplay.remove(), 10000);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Running diagnostic checks');
+            
+            // Test debug button functionality
+            const debugToggle = document.getElementById('globalDebugToggle');
+            const debugBox = document.getElementById('globalDebugBox');
+            
+            console.log('Debug elements found:', !!debugToggle, !!debugBox);
+            
+            if (debugToggle && debugBox) {
+                console.log('Adding debug toggle event listener');
+                debugToggle.addEventListener('click', function() {
+                    console.log('Debug button clicked');
+                    document.body.classList.toggle('debug-mode');
+                    debugBox.style.display = debugBox.style.display === 'none' ? 'block' : 'none';
+                    console.log('Debug box display:', debugBox.style.display);
+                    
+                    if (window.logDebug) {
+                        window.logDebug('Debug mode ' + (document.body.classList.contains('debug-mode') ? 'enabled' : 'disabled'));
+                    } else {
+                        console.error('logDebug function not available');
+                    }
+                });
+            }
+            
+            // Test CSS variables
+            function testCSSVariables() {
+                const elementsToTest = [
+                    { selector: 'body', description: 'Body' },
+                    { selector: '.main-header', description: 'Header' },
+                    { selector: '.main-content', description: 'Main content' },
+                    { selector: '.main-footer', description: 'Footer' }
+                ];
+                
+                console.log('Testing CSS variables on elements:');
+                elementsToTest.forEach(item => {
+                    const element = document.querySelector(item.selector);
+                    if (element) {
+                        const styles = window.getComputedStyle(element);
+                        const bgColor = styles.backgroundColor;
+                        const color = styles.color;
+                        console.log(`${item.description} styles:`, {
+                            backgroundColor: bgColor,
+                            color: color,
+                            element: element
+                        });
+                    } else {
+                        console.error(`Element not found: ${item.selector}`);
+                    }
+                });
+            }
+            
+            // Run CSS test after a slight delay to ensure styles are applied
+            setTimeout(testCSSVariables, 500);
+            
+            // Test if global debug function is defined
+            if (window.logDebug) {
+                window.logDebug('Diagnostic script executed');
+            } else {
+                console.error('logDebug function is not defined!');
+                // Define it if missing
+                window.logDebug = function(message, type = 'info') {
+                    console.log(`[${type}] ${message}`);
+                    
+                    // Create a fallback debug display if needed
+                    const debugBox = document.getElementById('globalDebugBox');
+                    if (debugBox) {
+                        const entry = document.createElement('div');
+                        entry.textContent = `[${new Date().toISOString()}] [${type}] ${message}`;
+                        debugBox.appendChild(entry);
+                    }
+                };
+                console.log('Created fallback logDebug function');
+            }
+            
+            // Global debugging information
+            console.log('Page URL:', window.location.href);
+            console.log('Viewport size:', window.innerWidth, 'x', window.innerHeight);
+            
+            // Test if window.logPageInfo exists and run it
+            if (window.logPageInfo) {
+                window.logPageInfo();
+            } else {
+                console.error('logPageInfo function is not defined!');
+            }
+        });
+    </script>
+    {% endblock %}
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

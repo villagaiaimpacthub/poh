@@ -1,29 +1,43 @@
-<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20 0C8.954 0 0 8.954 0 20C0 31.046 8.954 40 20 40C31.046 40 40 31.046 40 20C40 8.954 31.046 0 20 0ZM20 36C11.163 36 4 28.837 4 20C4 11.163 11.163 4 20 4C28.837 4 36 11.163 36 20C36 28.837 28.837 36 20 36Z" fill="url(#paint0_linear)"/>
-  <path d="M20 8C13.373 8 8 13.373 8 20C8 26.627 13.373 32 20 32C26.627 32 32 26.627 32 20C32 13.373 26.627 8 20 8ZM20 28C15.582 28 12 24.418 12 20C12 15.582 15.582 12 20 12C24.418 12 28 15.582 28 20C28 24.418 24.418 28 20 28Z" fill="url(#paint1_linear)"/>
-  <path d="M20 16C17.791 16 16 17.791 16 20C16 22.209 17.791 24 20 24C22.209 24 24 22.209 24 20C24 17.791 22.209 16 20 16Z" fill="url(#paint2_linear)"/>
-  <path d="M52 10H56V30H52V10Z" fill="#333333"/>
-  <path d="M60 10H64V13H64.2C64.6 12 65.4 10 68.2 10C72.2 10 74 13 74 17V30H70V18C70 16 69.6 14 67 14C64.4 14 64 16.5 64 18.5V30H60V10Z" fill="#333333"/>
-  <path d="M84 30H80V10H84V12H84.2C85 10.8 86.4 9.5 89 9.5C94 9.5 97 13.5 97 20C97 26.5 94 30.5 89 30.5C86.4 30.5 85 29.2 84.2 28H84V30ZM88 26.5C91 26.5 93 24.5 93 20C93 15.5 91 13.5 88 13.5C85 13.5 83 15.5 83 20C83 24.5 85 26.5 88 26.5Z" fill="#333333"/>
-  <path d="M100 10H104V30H100V10Z" fill="#333333"/>
-  <path d="M108 10H112V30H108V10Z" fill="#333333"/>
-  <path d="M124 30H120V10H124V30Z" fill="#333333"/>
-  <path d="M128 20C128 14 132 9.5 138 9.5C144 9.5 148 14 148 20C148 26 144 30.5 138 30.5C132 30.5 128 26 128 20ZM144 20C144 16 141.8 13.5 138 13.5C134.2 13.5 132 16 132 20C132 24 134.2 26.5 138 26.5C141.8 26.5 144 24 144 20Z" fill="#333333"/>
-  <path d="M150 10H154V13H154.2C154.6 12 155.4 10 158.2 10C162.2 10 164 13 164 17V30H160V18C160 16 159.6 14 157 14C154.4 14 154 16.5 154 18.5V30H150V10Z" fill="#333333"/>
-  <path d="M174 30H170V10H174V30Z" fill="#333333"/>
-  <path d="M178 10H182V30H178V10Z" fill="#333333"/>
-  <defs>
-    <linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6E8EFB"/>
-      <stop offset="1" stop-color="#A777E3"/>
-    </linearGradient>
-    <linearGradient id="paint1_linear" x1="8" y1="8" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6E8EFB"/>
-      <stop offset="1" stop-color="#A777E3"/>
-    </linearGradient>
-    <linearGradient id="paint2_linear" x1="16" y1="16" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6E8EFB"/>
-      <stop offset="1" stop-color="#A777E3"/>
-    </linearGradient>
-  </defs>
+<svg width="160" height="48" viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Logo Container -->
+  <g id="poh-logo">
+    <!-- Gradient Definitions -->
+    <defs>
+      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7a43ff" />
+        <stop offset="100%" stop-color="#43d1ff" />
+      </linearGradient>
+      <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7a43ff" />
+        <stop offset="100%" stop-color="#ff57da" />
+      </linearGradient>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    
+    <!-- Network Circle -->
+    <circle cx="24" cy="24" r="22" fill="#0f172a" stroke="url(#logoGradient)" stroke-width="2" />
+    
+    <!-- P stylized as connected nodes -->
+    <g filter="url(#glow)">
+      <!-- Central Node -->
+      <circle cx="24" cy="18" r="6" fill="url(#nodeGradient)" />
+      
+      <!-- Connections -->
+      <line x1="24" y1="18" x2="24" y2="30" stroke="url(#logoGradient)" stroke-width="2" />
+      <line x1="24" y1="18" x2="17" y2="12" stroke="url(#logoGradient)" stroke-width="2" />
+      <line x1="24" y1="18" x2="31" y2="12" stroke="url(#logoGradient)" stroke-width="2" />
+      
+      <!-- Connected Nodes -->
+      <circle cx="24" cy="30" r="4" fill="url(#nodeGradient)" />
+      <circle cx="17" cy="12" r="4" fill="url(#nodeGradient)" />
+      <circle cx="31" cy="12" r="4" fill="url(#nodeGradient)" />
+    </g>
+    
+    <!-- "Proof of Humanity" text -->
+    <text x="54" y="22" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="white">Proof of</text>
+    <text x="54" y="38" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="url(#logoGradient)">Humanity</text>
+  </g>
 </svg> 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Benefits & Services - {{ super() }}{% endblock %}
+{% block title %}Access Services - {{ super() }}{% endblock %}
 
 {% block styles %}
 <style>
@@ -17,6 +17,9 @@
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
     .benefit-card:hover {
@@ -60,6 +63,11 @@
         color: rgba(255, 255, 255, 0.7);
         line-height: 1.6;
         margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+    
+    .benefit-cta {
+        margin-top: auto;
     }
     
     .coming-soon {
@@ -73,6 +81,171 @@
         margin-left: 0.5rem;
         vertical-align: middle;
     }
+    
+    .in-progress {
+        display: inline-block;
+        background: rgba(67, 209, 255, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+    
+    /* Partners section */
+    .partners-section {
+        padding: 4rem 0;
+        text-align: center;
+        border-top: 1px solid rgba(122, 67, 255, 0.2);
+        background-color: rgba(15, 23, 42, 0.3);
+        margin-top: 3rem;
+    }
+    
+    .partners-heading {
+        color: white;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .partners-subheading {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Hive Mind Network CTA Section Styling */
+    .hivemind-cta-section {
+        padding: 5rem 0;
+        background-color: #0f172a;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid rgba(122, 67, 255, 0.2);
+    }
+    
+    .hivemind-cta {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .hivemind-cta h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #7a43ff, #43d1ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .hivemind-cta p {
+        font-size: 1.125rem;
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #7a43ff, #43d1ff);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 15px rgba(122, 67, 255, 0.3);
+    }
+    
+    .btn-primary i {
+        margin-left: 0.5rem;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(122, 67, 255, 0.4);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: white;
+    }
+    
+    .email-signup {
+        display: flex;
+        max-width: 500px;
+        margin: 0 auto 3rem;
+        gap: 0.5rem;
+    }
+    
+    .email-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(122, 67, 255, 0.3);
+        background: rgba(30, 41, 59, 0.5);
+        color: white;
+        font-size: 1rem;
+    }
+    
+    .email-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Fix for the grid layout */
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+        .hivemind-cta h2 {
+            font-size: 2rem;
+        }
+        
+        .hivemind-cta p {
+            font-size: 1rem;
+        }
+        
+        .email-signup {
+            flex-direction: column;
+        }
+        
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -80,107 +253,132 @@
 <div class="container">
     <section class="benefits-section">
         <div class="section-header-web5">
-            <h1 class="section-title-web5">Benefits & Services</h1>
+            <h1 class="section-title-web5">Access Services</h1>
             <p class="section-subtitle-web5">
                 Unlock these powerful services after completing your Proof of Humanity verification
             </p>
         </div>
         
-        <div class="row">
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="benefit-title">HIVE Mind</h3>
-                    <p class="benefit-description">
-                        Connect with a collaborative intelligence network where verified humans share knowledge, 
-                        insights, and expertise. Access the collective wisdom of humanity through a 
-                        secure, verified platform.
-                    </p>
-                    <a href="#" class="btn-web5">Learn More</a>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="benefit-title">HIVE Mind</h3>
+                <p class="benefit-description">
+                    Connect with a collaborative intelligence network where verified humans share knowledge, 
+                    insights, and expertise. Access the collective wisdom of humanity through a 
+                    secure, verified platform.
+                </p>
+                <div class="benefit-cta">
+                    <a href="https://vox-v2.replit.app" target="_blank" class="btn-web5">Learn More</a>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3 class="benefit-title">Your Unique Proxy AI Agent</h3>
-                    <p class="benefit-description">
-                        Get your personal AI assistant trained on your preferences, values, and interaction style.
-                        This agent represents you in digital spaces while respecting your privacy and autonomy.
-                    </p>
-                    <a href="#" class="btn-web5">Explore</a>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="benefit-title">Your Unique Proxy AI Agent <span class="in-progress">In Progress</span></h3>
+                <p class="benefit-description">
+                    Get your personal AI assistant trained on your preferences, values, and interaction style.
+                    This agent represents you in digital spaces while respecting your privacy and autonomy.
+                </p>
+                <div class="benefit-cta">
+                    <a href="#" class="btn-web5">Coming Soon</a>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-scroll"></i>
-                    </div>
-                    <h3 class="benefit-title">The Foundation Protocols</h3>
-                    <p class="benefit-description">
-                        Access a set of core protocols designed to establish trusted interactions between verified 
-                        humans. Build and participate in decentralized applications with confidence in the 
-                        human-centric foundation.
-                    </p>
-                    <a href="#" class="btn-web5">Discover</a>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-scroll"></i>
+                </div>
+                <h3 class="benefit-title">The Foundation Protocols <span class="in-progress">In Progress</span></h3>
+                <p class="benefit-description">
+                    Access a set of core protocols designed to establish trusted interactions between verified 
+                    humans. Build and participate in decentralized applications with confidence in the 
+                    human-centric foundation.
+                </p>
+                <div class="benefit-cta">
+                    <a href="#" class="btn-web5">Coming Soon</a>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3 class="benefit-title">Network of Experts</h3>
-                    <p class="benefit-description">
-                        Connect with verified experts in various fields. Get trusted advice, mentorship, 
-                        and consultation from professionals whose identities and credentials have been 
-                        verified through the PoH system.
-                    </p>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="benefit-title">Network of Experts</h3>
+                <p class="benefit-description">
+                    Connect with verified experts in various fields. Get trusted advice, mentorship, 
+                    and consultation from professionals whose identities and credentials have been 
+                    verified through the PoH system.
+                </p>
+                <div class="benefit-cta">
                     <a href="#" class="btn-web5">Connect</a>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <h3 class="benefit-title">Earn Presence Token</h3>
-                    <p class="benefit-description">
-                        Receive Presence Tokens for active participation in the network. These tokens 
-                        represent your continued engagement as a verified human and can be used within 
-                        the ecosystem for various benefits and services.
-                    </p>
-                    <a href="#" class="btn-web5">Start Earning</a>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <h3 class="benefit-title">Earn Presence Token <span class="in-progress">In Progress</span></h3>
+                <p class="benefit-description">
+                    Receive Presence Tokens for active participation in the network. These tokens 
+                    represent your continued engagement as a verified human and can be used within 
+                    the ecosystem for various benefits and services.
+                </p>
+                <div class="benefit-cta">
+                    <a href="#" class="btn-web5">Coming Soon</a>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <h3 class="benefit-title">Parallax Exchange</h3>
-                    <p class="benefit-description">
-                        Access a next-generation exchange platform where verified humans can trade assets, 
-                        services, and value with full confidence in the identity of their counterparties.
-                    </p>
-                    <a href="#" class="btn-web5">Trade Now</a>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3 class="benefit-title">Parallax Exchange <span class="in-progress">In Progress</span></h3>
+                <p class="benefit-description">
+                    Access a next-generation exchange platform where verified humans can trade assets, 
+                    services, and value with full confidence in the identity of their counterparties.
+                </p>
+                <div class="benefit-cta">
+                    <a href="#" class="btn-web5">Coming Soon</a>
                 </div>
             </div>
         </div>
-        
-        <div class="text-center mt-5">
-            <h3 class="mb-4" style="color: white;">More Partners Coming Soon</h3>
-            <p class="text-light mb-4">We're constantly expanding our network of partners and services available to verified humans.</p>
+    </section>
+    
+    <!-- Partners Section -->
+    <section class="partners-section">
+        <div class="container">
+            <h3 class="partners-heading">More Partners Coming Soon</h3>
+            <p class="partners-subheading">We're constantly expanding our network of partners and services available to verified humans.</p>
             <a href="#" class="btn-web5">Become a Partner</a>
         </div>
     </section>
+    
+    <!-- Hive Mind Network CTA Section -->
+    <section class="hivemind-cta-section">
+        <div class="container">
+            <div class="hivemind-cta">
+                <h2>Start Building Your Human Network</h2>
+                <p>Join forward-thinking organizations already using Proof of Humanity to transform their collective intelligence. Our platform is free forever - no trials, no commitments.</p>
+                <div class="cta-buttons">
+                    <a href="https://vox-v2.replit.app" target="_blank" class="btn-primary">Get Started <i class="fas fa-arrow-right"></i></a>
+                    <a href="https://vox-v2.replit.app/demo" target="_blank" class="btn-outline">Learn More</a>
+                </div>
+                <div class="email-signup">
+                    <input type="email" placeholder="Enter your email" class="email-input">
+                    <button class="btn-primary">Join the Network</button>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
 {% endblock %} 

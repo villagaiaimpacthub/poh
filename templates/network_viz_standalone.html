@@ -5,44 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Humanity Network Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script>
-        // Error handling for D3
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof d3 === 'undefined') {
-                document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: D3.js failed to load. Please check your internet connection and refresh.</div>';
-            }
-            console.log('D3 loaded:', typeof d3 !== 'undefined', 'version:', d3?.version);
-        });
-    </script>
-    <script src="{{ url_for('static', filename='js/network_viz.js') }}?v={{ now().timestamp() }}" defer></script>
+    <script src="{{ url_for('static', filename='js/network_viz.js', _external=True) }}?v={{ now().timestamp() }}" defer></script>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background: #1a1b26;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: transparent !important;
             color: white;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
-        #control-panel {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
+        
         #network-container {
             flex-grow: 1;
             position: relative;
             overflow: hidden;
             width: 100%;
-            height: calc(100vh - 200px);
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.3);
         }
+        
         #network {
             width: 100%;
             height: 100%;
@@ -50,149 +35,390 @@
             top: 0;
             left: 0;
         }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-        }
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-        }
-        button:hover {
-            background-color: #388E3C !important;
-        }
-        button:disabled {
-            background-color: #666 !important;
-            cursor: not-allowed;
-        }
-        .stats-container {
-            display: flex;
-            gap: 25px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .auto-grow-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        input[type="range"] {
-            width: 150px;
-        }
+        
         .tooltip {
             position: absolute;
             visibility: hidden;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(30, 41, 59, 0.9);
             color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
             pointer-events: none;
             z-index: 1000;
+            border: 1px solid rgba(122, 67, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        .legend {
-            display: flex;
-            gap: 20px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
+        
+        /* Error message with improved styling */
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(15, 23, 42, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid rgba(122, 67, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
+        
+        .error-message h3 {
+            margin-top: 0;
+            color: #43d1ff;
         }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid white;
+        
+        .error-message p {
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.8);
         }
-        .legend-founder { background: #FFD700; }    /* Gold */
-        .legend-grandparent { background: #800080; } /* Purple */
-        .legend-parent { background: #4169E1; }      /* Royal Blue */
-        .legend-child { background: #32CD32; }       /* Lime Green */
+        
+        /* Debug log */
+        .debug-log {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: lime;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 90%;
+            max-height: 150px;
+            overflow: auto;
+            z-index: 9999;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
-    <div id="control-panel">
-        <div class="button-group">
-            <button id="grow-btn">Grow Network</button>
-            <button id="verify-btn">Verify Selected</button>
-            <button id="reset-btn">Reset</button>
-            <button id="center-btn">Center</button>
-            <button id="back-btn" disabled>Back</button>
-            <button id="zoom-in">+</button>
-            <button id="zoom-out">-</button>
-            <button id="zoom-reset">1:1</button>
-        </div>
-        
-        <div class="auto-grow-container">
-            <div class="slider-container">
-                <label for="founder-count">Initial Founders:</label>
-                <input type="range" id="founder-count" min="2" max="12" value="8" step="1">
-                <span id="founder-value">8 founders</span>
-            </div>
-            <div class="slider-container">
-                <label for="invite-frequency">Verification Period:</label>
-                <input type="range" id="invite-frequency" min="1" max="7" value="3" step="1">
-                <span id="invite-value">3 days</span>
-            </div>
-            <div>
-                <label>
-                    <input type="checkbox" id="auto-grow"> Auto Verification
-                </label>
-            </div>
-        </div>
-        
-        <div class="stats-container">
-            <div>Network Size: <span id="user-count">0</span></div>
-            <div>Days: <span id="days-count">0</span></div>
-            <div>Selected Nodes: <span id="selected-nodes">None</span></div>
-            <div>Verification Status: <span id="verification-status">-</span></div>
-        </div>
-        
-        <div class="stats-container">
-            <div>Node Types:</div>
-            <div style="color: #FFD700">● Full Network Access (Gold) - 5 Family DIDs + 1 Personal DID</div>
-            <div style="color: #800080">● Grandparent (Purple) - 2 Family DIDs + 1 Personal DID</div>
-            <div style="color: #4169E1">● Parent (Blue) - 1 Family DID + 1 Personal DID</div>
-            <div style="color: #32CD32">● Child (Green) - No DIDs</div>
-        </div>
-    </div>
-    
     <div id="network-container">
         <div id="network"></div>
     </div>
     <div class="tooltip"></div>
+    <div class="debug-log" id="debug-log"></div>
+    
+    <script>
+        // Debug log function
+        function vizLog(message, type = 'info') {
+            const debugLog = document.getElementById('debug-log');
+            if (!debugLog) {
+                // Create debug log if it doesn't exist
+                const newDebugLog = document.createElement('div');
+                newDebugLog.id = 'debug-log';
+                newDebugLog.className = 'debug-log';
+                document.body.appendChild(newDebugLog);
+                
+                console.log('Created missing debug log element');
+            }
+            
+            const timestamp = new Date().toISOString().substr(11, 8);
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = `[${timestamp}] [${type}] ${message}`;
+            
+            if (type === 'error') {
+                entry.style.color = '#ff5757';
+            } else if (type === 'warning') {
+                entry.style.color = '#ffbb00';
+            } else if (type === 'success') {
+                entry.style.color = '#00ff66';
+            }
+            
+            document.getElementById('debug-log').appendChild(entry);
+            document.getElementById('debug-log').scrollTop = document.getElementById('debug-log').scrollHeight;
+            
+            // Also log to console with better formatting
+            console[type in console ? type : 'log'](`[VIZ][${type.toUpperCase()}] ${message}`);
+            
+            // Send message to parent
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'viz-log',
+                        message: message,
+                        logType: type
+                    }, '*');
+                }
+            } catch (e) {
+                console.error('Error sending message to parent:', e);
+            }
+        }
+        
+        // Make vizLog global
+        window.vizLog = vizLog;
+        
+        // Helper function to show errors in the visualization
+        function showError(title, message) {
+            vizLog('Showing error: ' + title + ' - ' + message, 'error');
+            
+            const networkContainer = document.getElementById('network-container');
+            if (!networkContainer) {
+                console.error('Cannot show error - network container not found');
+                return;
+            }
+            
+            // Create error message
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.innerHTML = `
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <button id="refresh-btn" style="margin-top: 15px; padding: 8px 16px; background: #7a43ff; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh</button>
+            `;
+            
+            // Clear container and add error
+            networkContainer.innerHTML = '';
+            networkContainer.appendChild(errorElement);
+            
+            // Add refresh button handler
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+        
+        // Make showError global
+        window.showError = showError;
+        
+        // Enhanced environment info logging with more detail
+        function logEnvironmentInfo() {
+            vizLog('DIAGNOSTIC SESSION START', 'info');
+            vizLog('Timestamp: ' + new Date().toISOString());
+            vizLog('URL: ' + window.location.href);
+            vizLog('Referrer: ' + document.referrer);
+            vizLog('Window dimensions: ' + window.innerWidth + 'x' + window.innerHeight);
+            
+            const networkContainer = document.getElementById('network-container');
+            if (networkContainer) {
+                vizLog('Network container dimensions: ' + 
+                      networkContainer.offsetWidth + 'x' + 
+                      networkContainer.offsetHeight);
+            } else {
+                vizLog('Network container element not found!', 'error');
+            }
+            
+            // Check if D3 is available
+            if (typeof d3 === 'undefined') {
+                vizLog('D3.js is not loaded!', 'error');
+            } else {
+                vizLog('D3.js version: ' + d3.version, 'success');
+                
+                // Log some D3 capabilities to confirm it's working properly
+                try {
+                    const testSelection = d3.select('body');
+                    vizLog('D3 selection test: ' + (testSelection.size() > 0 ? 'Success' : 'Failed'), 
+                           testSelection.size() > 0 ? 'success' : 'error');
+                } catch (e) {
+                    vizLog('D3 selection test error: ' + e.message, 'error');
+                }
+            }
+            
+            // Check if we're in an iframe
+            if (window.self !== window.top) {
+                vizLog('Running in iframe', 'info');
+                
+                // Try to get parent page URL
+                try {
+                    const parentUrl = document.referrer || 'unknown';
+                    vizLog('Parent page: ' + parentUrl);
+                } catch (e) {
+                    vizLog('Cannot access parent information: ' + e.message, 'warning');
+                }
+            } else {
+                vizLog('Running in top window', 'warning');
+            }
+            
+            // Check if network_viz.js script is loaded
+            const scripts = Array.from(document.scripts);
+            const networkVizScript = scripts.find(script => script.src && script.src.includes('network_viz.js'));
+            if (networkVizScript) {
+                vizLog('network_viz.js script found: ' + networkVizScript.src, 'success');
+                if (networkVizScript.defer) {
+                    vizLog('network_viz.js has defer attribute', 'info');
+                }
+            } else {
+                vizLog('network_viz.js script not found in DOM!', 'error');
+                
+                // Forcibly load it
+                vizLog('Attempting to load network_viz.js dynamically', 'warning');
+                const scriptElement = document.createElement('script');
+                scriptElement.src = '/static/js/network_viz.js?v=' + new Date().getTime();
+                scriptElement.onload = () => vizLog('Dynamic script load succeeded', 'success');
+                scriptElement.onerror = () => vizLog('Dynamic script load failed', 'error');
+                document.head.appendChild(scriptElement);
+            }
+            
+            // Check if global network_viz functions exist
+            setTimeout(() => {
+                if (typeof window.initializeVisualization === 'function') {
+                    vizLog('initializeVisualization function exists', 'success');
+                } else {
+                    vizLog('initializeVisualization function not found', 'error');
+                }
+                
+                if (typeof window.loadNetworkData === 'function') {
+                    vizLog('loadNetworkData function exists', 'success');
+                    
+                    // Try loading network data
+                    window.loadNetworkData()
+                        .then(data => {
+                            vizLog(`Network data loaded successfully: ${data.nodes.length} nodes, ${data.links.length} links`, 'success');
+                        })
+                        .catch(error => {
+                            vizLog('Error loading network data: ' + error.message, 'error');
+                        });
+                } else {
+                    vizLog('loadNetworkData function not found', 'error');
+                }
+            }, 1000);
+            
+            // Check CSS computed styles
+            if (networkContainer) {
+                const style = window.getComputedStyle(networkContainer);
+                vizLog('Container background: ' + style.backgroundColor);
+                vizLog('Container position: ' + style.position);
+                vizLog('Container dimensions (computed): ' + style.width + ' x ' + style.height);
+            }
+            
+            // Browser capabilities
+            vizLog('User agent: ' + navigator.userAgent);
+            vizLog('Device pixel ratio: ' + window.devicePixelRatio);
+            vizLog('Platform: ' + navigator.platform);
+        }
+        
+        // Expose environment info function globally
+        window.logEnvironmentInfo = logEnvironmentInfo;
+        
+        // Log environment information
+        function logEnvironmentInfo() {
+            vizLog('URL: ' + window.location.href);
+            vizLog('Referrer: ' + document.referrer);
+            vizLog('Window dimensions: ' + window.innerWidth + 'x' + window.innerHeight);
+            vizLog('Network container dimensions: ' + 
+                  document.getElementById('network-container').offsetWidth + 'x' + 
+                  document.getElementById('network-container').offsetHeight);
+            
+            // Check if D3 is available
+            if (typeof d3 === 'undefined') {
+                vizLog('D3.js is not loaded!', 'error');
+            } else {
+                vizLog('D3.js version: ' + d3.version, 'success');
+            }
+            
+            // Check if we're in an iframe
+            if (window.self !== window.top) {
+                vizLog('Running in iframe', 'info');
+            } else {
+                vizLog('Running in top window', 'warning');
+            }
+            
+            // Check if network_viz.js script is loaded
+            const scripts = Array.from(document.scripts);
+            const networkVizScript = scripts.find(script => script.src && script.src.includes('network_viz.js'));
+            if (networkVizScript) {
+                vizLog('network_viz.js script found: ' + networkVizScript.src, 'success');
+                if (networkVizScript.defer) {
+                    vizLog('network_viz.js has defer attribute', 'info');
+                }
+            } else {
+                vizLog('network_viz.js script not found in DOM!', 'error');
+            }
+            
+            // Check CSS computed styles
+            const networkContainer = document.getElementById('network-container');
+            if (networkContainer) {
+                const style = window.getComputedStyle(networkContainer);
+                vizLog('Container background: ' + style.backgroundColor);
+                vizLog('Container position: ' + style.position);
+                vizLog('Container dimensions (computed): ' + style.width + ' x ' + style.height);
+            }
+        }
+        
+        // Error handling
+        window.addEventListener('DOMContentLoaded', () => {
+            vizLog('DOMContentLoaded event fired', 'success');
+            logEnvironmentInfo();
+            
+            // Check for network div
+            const networkDiv = document.getElementById('network');
+            if (!networkDiv) {
+                vizLog('Network div not found in DOM!', 'error');
+            } else {
+                vizLog('Network div found', 'success');
+            }
+            
+            if (typeof d3 === 'undefined') {
+                vizLog('D3.js failed to load', 'error');
+                showError('Error: D3.js failed to load', 'Please check your internet connection and try again.');
+                return;
+            }
+            
+            // Monitor for network_viz.js to load and execute
+            let vizInitCheckCount = 0;
+            const checkVizInit = setInterval(() => {
+                vizInitCheckCount++;
+                
+                // Check if any SVG elements are created in the network div
+                const svgElements = document.querySelectorAll('#network svg');
+                if (svgElements.length > 0) {
+                    vizLog('SVG elements found in network div (' + svgElements.length + ')', 'success');
+                    clearInterval(checkVizInit);
+                    
+                    // Check for network nodes
+                    const nodes = document.querySelectorAll('#network circle.node');
+                    vizLog('Found ' + nodes.length + ' network nodes', nodes.length > 0 ? 'success' : 'warning');
+                    
+                    if (nodes.length > 0) {
+                        // Success - notify parent window
+                        try {
+                            if (window.parent && window.parent !== window) {
+                                vizLog('Sending vizLoaded event to parent window', 'success');
+                                window.parent.postMessage('viz-iframe-loaded', '*');
+                                
+                                // Create custom event
+                                const vizLoadedEvent = new CustomEvent('vizLoaded');
+                                document.dispatchEvent(vizLoadedEvent);
+                            }
+                        } catch (e) {
+                            vizLog('Error sending message to parent: ' + e.message, 'error');
+                        }
+                    }
+                } else if (vizInitCheckCount >= 20) { // 5 seconds (250ms * 20)
+                    vizLog('Visualization did not initialize within timeout period', 'error');
+                    clearInterval(checkVizInit);
+                    showError('Visualization Failed to Load', 'The network visualization is taking too long to render. This may be due to high network traffic or resource constraints.');
+                } else {
+                    vizLog('Waiting for visualization to initialize... (' + vizInitCheckCount + '/20)');
+                }
+            }, 250);
+            
+            // Monitor for errors
+            window.addEventListener('error', function(event) {
+                vizLog('JavaScript error: ' + event.message + ' in ' + event.filename + ' line ' + event.lineno, 'error');
+            });
+            
+            // Monitor for rejected promises
+            window.addEventListener('unhandledrejection', function(event) {
+                vizLog('Unhandled promise rejection: ' + (event.reason ? event.reason.message : 'Unknown reason'), 'error');
+            });
+        });
+        
+        // Notify the parent window that this iframe has loaded
+        window.addEventListener('load', () => {
+            vizLog('Window load event fired', 'success');
+            
+            if (window.parent && window.parent !== window) {
+                try {
+                    window.parent.postMessage('viz-iframe-loaded', '*');
+                    vizLog('Sent viz-iframe-loaded message to parent', 'success');
+                } catch (e) {
+                    vizLog('Error sending message to parent: ' + e.message, 'error');
+                }
+            }
+        });
+    </script>
 </body>
 </html> 

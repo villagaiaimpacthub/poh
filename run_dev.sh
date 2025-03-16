@@ -3,12 +3,12 @@
 
 # Start Flask development server in the background
 echo "Starting Flask development server..."
-flask run --host=0.0.0.0 --port=5000 &
+python3 -m flask run --host=0.0.0.0 --port=5003 &
 FLASK_PID=$!
 
 # Start mail server for testing in the background
 echo "Starting development mail server..."
-python -m smtpd -n -c DebuggingServer localhost:1025 &
+python3 -m smtpd -n -c DebuggingServer localhost:1025 &
 MAIL_PID=$!
 
 # Provide a simple TURN server for WebRTC testing
@@ -17,7 +17,7 @@ echo "Starting simple TURN server..."
 # or use a service like Twilio for WebRTC testing
 
 echo "Development services started!"
-echo "Flask server: http://localhost:5000"
+echo "Flask server: http://localhost:5003"
 echo "Mail server: localhost:1025"
 
 # Handle exit

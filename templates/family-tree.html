@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Trust Network - Proof of Humanity{% endblock %}
+{% block title %}Family Tree | Proof of Humanity{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/family-tree.css') }}">
@@ -151,133 +151,116 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div class="container">
-        <h1>Trust Network</h1>
-        <p>Explore the interconnected network of verified humans in the Proof of Humanity ecosystem.</p>
+<div class="container page-container">
+    <div class="page-header">
+        <h1>Your Trust Network</h1>
+        <p class="page-description">Explore your connections in the Proof of Humanity network and see how it grows with each verification.</p>
     </div>
-</div>
-
-<div class="network-container">
-    <div class="network-stats">
-        <div class="stats-card">
-            <div class="stats-number" id="network-size">10,285</div>
-            <div class="stats-label">Verified Humans</div>
+    
+    <div class="family-tree-container">
+        <div class="tree-controls">
+            <button id="zoom-in" class="tree-control-btn"><i class="fas fa-search-plus"></i></button>
+            <button id="zoom-out" class="tree-control-btn"><i class="fas fa-search-minus"></i></button>
+            <button id="reset-view" class="tree-control-btn"><i class="fas fa-expand"></i></button>
         </div>
         
-        <div class="stats-card">
-            <div class="stats-number" id="connections-count">28,741</div>
-            <div class="stats-label">Trust Connections</div>
+        <div class="tree-visualization">
+            <iframe src="{{ url_for('network.viz') }}" frameborder="0" width="100%" height="100%" allow="fullscreen" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         
-        <div class="stats-card">
-            <div class="stats-number" id="growth-rate">+7.2%</div>
-            <div class="stats-label">Monthly Growth</div>
-        </div>
-        
-        <div class="stats-card">
-            <div class="stats-number" id="active-verifiers">1,529</div>
-            <div class="stats-label">Active Verifiers</div>
+        <div class="tree-legend">
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #3a7bd5;"></span>
+                <span class="legend-label">You</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #5a65d6;"></span>
+                <span class="legend-label">Your Parent</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #7a43ff;"></span>
+                <span class="legend-label">Your Grandparent</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #43d1ff;"></span>
+                <span class="legend-label">Your Children</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #43ffcd;"></span>
+                <span class="legend-label">Potential Connections</span>
+            </div>
         </div>
     </div>
     
-    <div class="visualization-container">
-        <div class="visualization-header">
-            <h2 class="visualization-title">Trust Network Visualization</h2>
-            
-            <div class="controls-container">
-                <button class="control-btn" id="reset-view"><i class="fas fa-sync-alt"></i>Reset</button>
-                <button class="control-btn" id="zoom-in"><i class="fas fa-search-plus"></i>Zoom In</button>
-                <button class="control-btn" id="zoom-out"><i class="fas fa-search-minus"></i>Zoom Out</button>
+    <div class="family-stats">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+                <h3>Total Network</h3>
+                <div class="stat-value">{{ stats.total_network|default('10,347') }}</div>
             </div>
         </div>
-        
-        <div class="network-container" id="network-container">
-            <!-- Network visualization will render here -->
-            <iframe src="{{ url_for('network.viz') }}" width="100%" height="600px" frameborder="0" id="network-iframe"></iframe>
-            <div class="zoom-controls">
-                <button id="zoom-in" class="zoom-btn" title="Zoom In"><i class="fas fa-plus"></i></button>
-                <button id="zoom-out" class="zoom-btn" title="Zoom Out"><i class="fas fa-minus"></i></button>
-                <button id="zoom-reset" class="zoom-btn" title="Reset Zoom"><i class="fas fa-expand"></i></button>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            <div class="stat-content">
+                <h3>Your Connections</h3>
+                <div class="stat-value">{{ stats.your_connections|default('12') }}</div>
             </div>
         </div>
-        
-        <div class="legend-container">
-            <h4 style="margin-bottom: 1rem; color: white; font-size: 1rem;">Network Legend</h4>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #ffb86c;"></div>
-                <div class="legend-label">Founders</div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-sitemap"></i></div>
+            <div class="stat-content">
+                <h3>Network Depth</h3>
+                <div class="stat-value">{{ stats.network_depth|default('3') }}</div>
             </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #cd5ff8;"></div>
-                <div class="legend-label">Grandparents</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #7a43ff;"></div>
-                <div class="legend-label">Parents</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #43d1ff;"></div>
-                <div class="legend-label">Children</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-certificate"></i></div>
+            <div class="stat-content">
+                <h3>Trust Score</h3>
+                <div class="stat-value">{{ stats.trust_score|default('87') }}%</div>
             </div>
         </div>
     </div>
+    
+    <div class="section-header">
+        <h2>Growth Opportunities</h2>
+        <p>Help grow the network by inviting new users</p>
+    </div>
+    
+    <div class="action-cards">
+        <div class="action-card">
+            <div class="action-icon"><i class="fas fa-user-plus"></i></div>
+            <h3>Invite New Users</h3>
+            <p>Extend your trust network by inviting friends and family to join Proof of Humanity</p>
+            <a href="{{ url_for('family.invite') }}" class="action-button">Send Invites</a>
+        </div>
+        <div class="action-card">
+            <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+            <h3>Schedule Verification</h3>
+            <p>Help verify new members and strengthen your trust connections</p>
+            <a href="{{ url_for('schedule_call') }}" class="action-button">Schedule Call</a>
+        </div>
+    </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Simple animation for stats numbers
-        const statsNumbers = document.querySelectorAll('.stats-number');
+        const iframe = document.querySelector('.tree-visualization iframe');
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const resetView = document.getElementById('reset-view');
         
-        statsNumbers.forEach(number => {
-            const finalValue = number.textContent;
-            const duration = 2000; // 2 seconds
-            const startValue = 0;
-            
-            let startTime = null;
-            
-            function animate(currentTime) {
-                if (!startTime) startTime = currentTime;
-                const elapsedTime = currentTime - startTime;
-                const progress = Math.min(elapsedTime / duration, 1);
-                
-                // Parse the final value and format appropriately
-                if (finalValue.includes('%')) {
-                    const numericValue = parseFloat(finalValue);
-                    const currentValue = (startValue + (numericValue * progress)).toFixed(1);
-                    number.textContent = `+${currentValue}%`;
-                } else {
-                    const numericValue = parseInt(finalValue.replace(/,/g, ''), 10);
-                    const currentValue = Math.floor(startValue + (numericValue * progress));
-                    number.textContent = currentValue.toLocaleString();
-                }
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                }
-            }
-            
-            requestAnimationFrame(animate);
+        zoomIn.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'zoomIn' }, '*');
         });
         
-        // Handle zoom controls to communicate with iframe
-        const iframe = document.querySelector('iframe');
-        const zoomInBtn = document.getElementById('zoom-in');
-        const zoomOutBtn = document.getElementById('zoom-out');
-        const resetBtn = document.getElementById('reset-view');
-        
-        zoomInBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'zoom-in' }, '*');
+        zoomOut.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'zoomOut' }, '*');
         });
         
-        zoomOutBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'zoom-out' }, '*');
-        });
-        
-        resetBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'reset' }, '*');
+        resetView.addEventListener('click', function() {
+            iframe.contentWindow.postMessage({ action: 'resetView' }, '*');
         });
     });
 </script>

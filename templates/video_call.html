@@ -3,313 +3,484 @@
 {% block title %}Video Verification - Proof of Humanity{% endblock %}
 
 {% block styles %}
-<style>
-    .video-call-container {
-        max-width: 100%;
-        margin: 0 auto;
-    }
-    
-    .video-call-header {
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    
-    .video-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .video-wrapper {
-        position: relative;
-        border-radius: 8px;
-        overflow: hidden;
-        background-color: #000;
-        min-height: 300px;
-    }
-    
-    .video-wrapper.local {
-        border: 2px solid #3498db;
-    }
-    
-    .video-wrapper.remote {
-        border: 2px solid #2ecc71;
-    }
-    
-    .video-label {
-        position: absolute;
-        bottom: 0.5rem;
-        left: 0.5rem;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-    }
-    
-    .local-video, .remote-video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .video-controls {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .control-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: white;
-        border: none;
-        font-size: 1.25rem;
-    }
-    
-    .control-btn.mute {
-        background-color: #3498db;
-    }
-    
-    .control-btn.mute.active {
-        background-color: #2980b9;
-    }
-    
-    .control-btn.video-toggle {
-        background-color: #3498db;
-    }
-    
-    .control-btn.video-toggle.active {
-        background-color: #2980b9;
-    }
-    
-    .control-btn.end-call {
-        background-color: #e74c3c;
-    }
-    
-    .verification-actions {
-        margin-top: 2rem;
-        text-align: center;
-    }
-    
-    .connection-status {
-        text-align: center;
-        margin-bottom: 1rem;
-        padding: 0.5rem;
-        border-radius: 4px;
-        font-size: 0.9rem;
-    }
-    
-    .connection-status.connecting {
-        background-color: #f5f5f5;
-        color: #7f8c8d;
-    }
-    
-    .connection-status.connected {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-    }
-    
-    .connection-status.failed {
-        background-color: #ffebee;
-        color: #c62828;
-    }
-    
-    .verification-info {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .verification-info h3 {
-        margin-bottom: 1rem;
-    }
-    
-    .verification-checklist {
-        margin-bottom: 1.5rem;
-    }
-    
-    .checklist-item {
-        display: flex;
-        margin-bottom: 0.5rem;
-        align-items: flex-start;
-    }
-    
-    .checklist-item input[type="checkbox"] {
-        margin-right: 0.5rem;
-        margin-top: 0.3rem;
-    }
-    
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 100;
-    }
-    
-    .modal-content {
-        background-color: white;
-        border-radius: 8px;
-        max-width: 500px;
-        margin: 10% auto;
-        padding: 2rem;
-        position: relative;
-    }
-    
-    .close-modal {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
-    
-    /* Waiting room styles */
-    .waiting-room {
-        text-align: center;
-        padding: 2rem;
-    }
-    
-    .waiting-spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        margin: 0 auto 1.5rem;
-        animation: spin 2s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .video-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .video-wrapper {
-            min-height: 250px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/video_call.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="video-call-container">
-    <div class="video-call-header">
-        <h1>Video Verification</h1>
-        <p>Verify your identity through a secure video call</p>
+<section class="video-call-header">
+    <div class="container">
+        <div class="section-header-web3">
+            <h1 class="section-title-web3">Family Verification Call</h1>
+            <p class="section-subtitle-web3">Complete the verification process with your family members</p>
     </div>
     
-    <div class="connection-status connecting" id="connection-status">
-        Initializing video connection...
-    </div>
-    
-    <div id="waiting-room" class="waiting-room">
-        <div class="waiting-spinner"></div>
-        <h3>Waiting for the other participant to join...</h3>
-        <p>Verification session ID: {{ session_id }}</p>
-        <p>This page will automatically update when they connect.</p>
-    </div>
-    
-    <div id="video-call" style="display: none;">
-        <div class="video-grid">
-            <div class="video-wrapper local">
-                <video id="local-video" class="local-video" autoplay muted playsinline></video>
-                <div class="video-label">You</div>
+        <div class="verification-progress">
+            <div class="progress-stages">
+                <div class="progress-stage completed">
+                    <div class="stage-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Join Family</h4>
+                        <p>Invited by a trusted family member</p>
+                    </div>
+                    <div class="stage-badge">Completed</div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage completed">
+                    <div class="stage-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Schedule Call</h4>
+                        <p>Choose a time when your family is available</p>
+                    </div>
+                    <div class="stage-badge">Completed</div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage active">
+                    <div class="stage-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Video Verification</h4>
+                        <p>Complete the guided verification call</p>
+                    </div>
+                    <div class="stage-badge">In Progress</div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage">
+                    <div class="stage-icon">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Receive DIDs</h4>
+                        <p>Get your digital identity credentials</p>
+                    </div>
+                </div>
             </div>
-            <div class="video-wrapper remote">
-                <video id="remote-video" class="remote-video" autoplay playsinline></video>
-                <div class="video-label" id="remote-label">Verifier</div>
+        </div>
+    </div>
+</section>
+
+<section class="video-call-section">
+    <div class="container">
+        <div class="video-call-container">
+            <div class="call-info card-glass">
+                <div class="call-time">
+                    <div class="call-timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="call-timer">00:00</span>
+                    </div>
+                    <div class="call-status">
+                        <span class="status-badge waiting">Waiting for all participants</span>
+                    </div>
+                </div>
+                
+                <div class="participants-list">
+                    <h3>Participants</h3>
+                    <div class="participants">
+                        <div class="participant active">
+                            <div class="participant-avatar">
+                                <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="You">
+                            </div>
+                            <div class="participant-info">
+                                <span class="participant-name">You</span>
+                                <span class="status-badge status-child">Child</span>
+                            </div>
+                            <div class="connection-status">
+                                <i class="fas fa-circle connected"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="participant">
+                            <div class="participant-avatar">
+                                <img src="{{ url_for('static', filename='images/testimonial-1.jpg') }}" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                            </div>
+                            <div class="participant-info">
+                                <span class="participant-name">Sarah Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                            <div class="connection-status">
+                                <i class="fas fa-circle connected"></i>
+                            </div>
+    </div>
+    
+                        <div class="participant">
+                            <div class="participant-avatar">
+                                <img src="{{ url_for('static', filename='images/testimonial-2.jpg') }}" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                            </div>
+                            <div class="participant-info">
+                                <span class="participant-name">Michael Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                            <div class="connection-status">
+                                <i class="fas fa-circle connecting"></i>
+                            </div>
+    </div>
+    
+                        <div class="participant">
+                            <div class="participant-avatar">
+                                <img src="{{ url_for('static', filename='images/testimonial-3.jpg') }}" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                            </div>
+                            <div class="participant-info">
+                                <span class="participant-name">Elizabeth Smith</span>
+                                <span class="status-badge status-grandparent">Grandparent</span>
+                            </div>
+                            <div class="connection-status">
+                                <i class="fas fa-circle waiting"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        <div class="video-grid">
+                <div class="video-wrapper local card-glass">
+                    <video id="local-video" autoplay muted playsinline></video>
+                    <div class="video-overlay">
+                <div class="video-label">You</div>
+                        <div class="video-badge status-child">Child</div>
+                    </div>
+                </div>
+                
+                <div class="video-wrapper remote card-glass">
+                    <video id="remote-video-1" autoplay playsinline></video>
+                    <div class="video-overlay">
+                        <div class="video-label">Sarah Johnson</div>
+                        <div class="video-badge status-parent">Parent</div>
+                    </div>
+                </div>
+                
+                <div class="video-wrapper remote card-glass">
+                    <video id="remote-video-2" autoplay playsinline></video>
+                    <div class="video-overlay">
+                        <div class="video-label">Michael Johnson</div>
+                        <div class="video-badge status-parent">Parent</div>
+                    </div>
+                </div>
+                
+                <div class="video-wrapper remote card-glass">
+                    <video id="remote-video-3" autoplay playsinline></video>
+                    <div class="video-overlay">
+                        <div class="video-label">Elizabeth Smith</div>
+                        <div class="video-badge status-grandparent">Grandparent</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ai-assistant card-glass">
+                <div class="assistant-header">
+                    <div class="assistant-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="assistant-info">
+                        <h3>AI Verification Assistant</h3>
+                        <p>The AI assistant will guide you through the verification process</p>
             </div>
         </div>
         
-        <div class="video-controls">
-            <button id="mute-btn" class="control-btn mute" title="Mute/Unmute">
+                <div class="assistant-transcript">
+                    <div class="transcript-message assistant">
+                        <p>Welcome to the family verification call! I'm your AI assistant, and I'll guide you through the verification process.</p>
+                    </div>
+                    <div class="transcript-message assistant">
+                        <p>We're waiting for all participants to join. Please make sure your camera and microphone are enabled.</p>
+                    </div>
+                    <div class="transcript-message assistant current">
+                        <p>Once everyone is connected, I'll walk you through the verification steps. Each member will need to answer a few questions and confirm their relationship to others in the family.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="call-controls card-glass">
+                <div class="control-group">
+                    <button class="control-button" id="toggle-audio">
                 <i class="fas fa-microphone"></i>
             </button>
-            <button id="video-toggle-btn" class="control-btn video-toggle" title="Toggle Video">
+                    <span class="control-label">Mute</span>
+                </div>
+                
+                <div class="control-group">
+                    <button class="control-button" id="toggle-video">
                 <i class="fas fa-video"></i>
             </button>
-            <button id="end-call-btn" class="control-btn end-call" title="End Call">
-                <i class="fas fa-phone-slash"></i>
-            </button>
+                    <span class="control-label">Video</span>
         </div>
         
-        <div class="verification-info">
-            <h3>Verification Guidelines</h3>
-            <p>To complete the verification, both participants must confirm the following:</p>
-            
-            <div class="verification-checklist">
-                <div class="checklist-item">
-                    <input type="checkbox" id="check-identity" name="check-identity">
-                    <label for="check-identity">I confirm the identity of the other person matches their profile information</label>
+                <div class="control-group">
+                    <button class="control-button" id="share-screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <span class="control-label">Share</span>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="check-relationship" name="check-relationship">
-                    <label for="check-relationship">I confirm our relationship as indicated in the system is accurate</label>
+                
+                <div class="control-group">
+                    <button class="control-button" id="toggle-chat">
+                        <i class="fas fa-comment-alt"></i>
+                    </button>
+                    <span class="control-label">Chat</span>
                 </div>
-                <div class="checklist-item">
-                    <input type="checkbox" id="check-consent" name="check-consent">
-                    <label for="check-consent">I confirm I am participating in this verification willingly and consent to the verification process</label>
+                
+                <div class="control-group">
+                    <button class="control-button end-call" id="end-call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                    <span class="control-label">End Call</span>
                 </div>
             </div>
             
-            <p><strong>Note:</strong> The call is not recorded. Only the verification outcome is saved to the system.</p>
+            <div class="voting-panel card-glass" id="voting-panel" style="display: none;">
+                <div class="voting-header">
+                    <h3>Verification Vote</h3>
+                    <p>Confirm if this person is who they claim to be and is part of your family</p>
+                </div>
+                
+                <div class="voting-subject">
+                    <div class="subject-avatar">
+                        <img src="{{ url_for('static', filename='images/testimonial-2.jpg') }}" 
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                    </div>
+                    <div class="subject-info">
+                        <h4>Michael Johnson</h4>
+                        <span class="status-badge status-parent">Parent</span>
+                    </div>
         </div>
         
-        <div class="verification-actions">
-            <button id="complete-verification-btn" class="btn btn-primary" disabled>Complete Verification</button>
-            <a href="{{ url_for('verification.manage') }}" class="btn btn-secondary">Cancel</a>
+                <div class="voting-actions">
+                    <button class="btn-web3 vote-yes" id="vote-yes">
+                        <i class="fas fa-check"></i> Yes, Verify
+                    </button>
+                    <button class="btn btn-ghost vote-no" id="vote-no">
+                        <i class="fas fa-times"></i> No, Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal" id="confirmation-modal">
+    <div class="modal-content card-glass">
+        <div class="modal-header">
+            <h3>Verification Complete!</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="success-animation">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p>Congratulations! Your family verification has been successfully completed.</p>
+            
+            <div class="did-issuance">
+                <h4>Your Digital Identifiers (DIDs)</h4>
+                <div class="did-list">
+                    <div class="did-item">
+                        <div class="did-icon status-child">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="did-info">
+                            <h5>Personal DID</h5>
+                            <p class="did-value">did:poh:98a7b3c5f2e1d4...</p>
+                        </div>
+                    </div>
+                    <div class="did-item">
+                        <div class="did-icon status-parent">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="did-info">
+                            <h5>Family DID (1st)</h5>
+                            <p class="did-value">did:poh:family:45e6f7a8b9c0...</p>
+                        </div>
         </div>
     </div>
 </div>
 
-<!-- Result Modal -->
-<div id="result-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2 id="result-title">Verification Result</h2>
-        <p id="result-message"></p>
-        <div class="text-center mt-4">
-            <a href="{{ url_for('verification.manage') }}" class="btn btn-primary">Back to Verification Dashboard</a>
+            <p class="next-steps">You can now use these DIDs to prove your humanity across web3 applications without repeatedly verifying your identity.</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{{ url_for('did_manage') }}" class="btn-web3">Manage Your DIDs</a>
+            <a href="{{ url_for('index') }}" class="btn btn-ghost">Back to Home</a>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Include adapter.js before any WebRTC code -->
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script src="{{ url_for('static', filename='js/video_call.js') }}"></script>
-
-<!-- Pass session data to JavaScript -->
 <script>
-    const sessionData = {
-        sessionId: "{{ session_id }}",
-        roomId: "{{ room_id }}",
-        iceServers: {{ ice_servers|tojson }},
-        verificationId: "{{ verification_id }}",
-        isInitiator: {{ 'true' if is_initiator else 'false' }},
-        userId: {{ g.user.id }}
-    };
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables
+        const localVideo = document.getElementById('local-video');
+        const toggleAudioBtn = document.getElementById('toggle-audio');
+        const toggleVideoBtn = document.getElementById('toggle-video');
+        const shareScreenBtn = document.getElementById('share-screen');
+        const toggleChatBtn = document.getElementById('toggle-chat');
+        const endCallBtn = document.getElementById('end-call');
+        const callTimer = document.getElementById('call-timer');
+        const votingPanel = document.getElementById('voting-panel');
+        const voteYesBtn = document.getElementById('vote-yes');
+        const voteNoBtn = document.getElementById('vote-no');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const modalClose = document.querySelector('.modal-close');
+        
+        // Demo state variables
+        let isAudioMuted = false;
+        let isVideoOff = false;
+        let isScreenSharing = false;
+        let isChatOpen = false;
+        let callTimeSeconds = 0;
+        let callTimerInterval;
+        
+        // Initialize local video (simulated for demo)
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+                
+                // Start call timer
+                callTimerInterval = setInterval(updateCallTimer, 1000);
+                
+                // Simulate connection of other participants
+                setTimeout(() => {
+                    document.querySelector('.call-status .status-badge').textContent = 'Verification in Progress';
+                    document.querySelector('.call-status .status-badge').classList.remove('waiting');
+                    document.querySelector('.call-status .status-badge').classList.add('active');
+                    
+                    // Simulate Michael connecting after 3 seconds
+                    setTimeout(() => {
+                        document.querySelectorAll('.participant')[2].querySelector('.fas').classList.remove('connecting');
+                        document.querySelectorAll('.participant')[2].querySelector('.fas').classList.add('connected');
+                    }, 3000);
+                    
+                    // Simulate Elizabeth connecting after 5 seconds
+                    setTimeout(() => {
+                        document.querySelectorAll('.participant')[3].querySelector('.fas').classList.remove('waiting');
+                        document.querySelectorAll('.participant')[3].querySelector('.fas').classList.add('connected');
+                        
+                        // Show voting panel after 15 seconds
+                        setTimeout(() => {
+                            votingPanel.style.display = 'block';
+                        }, 10000);
+                    }, 5000);
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error accessing media devices:', error);
+            });
+        
+        // Toggle audio
+        toggleAudioBtn.addEventListener('click', () => {
+            isAudioMuted = !isAudioMuted;
+            
+            if (isAudioMuted) {
+                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                toggleAudioBtn.parentElement.querySelector('.control-label').textContent = 'Unmute';
+            } else {
+                toggleAudioBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                toggleAudioBtn.parentElement.querySelector('.control-label').textContent = 'Mute';
+            }
+            
+            // Update audio track enabled state (for a real app)
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getAudioTracks().forEach(track => {
+                    track.enabled = !isAudioMuted;
+                });
+            }
+        });
+        
+        // Toggle video
+        toggleVideoBtn.addEventListener('click', () => {
+            isVideoOff = !isVideoOff;
+            
+            if (isVideoOff) {
+                toggleVideoBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
+                toggleVideoBtn.parentElement.querySelector('.control-label').textContent = 'Start Video';
+                localVideo.style.display = 'none';
+            } else {
+                toggleVideoBtn.innerHTML = '<i class="fas fa-video"></i>';
+                toggleVideoBtn.parentElement.querySelector('.control-label').textContent = 'Video';
+                localVideo.style.display = 'block';
+            }
+            
+            // Update video track enabled state (for a real app)
+            if (localVideo.srcObject) {
+                localVideo.srcObject.getVideoTracks().forEach(track => {
+                    track.enabled = !isVideoOff;
+                });
+            }
+        });
+        
+        // Toggle screen sharing (simulated)
+        shareScreenBtn.addEventListener('click', () => {
+            isScreenSharing = !isScreenSharing;
+            
+            if (isScreenSharing) {
+                shareScreenBtn.classList.add('active');
+                alert('Screen sharing is simulated in this demo.');
+            } else {
+                shareScreenBtn.classList.remove('active');
+            }
+        });
+        
+        // Toggle chat (simulated)
+        toggleChatBtn.addEventListener('click', () => {
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                toggleChatBtn.classList.add('active');
+                alert('Chat is simulated in this demo.');
+            } else {
+                toggleChatBtn.classList.remove('active');
+            }
+        });
+        
+        // End call
+        endCallBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to leave the call?')) {
+                clearInterval(callTimerInterval);
+                window.location.href = '{{ url_for('index') }}';
+            }
+        });
+        
+        // Voting
+        voteYesBtn.addEventListener('click', () => {
+            votingPanel.style.display = 'none';
+            
+            // Show confirmation modal after 3 seconds to simulate completion
+            setTimeout(() => {
+                confirmationModal.style.display = 'flex';
+            }, 3000);
+        });
+        
+        voteNoBtn.addEventListener('click', () => {
+            votingPanel.style.display = 'none';
+            alert('Verification rejected. The AI assistant will continue with the next participant.');
+        });
+        
+        // Close modal
+        modalClose.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === confirmationModal) {
+                confirmationModal.style.display = 'none';
+            }
+        });
+        
+        // Update call timer
+        function updateCallTimer() {
+            callTimeSeconds++;
+            const minutes = Math.floor(callTimeSeconds / 60).toString().padStart(2, '0');
+            const seconds = (callTimeSeconds % 60).toString().padStart(2, '0');
+            callTimer.textContent = `${minutes}:${seconds}`;
+        }
+    });
 </script>
 {% endblock %} 

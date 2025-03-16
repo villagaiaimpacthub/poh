@@ -56,111 +56,76 @@
         <div class="verification-current-stage">
             <h3>Your Current Stage: <span class="highlight">{{ verification_stage|title }}</span></h3>
             <div class="stage-cards">
-                <div class="stage-card {% if verification_progress.child.completed %}completed{% endif %}">
-                    <div class="card-header">
-                        <div class="stage-icon">
-                            <i class="fas fa-child"></i>
-                        </div>
-                        <h4>Child Verification</h4>
-                        <div class="stage-status">
-                            {% if verification_progress.child.completed %}
-                            <span class="status-badge completed"><i class="fas fa-check"></i> Completed</span>
-                            {% else %}
-                            <span class="status-badge pending"><i class="fas fa-clock"></i> Pending</span>
-                            {% endif %}
-                        </div>
+                <div class="verification-card">
+                    <div class="card-icon child">
+                        <i class="fas fa-user-check"></i>
                     </div>
-                    <div class="card-content">
-                        <p>Complete a short video call with your first family unit to confirm your identity.</p>
-                        <div class="verification-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Calls Made:</span>
-                                <span class="stat-value">{{ verification_progress.child.calls_made }}/{{ verification_progress.child.calls_required }}</span>
-                            </div>
-                        </div>
-                        {% if not verification_progress.child.completed %}
-                        <a href="/schedule-call" class="btn btn-primary btn-block">
-                            <i class="fas fa-calendar-alt"></i>
-                            Schedule Call
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="stage-card {% if verification_progress.parent.completed %}completed{% endif %}">
-                    <div class="card-header">
-                        <div class="stage-icon">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h4>Parent Verification</h4>
-                        <div class="stage-status">
-                            {% if verification_progress.parent.completed %}
-                            <span class="status-badge completed"><i class="fas fa-check"></i> Completed</span>
-                            {% else %}
-                            <span class="status-badge pending"><i class="fas fa-clock"></i> In Progress</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <p>Invite 3 new users and validate their humanity by participating in a verification call with them and your inviting parent.</p>
-                        <div class="verification-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Verifications Completed:</span>
-                                <span class="stat-value">{{ verification_progress.parent.calls_made }}/{{ verification_progress.parent.calls_required }}</span>
-                            </div>
-                        </div>
-                        <a href="/schedule-call" class="btn btn-primary btn-block">
-                            <i class="fas fa-users"></i>
-                            {% if verification_progress.child.completed and not verification_progress.parent.completed %}
-                            Scheduled Calls
-                            {% else %}
-                            View Verification Schedule
-                            {% endif %}
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="stage-card {% if verification_progress.grandparent.completed %}completed{% endif %}">
-                    <div class="card-header">
-                        <div class="stage-icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <h4>Grandparent Verification</h4>
-                        <div class="stage-status">
-                            {% if verification_progress.grandparent.completed %}
-                            <span class="status-badge completed"><i class="fas fa-check"></i> Completed</span>
-                            {% elif verification_progress.parent.completed %}
-                            <span class="status-badge pending"><i class="fas fa-clock"></i> Ready to Start</span>
-                            {% else %}
-                            <span class="status-badge locked"><i class="fas fa-lock"></i> Locked</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <p>Become a grandparent when your children have children and complete the Proof of Humanity verification process.</p>
-                        <div class="verification-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Calls Made:</span>
-                                <span class="stat-value">{{ verification_progress.grandparent.calls_made }}/{{ verification_progress.grandparent.calls_required }}</span>
-                            </div>
-                        </div>
-                        {% if verification_progress.parent.completed and not verification_progress.grandparent.completed %}
-                        <a href="/schedule-call" class="btn btn-primary btn-block">
-                            <i class="fas fa-handshake"></i>
-                            Join Council
-                        </a>
-                        {% elif verification_progress.grandparent.completed %}
-                        <a href="/council" class="btn btn-primary btn-block">
-                            <i class="fas fa-university"></i>
-                            Access Council
-                        </a>
+                    <h3 class="card-title">Child Verification</h3>
+                    <p class="card-description">Complete a short video call with your first family unit to confirm your identity.</p>
+                    <div class="card-status {% if user_verification_level == 'none' %}active{% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                        {% if user_verification_level == 'none' %}
+                            <span class="status-badge">In Progress</span>
+                        {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                            <span class="status-badge completed">Completed</span>
                         {% else %}
-                        <button class="btn btn-ghost btn-block" disabled>
-                            <i class="fas fa-lock"></i>
-                            Complete Parent Stage First
-                        </button>
+                            <span class="status-badge">Not Started</span>
                         {% endif %}
                     </div>
+                    {% if user_verification_level == 'none' %}
+                        <a href="{{ url_for('schedule_call') }}" class="card-button">Schedule Call</a>
+                    {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                        <button class="card-button disabled">Completed</button>
+                    {% else %}
+                        <button class="card-button disabled">Locked</button>
+                    {% endif %}
+                </div>
+                
+                <div class="verification-card">
+                    <div class="card-icon parent">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Parent Verification</h3>
+                    <p class="card-description">Invite 3 new users and validate their humanity by participating in a verification call with them and your inviting parent.</p>
+                    <div class="card-status {% if user_verification_level == 'child' and verification_stage == 'parent' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                        {% if user_verification_level == 'child' and verification_stage == 'parent' %}
+                            <span class="status-badge">In Progress</span>
+                        {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                            <span class="status-badge completed">Completed</span>
+                        {% else %}
+                            <span class="status-badge">Locked</span>
+                        {% endif %}
+                    </div>
+                    {% if user_verification_level == 'child' and verification_stage == 'parent' %}
+                        <a href="{{ url_for('family.invite') }}" class="card-button">Invite Users</a>
+                    {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                        <button class="card-button disabled">Completed</button>
+                    {% else %}
+                        <button class="card-button disabled">Locked</button>
+                    {% endif %}
+                </div>
+                
+                <div class="verification-card">
+                    <div class="card-icon grandparent">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="card-title">Grandparent Verification</h3>
+                    <p class="card-description">Become a grandparent when your children have children and complete the Proof of Humanity verification process.</p>
+                    <div class="card-status {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}active{% elif user_verification_level == 'grandparent' %}completed{% endif %}">
+                        {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
+                            <span class="status-badge">In Progress</span>
+                        {% elif user_verification_level == 'grandparent' %}
+                            <span class="status-badge completed">Completed</span>
+                        {% else %}
+                            <span class="status-badge">Locked</span>
+                        {% endif %}
+                    </div>
+                    {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
+                        <a href="{{ url_for('family_tree') }}" class="card-button">View Family Tree</a>
+                    {% elif user_verification_level == 'grandparent' %}
+                        <button class="card-button disabled">Completed</button>
+                    {% else %}
+                        <button class="card-button disabled">Locked</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -352,7 +317,7 @@
         gap: 1.5rem;
     }
     
-    .stage-card {
+    .verification-card {
         background-color: var(--color-surface);
         border-radius: var(--radius-lg);
         overflow: hidden;
@@ -361,26 +326,12 @@
         border: 1px solid var(--color-border);
     }
     
-    .stage-card:hover {
+    .verification-card:hover {
         transform: translateY(-5px);
         box-shadow: var(--shadow-md);
     }
     
-    .stage-card.completed {
-        border-color: var(--success);
-    }
-    
-    .card-header {
-        padding: 1.5rem;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        background-color: var(--color-bg-subtle);
-    }
-    
-    .stage-icon {
+    .card-icon {
         width: 70px;
         height: 70px;
         background: var(--gradient-primary);
@@ -393,17 +344,19 @@
         margin-bottom: 1rem;
     }
     
-    .completed .stage-icon {
-        background: var(--gradient-success);
-    }
-    
-    .card-header h4 {
+    .card-title {
         font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
     
-    .stage-status {
+    .card-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+    
+    .card-status {
         margin-top: 0.5rem;
     }
     
@@ -432,31 +385,23 @@
         color: var(--text-secondary);
     }
     
-    .card-content {
-        padding: 1.5rem;
-    }
-    
-    .verification-stats {
-        margin: 1rem 0;
-        padding: 1rem;
-        background-color: var(--color-bg-subtle);
-        border-radius: var(--radius-md);
-    }
-    
-    .stat-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .stat-label {
+    .card-button {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-full);
         font-size: 0.875rem;
-        color: var(--text-secondary);
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
     }
     
-    .stat-value {
-        font-weight: 600;
-        color: var(--text-primary);
+    .card-button:hover {
+        background-color: var(--primary-hover);
     }
     
     /* Benefits Section */

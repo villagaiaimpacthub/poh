@@ -290,11 +290,16 @@ def create_app(test_config=None):
     @app.route('/static/<path:filename>')
     def serve_static(filename):
         """Serve static files with proper caching headers"""
-        response = send_from_directory('static', filename)
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-        return response
+        try:
+            response = send_from_directory('static', filename)
+            # Disable caching during development to ensure fresh resources
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
+        except Exception as e:
+            logger.error(f"Error serving static file {filename}: {e}")
+            abort(404)
     
     @app.route('/network/viz/logs', methods=['POST'])
     def save_network_logs():
@@ -344,9 +349,15 @@ def create_app(test_config=None):
 if __name__ == '__main__':
     import signal
     import sys
+    import socket
+
+    # Track active server for proper cleanup
+    active_server = None
 
     def signal_handler(sig, frame):
         print('Shutting down gracefully...')
+        if active_server:
+            active_server.shutdown()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -354,9 +365,23 @@ if __name__ == '__main__':
 
     app = create_app()
     port = int(os.environ.get('FLASK_RUN_PORT', 5003))
-    app.run(
-        host='0.0.0.0',  # Bind to all interfaces
-        port=port,
-        debug=True,
-        use_reloader=False  # Disable auto-reloader to prevent duplicate processes
-    ) 
+    
+    # Check if the default port is available
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('0.0.0.0', port))
+        sock.close()
+        print(f"Starting server on port {port}")
+    except socket.error:
+        print(f"Port {port} is already in use. Please terminate the existing process first.")
+        print(f"You can use: lsof -i :{port} | grep LISTEN  to find the process")
+        print(f"And then: kill -9 <PID>  to terminate it")
+        sys.exit(1)
+    
+    print(f"Server listening at: http://127.0.0.1:{port}")
+    
+    # Store the server instance for clean shutdown
+    from werkzeug.serving import make_server
+    active_server = make_server('0.0.0.0', port, app)
+    app.debug = True
+    active_server.serve_forever() 
