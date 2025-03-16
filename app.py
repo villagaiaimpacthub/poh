@@ -225,9 +225,19 @@ def create_app(test_config=None):
     def privacy():
         return render_template('privacy.html')
     
+    @app.route('/about')
+    def about():
+        """Page displaying information about the Proof of Humanity project"""
+        return render_template('about.html')
+    
     @app.route('/did_manage')
     def did_manage():
         return render_template('did_manage.html')
+    
+    @app.route('/benefits')
+    def benefits():
+        """Page displaying benefits and services available after completing PoH verification"""
+        return render_template('benefits.html')
     
     @app.route('/login', methods=['GET', 'POST'])
     def login():

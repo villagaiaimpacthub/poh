@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Benefits & Services - {{ super() }}{% endblock %}
+
+{% block styles %}
+<style>
+    .benefits-section {
+        padding: 4rem 0;
+    }
+    
+    .benefit-card {
+        background: rgba(30, 30, 40, 0.7);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid rgba(80, 80, 100, 0.2);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .benefit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        border-color: rgba(122, 67, 255, 0.3);
+    }
+    
+    .benefit-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--web5-primary), var(--web5-accent));
+        opacity: 0.5;
+    }
+    
+    .benefit-card:hover::before {
+        opacity: 1;
+    }
+    
+    .benefit-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--web5-primary) 0%, var(--web5-accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .benefit-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: white;
+    }
+    
+    .benefit-description {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .coming-soon {
+        display: inline-block;
+        background: rgba(122, 67, 255, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="benefits-section">
+        <div class="section-header-web5">
+            <h1 class="section-title-web5">Benefits & Services</h1>
+            <p class="section-subtitle-web5">
+                Unlock these powerful services after completing your Proof of Humanity verification
+            </p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="benefit-title">HIVE Mind</h3>
+                    <p class="benefit-description">
+                        Connect with a collaborative intelligence network where verified humans share knowledge, 
+                        insights, and expertise. Access the collective wisdom of humanity through a 
+                        secure, verified platform.
+                    </p>
+                    <a href="#" class="btn-web5">Learn More</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="benefit-title">Your Unique Proxy AI Agent</h3>
+                    <p class="benefit-description">
+                        Get your personal AI assistant trained on your preferences, values, and interaction style.
+                        This agent represents you in digital spaces while respecting your privacy and autonomy.
+                    </p>
+                    <a href="#" class="btn-web5">Explore</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <h3 class="benefit-title">The Foundation Protocols</h3>
+                    <p class="benefit-description">
+                        Access a set of core protocols designed to establish trusted interactions between verified 
+                        humans. Build and participate in decentralized applications with confidence in the 
+                        human-centric foundation.
+                    </p>
+                    <a href="#" class="btn-web5">Discover</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="benefit-title">Network of Experts</h3>
+                    <p class="benefit-description">
+                        Connect with verified experts in various fields. Get trusted advice, mentorship, 
+                        and consultation from professionals whose identities and credentials have been 
+                        verified through the PoH system.
+                    </p>
+                    <a href="#" class="btn-web5">Connect</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="benefit-title">Earn Presence Token</h3>
+                    <p class="benefit-description">
+                        Receive Presence Tokens for active participation in the network. These tokens 
+                        represent your continued engagement as a verified human and can be used within 
+                        the ecosystem for various benefits and services.
+                    </p>
+                    <a href="#" class="btn-web5">Start Earning</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 class="benefit-title">Parallax Exchange</h3>
+                    <p class="benefit-description">
+                        Access a next-generation exchange platform where verified humans can trade assets, 
+                        services, and value with full confidence in the identity of their counterparties.
+                    </p>
+                    <a href="#" class="btn-web5">Trade Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <h3 class="mb-4" style="color: white;">More Partners Coming Soon</h3>
+            <p class="text-light mb-4">We're constantly expanding our network of partners and services available to verified humans.</p>
+            <a href="#" class="btn-web5">Become a Partner</a>
+        </div>
+    </section>
+</div>
+{% endblock %} 
