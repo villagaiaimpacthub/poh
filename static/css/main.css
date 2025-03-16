@@ -115,8 +115,8 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--text-primary);
+  background-color: var(--color-bg-dark) !important;
+  color: var(--text-inverted) !important;
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
@@ -138,7 +138,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
   line-height: 1.2;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-inverted) !important;
 }
 
 p {
@@ -468,14 +468,16 @@ h6 {
   font-size: 1.125rem;
 }
 
-/* Footer */
+/* Footer - Enhanced for cross-browser compatibility */
 .footer {
-  background-color: rgba(15, 15, 35, 1);
+  background-color: rgba(15, 15, 35, 1) !important;
   padding: 5rem 0 3rem;
   color: var(--text-inverted);
   position: relative;
   overflow: hidden;
   margin-top: auto;
+  width: 100% !important;
+  display: block !important;
 }
 
 .footer::before {
@@ -524,7 +526,7 @@ h6 {
 
 .social-link {
   background: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: white !important;
   width: 40px;
   height: 40px;
   display: flex;
@@ -540,10 +542,11 @@ h6 {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: white !important;
 }
 
 .social-link.glow:hover {
-  color: white;
+  color: white !important;
   box-shadow: 0 0 15px rgba(122, 67, 255, 0.6);
 }
 
@@ -553,7 +556,7 @@ h6 {
   margin-bottom: 1.25rem;
   position: relative;
   display: inline-block;
-  color: white;
+  color: white !important;
 }
 
 .footer-links h3::after {
@@ -568,25 +571,25 @@ h6 {
 }
 
 .footer-links ul {
-  list-style: none;
+  list-style: none !important;
   padding: 0;
   margin: 0;
 }
 
 .footer-links li {
   margin-bottom: 0.75rem;
-  list-style-type: none;
+  list-style-type: none !important;
 }
 
 .footer-links a {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.7) !important;
   text-decoration: none;
   transition: all 0.2s ease;
   display: inline-block;
 }
 
 .footer-links a:hover {
-  color: white;
+  color: white !important;
   transform: translateX(3px);
 }
 
@@ -695,6 +698,9 @@ h6 {
 .main-content {
   min-height: calc(100vh - 300px);
   padding: var(--spacing-md) 0;
+  padding-top: 80px !important; /* Ensures content is below fixed header */
+  background-color: var(--color-bg-dark) !important;
+  color: var(--text-inverted) !important;
 }
 
 /* Section styling */
@@ -1041,34 +1047,34 @@ h6 {
   border-radius: 50%;
   filter: blur(60px);
   opacity: 0.15;
-  transition: transform 3s ease-in-out;
 }
 
 .orb-1 {
-  top: 10%;
-  right: 10%;
-  width: 300px;
-  height: 300px;
-  background: var(--primary);
+  top: -200px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
+  background: var(--web5-primary);
 }
 
 .orb-2 {
-  bottom: 10%;
-  left: 10%;
-  width: 400px;
-  height: 400px;
-  background: var(--secondary);
+  bottom: -300px;
+  right: -200px;
+  width: 800px;
+  height: 800px;
+  background: var(--web5-accent);
 }
 
 .orb-3 {
-  top: 40%;
-  left: 40%;
-  width: 200px;
-  height: 200px;
-  background: var(--accent-primary);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  background: var(--web5-secondary);
 }
 
-/* Dark theme support */
+/* Dark theme support - Always Applied */
 body.dark-theme {
   background-color: var(--color-bg-dark);
   color: var(--text-inverted);
@@ -1085,7 +1091,7 @@ body.dark-theme .card-glass {
   background: var(--glass-background-dark);
 }
 
-/* Enhanced Header Styles - Fixed for proper application */
+/* Enhanced Header Styles - Fixed for all browsers */
 .header {
   position: fixed;
   top: 0;
@@ -1093,7 +1099,7 @@ body.dark-theme .card-glass {
   right: 0;
   height: 80px;
   z-index: 1000;
-  background-color: rgba(15, 15, 35, 0.95);
+  background-color: rgba(15, 15, 35, 0.95) !important;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1169,25 +1175,26 @@ body.dark-theme .card-glass {
 }
 
 .nav-list {
-  display: flex;
-  list-style-type: none;
+  display: flex !important;
+  list-style-type: none !important;
   margin: 0;
   padding: 0;
   height: 100%;
+  flex-direction: row !important;
 }
 
 .nav-list li {
-  list-style: none;
+  list-style: none !important;
   margin: 0;
   padding: 0;
   height: 100%;
-  display: flex;
+  display: flex !important;
   align-items: center;
 }
 
 .nav-link {
   padding: 0 1.25rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.85) !important;
   font-weight: 500;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
@@ -1213,7 +1220,7 @@ body.dark-theme .card-glass {
 }
 
 .nav-link:hover {
-  color: white;
+  color: white !important;
 }
 
 .nav-link:hover::after,
@@ -1222,7 +1229,7 @@ body.dark-theme .card-glass {
 }
 
 .nav-link.active {
-  color: white;
+  color: white !important;
   font-weight: 600;
 }
 
@@ -1385,38 +1392,39 @@ body.dark-theme .card-glass {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
+  background-color: var(--color-bg-dark) !important;
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.2;
-  z-index: -1;
+  opacity: 0.15;
 }
 
 .orb-1 {
-  width: 300px;
-  height: 300px;
+  top: -200px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
   background: var(--web5-primary);
-  top: 10%;
-  left: 15%;
 }
 
 .orb-2 {
-  width: 400px;
-  height: 400px;
+  bottom: -300px;
+  right: -200px;
+  width: 800px;
+  height: 800px;
   background: var(--web5-accent);
-  bottom: 10%;
-  right: 15%;
 }
 
 .orb-3 {
-  width: 250px;
-  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
   background: var(--web5-secondary);
-  top: 40%;
-  right: 30%;
 }
 
 /* Web5 Button */
