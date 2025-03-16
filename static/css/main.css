@@ -123,6 +123,17 @@ body {
   flex-direction: column;
 }
 
+/* Essential reset for lists - ensure no bullets by default */
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+
 h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
   line-height: 1.2;
@@ -457,13 +468,14 @@ h6 {
   font-size: 1.125rem;
 }
 
-/* Footer styling - completely redesigned */
+/* Footer */
 .footer {
   background-color: rgba(15, 15, 35, 1);
   padding: 5rem 0 3rem;
   color: var(--text-inverted);
   position: relative;
   overflow: hidden;
+  margin-top: auto;
 }
 
 .footer::before {
@@ -521,6 +533,7 @@ h6 {
   border-radius: 50%;
   transition: all 0.3s ease;
   font-size: 1.1rem;
+  text-decoration: none;
 }
 
 .social-link:hover {
@@ -540,6 +553,7 @@ h6 {
   margin-bottom: 1.25rem;
   position: relative;
   display: inline-block;
+  color: white;
 }
 
 .footer-links h3::after {
@@ -561,6 +575,7 @@ h6 {
 
 .footer-links li {
   margin-bottom: 0.75rem;
+  list-style-type: none;
 }
 
 .footer-links a {
@@ -579,6 +594,7 @@ h6 {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
+  color: white;
 }
 
 .footer-newsletter p {
@@ -666,6 +682,7 @@ h6 {
   .footer-bottom-links {
     flex-direction: column;
     gap: 1rem;
+    align-items: center;
   }
   
   .newsletter-form {
@@ -1157,6 +1174,15 @@ body.dark-theme .card-glass {
   margin: 0;
   padding: 0;
   height: 100%;
+}
+
+.nav-list li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .nav-link {
