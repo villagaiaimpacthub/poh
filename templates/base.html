@@ -46,10 +46,14 @@
             display: flex !important;
             height: 100% !important;
         }
+        /* Main content padding to avoid header overlap */
+        .main-content {
+            padding-top: 80px !important;
+        }
     </style>
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ now().timestamp() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ now().strftime('%Y%m%d%H%M%S') }}">
     {% block styles %}{% endblock %}
     
     <!-- Head block for page-specific head elements -->
@@ -206,7 +210,7 @@
             </div>
             
             <div class="footer-bottom">
-                <div>&copy; {{ now() }} Proof of Humanity. All rights reserved.</div>
+                <div>&copy; {{ now().year }} Proof of Humanity. All rights reserved.</div>
                 <div class="footer-bottom-links">
                     <a href="{{ url_for('terms') }}">Terms of Service</a>
                     <a href="{{ url_for('privacy') }}">Privacy Policy</a>
