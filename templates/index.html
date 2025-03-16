@@ -94,6 +94,16 @@
         <div class="benefits-grid">
             <div class="benefit-card">
                 <div class="benefit-icon">
+                    <i class="fas fa-id-card-alt"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>Verification without Government ID</h3>
+                    <p>Prove your humanity without sharing government identification or other sensitive documents.</p>
+                </div>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="benefit-content">
@@ -119,6 +129,16 @@
                 <div class="benefit-content">
                     <h3>Decentralized</h3>
                     <p>No central authority controls your identity verification, putting power back in users' hands.</p>
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="benefit-content">
+                    <h3>Trusted Network Access</h3>
+                    <p>Access a network of verified humans and applications that prioritize real user interactions.</p>
                 </div>
             </div>
             
@@ -162,71 +182,6 @@
                 <div class="stat-number" data-count="25000">0</div>
                 <div class="stat-label">Connections</div>
             </div>
-        </div>
-    </div>
-</section>
-
-<section class="section testimonials">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">What Users Say</h2>
-            <p class="section-subtitle">Real people sharing their experience with Proof of Humanity</p>
-        </div>
-        
-        <div class="testimonials-slider">
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"Proof of Humanity has revolutionized how I access web3 services. No more captchas, no more repeated verifications. Just seamless access."</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">
-                        <img src="{{ url_for('static', filename='images/testimonial-1.jpg') }}" alt="Sarah J." 
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
-                    </div>
-                    <div class="testimonial-info">
-                        <h4>Sarah J.</h4>
-                        <p>Web3 Developer</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"The family verification approach is brilliant. It's almost impossible to create fake identities at scale, making the entire ecosystem more secure."</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">
-                        <img src="{{ url_for('static', filename='images/testimonial-2.jpg') }}" alt="Michael T." 
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
-                    </div>
-                    <div class="testimonial-info">
-                        <h4>Michael T.</h4>
-                        <p>Cybersecurity Expert</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p>"As someone concerned about privacy, I appreciate how Proof of Humanity verifies my identity without requiring me to share sensitive personal information."</p>
-                </div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">
-                        <img src="{{ url_for('static', filename='images/testimonial-3.jpg') }}" alt="Elena R." 
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
-                    </div>
-                    <div class="testimonial-info">
-                        <h4>Elena R.</h4>
-                        <p>Privacy Advocate</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="testimonial-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
         </div>
     </div>
 </section>
@@ -353,6 +308,13 @@
             const answer = item.querySelector('.faq-answer');
             const icon = item.querySelector('.faq-toggle i');
             
+            // Set initial state for first FAQ to be open
+            if (item === faqItems[0]) {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+                icon.className = 'fas fa-minus';
+            }
+            
             question.addEventListener('click', () => {
                 // Close all other items
                 faqItems.forEach(otherItem => {
@@ -364,9 +326,10 @@
                 });
                 
                 // Toggle current item
+                const isActive = item.classList.contains('active');
                 item.classList.toggle('active');
                 
-                if (item.classList.contains('active')) {
+                if (!isActive) {
                     answer.style.maxHeight = answer.scrollHeight + 'px';
                     icon.className = 'fas fa-minus';
                 } else {
@@ -375,43 +338,6 @@
                 }
             });
         });
-        
-        // Testimonial slider functionality
-        const testimonialContainer = document.querySelector('.testimonials-slider');
-        if (!testimonialContainer) return;
-        
-        const testimonialCards = Array.from(document.querySelectorAll('.testimonial-card'));
-        const dots = Array.from(document.querySelectorAll('.dot'));
-        let currentSlide = 0;
-        
-        const showSlide = (index) => {
-            testimonialCards.forEach((card, i) => {
-                card.style.transform = `translateX(${100 * (i - index)}%)`;
-                card.style.opacity = i === index ? '1' : '0.5';
-                card.style.zIndex = i === index ? '1' : '0';
-            });
-            
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-        };
-        
-        // Initialize slider
-        showSlide(currentSlide);
-        
-        // Add click events to dots
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                currentSlide = i;
-                showSlide(currentSlide);
-            });
-        });
-        
-        // Auto-slide every 5 seconds
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % testimonialCards.length;
-            showSlide(currentSlide);
-        }, 5000);
     });
 </script>
 {% endblock %} 

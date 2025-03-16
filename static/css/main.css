@@ -1088,10 +1088,11 @@ body.dark-theme .card-glass {
   z-index: 100;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   padding: 1rem 0;
-  background-color: rgba(17, 19, 32, 0.8);
+  background-color: rgba(17, 19, 32, 0.9);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(122, 67, 255, 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(122, 67, 255, 0.2);
 }
 
 .header-inner {
@@ -1144,6 +1145,7 @@ body.dark-theme .card-glass {
   padding: 0.5rem 0;
   position: relative;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .nav-link::after {

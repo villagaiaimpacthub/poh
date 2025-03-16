@@ -523,7 +523,7 @@
 /* FAQ Section */
 .faq-section {
     padding: 5rem 0;
-    background-color: var(--color-background-alt);
+    background-color: rgba(15, 15, 35, 0.3);
 }
 
 .faq-container {
@@ -532,11 +532,19 @@
 }
 
 .faq-item {
-    background-color: var(--color-surface);
-    border-radius: var(--border-radius);
+    background-color: rgba(24, 24, 58, 0.5);
+    border-radius: 16px;
     margin-bottom: 1rem;
     overflow: hidden;
-    box-shadow: var(--shadow-elevation-low);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(67, 209, 255, 0.1);
+}
+
+.faq-item:hover {
+    border-color: rgba(122, 67, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .faq-question {
@@ -549,36 +557,61 @@
 }
 
 .faq-question:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(122, 67, 255, 0.1);
 }
 
 .faq-question h3 {
     font-weight: 600;
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     margin: 0;
-    color: var(--color-text);
+    color: white;
 }
 
 .faq-toggle {
-    color: var(--color-primary);
+    color: var(--web5-accent);
     font-size: 1rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(67, 209, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.faq-toggle i {
+    transition: transform 0.3s ease;
 }
 
 .faq-answer {
     padding: 0 1.5rem;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.5s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    padding: 0 1.5rem 1.5rem;
 }
 
 .faq-answer p {
-    padding-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
-    color: var(--color-text-secondary);
+    margin: 0;
 }
 
 .faq-item.active .faq-question {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(122, 67, 255, 0.2);
+}
+
+.faq-item.active .faq-toggle {
+    background: rgba(122, 67, 255, 0.2);
+    color: white;
+}
+
+.faq-item.active .faq-toggle i {
+    transform: rotate(45deg);
 }
 
 /* Responsive Adjustments */
