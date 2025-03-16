@@ -81,7 +81,18 @@ def create_app(test_config=None):
             g.db.get_db()
         except Exception as e:
             logger.error(f"Database connection error: {e}")
-            # Continue with the request, individual routes should handle any DB errors
+        
+        # Log request details for debugging
+        app.logger.debug('Request URL: %s', request.url)
+        app.logger.debug('Request method: %s', request.method)
+        app.logger.debug('Request path: %s', request.path)
+        app.logger.debug('Request endpoint: %s', request.endpoint)
+        app.logger.debug('Request blueprint: %s', request.blueprint)
+        app.logger.debug('Referrer: %s', request.referrer)
+        
+        # Log headers in development for debugging
+        if app.debug:
+            app.logger.debug('Request headers: %s', dict(request.headers))
     
     # After request - log request duration
     @app.after_request
@@ -129,11 +140,14 @@ def create_app(test_config=None):
     @app.context_processor
     def inject_common_variables():
         """Inject common variables into all templates."""
+        cache_buster = int(time.time())
+        logger.info(f"Setting cache_buster: {cache_buster}")
         return {
             'app_name': 'Proof of Humanity',
             'current_year': datetime.now().year,
             'version': '1.0.1',
             'now': datetime.now,
+            'cache_buster': cache_buster  # Add cache buster for CSS/JS
         }
     
     # Add context processor for current user
@@ -252,6 +266,13 @@ def create_app(test_config=None):
             logger.info(f"Accessing access_services route - template: benefits.html")
             logger.debug(f"Template search path: {app.jinja_loader.searchpath}")
             logger.debug(f"Available templates: {[t for t in app.jinja_loader.list_templates() if t.endswith('.html')]}")
+            logger.debug(f"Request URL: {request.url}")
+            logger.debug(f"Request method: {request.method}")
+            logger.debug(f"Request path: {request.path}")
+            logger.debug(f"Request endpoint: {request.endpoint}")
+            logger.debug(f"Request blueprint: {request.blueprint}")
+            logger.debug(f"Referrer: {request.referrer}")
+            logger.debug(f"Request headers: {dict(request.headers)}")
             
             if 'benefits.html' not in app.jinja_loader.list_templates():
                 logger.error(f"benefits.html template not found")
@@ -271,7 +292,8 @@ def create_app(test_config=None):
             # Mock successful login
             session['user_id'] = 1
             session['username'] = request.form.get('email', 'User')
-            return redirect(url_for('verification_manage'))
+            logger.info(f"User logged in: {session['username']}")
+            return redirect(url_for('dashboard'))
         return render_template('login.html')
     
     @app.route('/register', methods=['GET', 'POST'])
@@ -312,16 +334,45 @@ def create_app(test_config=None):
         """Redirect to the network visualization page on the network blueprint"""
         return redirect(url_for('network.viz'))
     
+    @app.route('/dashboard')
+    def dashboard():
+        # Ensure user is logged in
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        
+        # In a real app, we would fetch user data from the database
+        # For now, we'll use mock data
+        user = {
+            'id': session['user_id'],
+            'username': session.get('username', 'User'),
+            'verification_level': 'child',
+            'verification_stage': 'parent',
+            'joined_date': 'Aug 23, 2023',
+            'last_verified': '3 days ago',
+            'did': 'did:poh:2a8F9d3b7C1e5A4d6B8c2E3f',
+            'family_connections': 17
+        }
+        
+        logger.info(f"User {user['username']} accessed dashboard")
+        
+        return render_template('dashboard.html', 
+                              current_user=user,
+                              now=datetime.datetime.now)
+    
     # Simplify static file serving
     @app.route('/static/<path:filename>')
     def serve_static(filename):
         """Serve static files with proper caching headers"""
         try:
+            logger.info(f"Serving static file: {filename}")
             response = send_from_directory('static', filename)
-            # Disable caching during development to ensure fresh resources
+            # Add stronger cache-busting headers
+            timestamp = int(time.time())
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
+            response.headers['X-Timestamp'] = str(timestamp)
+            logger.info(f"Static file response headers: {dict(response.headers)}")
             return response
         except Exception as e:
             logger.error(f"Error serving static file {filename}: {e}")
@@ -353,6 +404,12 @@ def create_app(test_config=None):
             return 'Log file not found', 404
         except Exception as e:
             return str(e), 500
+    
+    @app.before_request
+    def log_template_info():
+        """Log information about templates being rendered"""
+        if request.endpoint:
+            logger.info(f"Request for endpoint: {request.endpoint}, path: {request.path}")
     
     # Add error handlers
     @app.errorhandler(404)

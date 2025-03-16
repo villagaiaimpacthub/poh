@@ -512,4 +512,309 @@
 
 .float-animation {
   animation: float 6s ease-in-out infinite;
+}
+
+/* Verification Management Styles */
+.verification-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.verification-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.verification-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 60%, #ff57da 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.verification-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.progress-container {
+    background-color: rgba(30, 30, 40, 0.7);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    border: 1px solid rgba(122, 67, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.progress-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.progress-percentage {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #43d1ff;
+}
+
+.progress-bar {
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7a43ff 0%, #43d1ff 100%);
+    border-radius: 100px;
+    transition: width 0.5s ease;
+}
+
+.verification-levels {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.level-connector {
+    position: absolute;
+    top: 35px;
+    left: 7%;
+    right: 7%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 0;
+}
+
+.verification-level {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+    width: 20%;
+}
+
+.level-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: rgba(30, 30, 40, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(122, 67, 255, 0.2);
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+}
+
+.level-icon.active, .level-icon.complete {
+    border-color: #7a43ff;
+    box-shadow: 0 0 15px rgba(122, 67, 255, 0.5);
+    color: white;
+}
+
+.level-icon.active {
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+}
+
+.level-icon.complete {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+.level-icon.complete i {
+    content: '\f00c';
+}
+
+.level-label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.level-description {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.verification-stage-card {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(122, 67, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.verification-stage-card:hover {
+    border-color: rgba(122, 67, 255, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.stage-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.stage-title-container {
+    flex: 1;
+}
+
+.stage-title {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.stage-status {
+    font-size: 0.875rem;
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    background-color: rgba(122, 67, 255, 0.2);
+    color: #43d1ff;
+}
+
+.stage-status.complete {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.stage-status.pending {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.stage-description {
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.stage-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.btn-verify {
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-verify:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(122, 67, 255, 0.3);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .verification-title {
+        font-size: 2rem;
+    }
+    
+    .verification-levels {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+    }
+    
+    .verification-level {
+        width: 40%;
+    }
+    
+    .level-connector {
+        display: none;
+    }
+    
+    .stage-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stage-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .stage-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .verification-level {
+        width: 100%;
+    }
+    
+    .verification-container {
+        padding: 1rem;
+    }
+    
+    .progress-container {
+        padding: 1.5rem;
+    }
 } 

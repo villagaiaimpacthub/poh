@@ -90,10 +90,15 @@ class FamilyTreeVisualization {
             .scaleExtent([0.1, 3])
             .on('zoom', (event) => {
                 g.attr('transform', event.transform);
+                // Log zoom level for debugging
+                console.log('[ZOOM] Current zoom level:', event.transform.k, 'position:', event.transform.x, event.transform.y);
             });
         
         // Apply zoom behavior to SVG
         this.svg.call(this.zoom);
+        
+        // Start with a wider view to see more of the network
+        this.svg.call(this.zoom.transform, d3.zoomIdentity.scale(0.65).translate(this.width/2, this.height/2));
         
         // Create force simulation
         this.simulation = d3.forceSimulation()

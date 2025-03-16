@@ -129,11 +129,13 @@
         }
         
         .text-gradient {
-            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 60%, #cd5ff8 100%) !important;
+            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 60%, #ff57da 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
+            color: #7a43ff; /* Fallback color */
             text-fill-color: transparent !important;
+            display: inline-block !important;
         }
         
         .gradient-icon {
@@ -142,6 +144,10 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-fill-color: transparent;
+        }
+        
+        .solid-purple-icon {
+            color: #7a43ff !important;
         }
         
         .main-nav {
@@ -438,6 +444,10 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        .mobile-menu-toggle i {
+            color: var(--primary) !important; /* Force purple color for hamburger icon */
+        }
+
         .mobile-menu {
             position: fixed;
             top: 60px;
@@ -537,6 +547,38 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
+        }
+        
+        .mobile-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-btn.btn-web5 {
+            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 60%, #ff57da 100%) !important;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(122, 67, 255, 0.3);
+        }
+        
+        .mobile-btn.btn-ghost {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .mobile-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .mobile-btn.btn-web5:hover {
+            box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4);
         }
     </style>
     
@@ -690,7 +732,6 @@
         <div class="container">
             <div class="header-inner">
                 <a href="{{ url_for('index') }}" class="logo-link">
-                    <img src="{{ url_for('static', filename='images/logo-actual.png') }}" alt="Proof of Humanity Logo" class="logo-image">
                     <span class="logo-text text-gradient">Proof of Humanity</span>
                 </a>
                 
@@ -699,18 +740,25 @@
                         <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
                         <li><a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
                         <li><a href="{{ url_for('access_services') }}" class="nav-link {% if request.endpoint == 'access_services' %}active{% endif %}">Access Services</a></li>
+                        {% if 'user_id' in session %}
+                        <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                        {% endif %}
                         <li><a href="{{ url_for('verification_manage') }}" class="nav-link {% if request.endpoint == 'verification_manage' %}active{% endif %}">Verification</a></li>
                         <li><a href="{{ url_for('network.family_tree') }}" class="nav-link {% if request.endpoint == 'network.family_tree' %}active{% endif %}">Family Tree</a></li>
                     </ul>
                 </nav>
                 
                 <div class="auth-buttons">
-                    <a href="{{ url_for('register') }}" class="btn-signup">Sign Up</a>
+                    {% if 'user_id' in session %}
+                    <a href="{{ url_for('logout') }}" class="btn-outlined">Log Out</a>
+                    {% else %}
                     <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
+                    <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
+                    {% endif %}
                 </div>
                 
                 <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
-                    <i class="fas fa-bars gradient-icon"></i>
+                    <i class="fas fa-bars solid-purple-icon"></i>
                 </button>
             </div>
         </div>
@@ -719,19 +767,24 @@
     <!-- Add mobile menu after main-header div -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-inner">
-            <div class="mobile-header">
-                <h2 class="mobile-title text-gradient">Proof of Humanity</h2>
-            </div>
             <div class="mobile-nav">
                 <a href="{{ url_for('index') }}" class="mobile-nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
                 <a href="{{ url_for('about') }}" class="mobile-nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a>
                 <a href="{{ url_for('access_services') }}" class="mobile-nav-link {% if request.endpoint == 'access_services' %}active{% endif %}">Access Services</a>
+                {% if 'user_id' in session %}
+                <a href="{{ url_for('dashboard') }}" class="mobile-nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                {% endif %}
                 <a href="{{ url_for('verification_manage') }}" class="mobile-nav-link {% if request.endpoint == 'verification_manage' %}active{% endif %}">Verification</a>
                 <a href="{{ url_for('network.family_tree') }}" class="mobile-nav-link {% if request.endpoint == 'network.family_tree' %}active{% endif %}">Family Tree</a>
-            </div>
-            <div class="mobile-auth">
-                <a href="{{ url_for('login') }}" class="btn-ghost">Log In</a>
-                <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
+                
+                <div class="mobile-auth-buttons">
+                    {% if 'user_id' in session %}
+                    <a href="{{ url_for('logout') }}" class="mobile-auth-button logout">Log Out</a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="mobile-auth-button">Log In</a>
+                    <a href="{{ url_for('register') }}" class="mobile-auth-button signup">Sign Up</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -1121,6 +1174,57 @@
                     toggle: !!mobileMenuToggle,
                     menu: !!mobileMenu
                 });
+            }
+        });
+    </script>
+
+    <!-- Add logging for gradient styles -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[STYLES] Checking text-gradient styles');
+            
+            const gradientElements = document.querySelectorAll('.text-gradient');
+            gradientElements.forEach((el, index) => {
+                const styles = window.getComputedStyle(el);
+                console.log(`[STYLES] Gradient element ${index}:`, {
+                    element: el,
+                    background: styles.background,
+                    backgroundImage: styles.backgroundImage,
+                    webkitBackgroundClip: styles.webkitBackgroundClip,
+                    webkitTextFillColor: styles.webkitTextFillColor
+                });
+            });
+        });
+    </script>
+
+    <!-- Add tracking to identify the logo issues -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[LOGO] Checking logo elements');
+            
+            const logoImage = document.querySelector('.logo-image');
+            if (logoImage) {
+                console.log('[LOGO] Logo image:', {
+                    src: logoImage.src,
+                    width: logoImage.width,
+                    height: logoImage.height,
+                    computedStyles: {
+                        display: window.getComputedStyle(logoImage).display,
+                        visibility: window.getComputedStyle(logoImage).visibility,
+                        opacity: window.getComputedStyle(logoImage).opacity
+                    }
+                });
+                
+                // Setup to watch if image loads correctly
+                logoImage.addEventListener('load', () => {
+                    console.log('[LOGO] Logo image loaded successfully');
+                });
+                
+                logoImage.addEventListener('error', () => {
+                    console.error('[LOGO] Logo image failed to load');
+                });
+            } else {
+                console.error('[LOGO] Logo image element not found');
             }
         });
     </script>

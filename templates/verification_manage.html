@@ -2,6 +2,10 @@
 
 {% block title %}Verification Management - Proof of Humanity{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verification_status.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="verification-container">
     <div class="verification-header">

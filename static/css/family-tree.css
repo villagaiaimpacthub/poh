@@ -569,4 +569,132 @@ body.modal-open {
     .modal-footer .btn {
         width: 100%;
     }
+}
+
+.family-info-container {
+    margin-top: 3rem;
+    padding: 2rem 0;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+}
+
+.section-description {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.info-card {
+    background-color: rgba(30, 30, 40, 0.7);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(122, 67, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.info-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(122, 67, 255, 0.6);
+}
+
+.info-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 20px rgba(122, 67, 255, 0.3);
+}
+
+.info-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.info-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.info-card p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.card-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(122, 67, 255, 0.3);
+}
+
+.card-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(122, 67, 255, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .info-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .section-description {
+        font-size: 1rem;
+    }
+    
+    .info-card {
+        padding: 1.5rem;
+    }
+    
+    .info-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .info-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .info-card h3 {
+        font-size: 1.25rem;
+    }
 } 

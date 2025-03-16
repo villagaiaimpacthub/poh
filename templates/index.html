@@ -34,6 +34,12 @@
     h1, h2, h3, h4, h5, h6, p, a, li, span:not(.text-gradient) {
         color: var(--text-inverted) !important;
     }
+    
+    /* Highlight text styling */
+    .highlight {
+        color: #43d1ff !important;
+        font-weight: 600;
+  }
 </style>
 {% endblock %}
 
@@ -46,7 +52,7 @@
     <div class="hero-content">
         <h1 class="hero-title">Proof of Humanity</h1>
         <p class="hero-description">
-            A social identity verification system built on a web of trust network. Join our community and become part of a revolutionary approach to human verification.
+            A social identity verification system built on a web of trust network. Join our invitation-only community and become part of a revolutionary approach to human verification. <span class="highlight">Digital Identity is free forever.</span>
         </p>
         <div class="hero-cta">
             <a href="{{ url_for('register') }}" class="btn-web5">Join Now</a>
@@ -54,21 +60,12 @@
         </div>
     </div>
     <div class="hero-visual">
-        <div class="iframe-container" style="position: relative; width: 100%; height: 100%; min-height: 400px; border-radius: 16px; overflow: hidden; background: rgba(15, 23, 42, 0.8); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+        <div class="visualization-container" style="position: relative; width: 100%; height: 100%; min-height: 400px; border-radius: 16px; overflow: hidden; background: rgba(15, 23, 42, 0.8); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
             <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; z-index: 1;">
                 <div style="border: 3px solid rgba(122, 67, 255, 0.3); border-top: 3px solid #7a43ff; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 2s linear infinite;"></div>
                 <p>Loading network visualization...</p>
             </div>
-            <iframe 
-                src="{{ url_for('network.viz') }}" 
-                id="visualization-iframe" 
-                frameborder="0" 
-                allow="fullscreen; clipboard-write" 
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
-                style="width: 100%; height: 100%; min-height: 400px; border: none; position: relative; z-index: 2;"
-                onload="handleIframeLoad(event)"
-                onerror="handleIframeError(event)"
-            ></iframe>
+            <div id="hero-visualization" style="width: 100%; height: 100%; min-height: 400px;"></div>
         </div>
     </div>
 </div>
@@ -76,7 +73,7 @@
 <section class="section quote-section">
     <div class="container">
         <blockquote class="quote-card">
-            <p>The Proof of Humanity system enables a new era of human verification, where identity is validated through social connections rather than centralized authorities. This creates possibilities for more equitable governance, trustless interactions, and protection against identity fraud and sybil attacks.</p>
+            <p>The Proof of Humanity system enables a new era of human verification, where identity is validated through social connections rather than centralized authorities. This invitation-only network creates possibilities for more equitable governance, trustless interactions, and protection against identity fraud and sybil attacks.</p>
             <cite>A revolutionary approach to human verification</cite>
         </blockquote>
     </div>
@@ -94,7 +91,7 @@
                     <i class="fas fa-network-wired"></i>
                 </div>
                 <h3>Web of Trust</h3>
-                <p>Build connections in a decentralized trust network where verification happens through trusted human relationships.</p>
+                <p>Build connections in a decentralized trust network where verification happens through trusted human relationships. Our invitation-only network ensures quality connections and strong protection.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">
@@ -108,7 +105,7 @@
                     <i class="fas fa-id-card-alt"></i>
                 </div>
                 <h3>Verification without Government ID</h3>
-                <p>Prove your humanity without sharing government identification or other sensitive documents.</p>
+                <p>Prove your humanity without sharing government identification or other sensitive documents. Your Digital Identity (DID) is free forever.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">
@@ -427,14 +424,14 @@ function showFallbackVisualization() {
     fallbackViz.style.zIndex = '5';
     
     fallbackViz.innerHTML = `
-        <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-            <defs>
+            <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+              <defs>
                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
-                    <stop offset="100%" stop-color="#43d1ff" stop-opacity="0.7" />
+                  <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
+                  <stop offset="100%" stop-color="#43d1ff" stop-opacity="0.7" />
                 </linearGradient>
-            </defs>
-            <g class="links" stroke-width="1" stroke-opacity="0.6">
+              </defs>
+              <g class="links" stroke-width="1" stroke-opacity="0.6">
                 <line x1="400" y1="300" x2="250" y2="200" stroke="#7a43ff" />
                 <line x1="400" y1="300" x2="550" y2="200" stroke="#7a43ff" />
                 <line x1="400" y1="300" x2="250" y2="400" stroke="#7a43ff" />
@@ -445,7 +442,7 @@ function showFallbackVisualization() {
                 <line x1="550" y1="200" x2="450" y2="120" stroke="#43d1ff" />
                 <line x1="250" y1="400" x2="350" y2="480" stroke="#43d1ff" />
                 <line x1="550" y1="400" x2="450" y2="480" stroke="#43d1ff" />
-            </g>
+              </g>
             <g class="nodes">
                 <circle cx="400" cy="300" r="40" fill="url(#grad1)" class="pulse-circle" />
                 <circle cx="250" cy="200" r="20" fill="#7a43ff" opacity="0.7" class="pulse-circle" />
@@ -459,7 +456,7 @@ function showFallbackVisualization() {
                 <circle cx="350" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
                 <circle cx="450" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
             </g>
-        </svg>
+            </svg>
     `;
     
     container.appendChild(fallbackViz);
@@ -496,7 +493,7 @@ function showFallbackVisualization() {
 }
 
 // Add a timeout to check if iframe loaded and fall back if it didn't
-setTimeout(() => {
+        setTimeout(() => {
     const iframe = document.getElementById('visualization-iframe');
     // If loading indicator is still visible after 5 seconds, show fallback
     if (document.getElementById('loading-indicator').style.display !== 'none') {
@@ -709,7 +706,7 @@ window.vizDiagnostics = {
         const container = document.querySelector('.iframe-container');
         if (container) {
             this.log('Container found, dimensions: ' + container.offsetWidth + 'x' + container.offsetHeight, 'info');
-        } else {
+            } else {
             this.log('Container NOT found', 'error');
         }
     }
@@ -770,14 +767,125 @@ window.addEventListener('load', function() {
 // Error monitoring
 window.addEventListener('error', function(e) {
     window.vizDiagnostics.log('JavaScript error: ' + e.message + ' in ' + (e.filename || 'unknown') + ':' + (e.lineno || '?'), 'error');
-});
+  });
 </script>
+
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{{ url_for('static', filename='js/circular_family_tree.js') }}"></script>
 <script>
-    // Removed duplicate DOMContentLoaded event listener that was conflicting with the main one
+    // Init FAQ accordions
+    document.addEventListener('DOMContentLoaded', function() {
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const toggle = item.querySelector('.faq-toggle');
+            
+            if (question) {
+                question.addEventListener('click', function() {
+                    // Toggle active class
+                    item.classList.toggle('active');
+                    
+                    // Change the icon
+                    if (toggle) {
+                        const icon = toggle.querySelector('i');
+                        if (icon) {
+                            icon.classList.toggle('fa-plus');
+                            icon.classList.toggle('fa-minus');
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide loading indicator after D3 is ready
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const visualizationContainer = document.getElementById('hero-visualization');
+        
+        console.log('[LANDING] DOM content loaded, preparing to initialize visualization');
+        console.log('[LANDING] Loading indicator exists:', !!loadingIndicator);
+        console.log('[LANDING] Visualization container exists:', !!visualizationContainer);
+        
+        if (loadingIndicator && visualizationContainer) {
+            // Add diagnostic information
+            console.log('[LANDING] Container dimensions:', {
+                offsetWidth: visualizationContainer.offsetWidth,
+                offsetHeight: visualizationContainer.offsetHeight,
+                clientWidth: visualizationContainer.clientWidth,
+                clientHeight: visualizationContainer.clientHeight
+            });
+            
+            console.log('[LANDING] Container styles:', window.getComputedStyle(visualizationContainer));
+            
+            // Check if D3 is loaded
+            console.log('[LANDING] D3 version loaded:', typeof d3 !== 'undefined' ? d3.version : 'Not loaded');
+            
+            // Add a small delay to ensure DOM is fully rendered
+            setTimeout(() => {
+                try {
+                    console.log('[LANDING] Attempting to initialize visualization after delay');
+                    // Initialize visualization
+                    const circularTree = new CircularFamilyTree({
+                        containerId: 'hero-visualization',
+                        title: 'Proof of Humanity Network'
+                    });
+                    
+                    // Hide loading indicator once visualization is ready
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    
+                    console.log('[LANDING] Visualization initialized successfully');
+                } catch (error) {
+                    console.error('[LANDING] Error initializing visualization:', error);
+                    
+                    // Provide a more detailed error message
+                    if (loadingIndicator) {
+                        loadingIndicator.innerHTML = `
+                            <div style="text-align: center; color: white;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                                <p>Error loading visualization: ${error.message}</p>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
+                                    Try refreshing the page or check browser console for details.
+                                </p>
+                                <button class="btn-web5" style="margin-top: 1rem;" onclick="location.reload()">Retry</button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add fallback visualization as a static image or simple SVG
+                    visualizationContainer.innerHTML += `
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="300" height="300" viewBox="0 0 300 300">
+                                <circle cx="150" cy="150" r="50" fill="#7a43ff" opacity="0.7" />
+                                <circle cx="150" cy="80" r="30" fill="#43d1ff" opacity="0.7" />
+                                <circle cx="90" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
+                                <circle cx="210" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
+                                <line x1="150" y1="150" x2="150" y2="80" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                <line x1="150" y1="150" x2="90" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                <line x1="150" y1="150" x2="210" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                <text x="150" y="155" text-anchor="middle" fill="white" font-size="12">You</text>
+                                <text x="150" y="75" text-anchor="middle" fill="white" font-size="10">Parent</text>
+                                <text x="90" y="185" text-anchor="middle" fill="white" font-size="10">Friend 1</text>
+                                <text x="210" y="185" text-anchor="middle" fill="white" font-size="10">Friend 2</text>
+                            </svg>
+                        </div>
+                    `;
+                }
+            }, 500); // 500ms delay
+        } else {
+            console.error('[LANDING] Required elements not found:', {
+                loadingIndicator: !!loadingIndicator,
+                visualizationContainer: !!visualizationContainer
+            });
+        }
+    });
 </script>
 {% endblock %} 

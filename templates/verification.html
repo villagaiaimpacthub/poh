@@ -8,22 +8,79 @@
     .verification-section {
         background-color: var(--color-bg-dark) !important;
         color: var(--text-inverted) !important;
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Add orb background elements */
+    .verification-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(122, 67, 255, 0.2), rgba(67, 209, 255, 0.2));
+        filter: blur(80px);
+        z-index: 0;
+    }
+    
+    .orb-1 {
+        width: 500px;
+        height: 500px;
+        top: -250px;
+        right: -200px;
+    }
+    
+    .orb-2 {
+        width: 400px;
+        height: 400px;
+        bottom: -200px;
+        left: -100px;
+    }
+    
+    .section-title {
+        font-size: 2.6rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
     }
     
     .verification-stage-card,
     .verification-level,
     .progress-bar-container,
     .verification-actions {
-        background-color: rgba(15, 23, 42, 0.5) !important;
-        border: 1px solid rgba(122, 67, 255, 0.2) !important;
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        border: 1px solid rgba(122, 67, 255, 0.3) !important;
         color: var(--text-inverted) !important;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
     }
     
     .level-info h4,
     .verification-stage-title,
-    .section-title,
     .section-subtitle {
         color: var(--text-inverted) !important;
+    }
+    
+    .section-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .progress-info {
+        background: linear-gradient(135deg, rgba(122, 67, 255, 0.15), rgba(67, 209, 255, 0.15));
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .progress-info h3 {
+        color: #7a43ff !important;
+        margin-top: 0;
     }
     
     .btn-start-verification {
@@ -43,54 +100,128 @@
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4) !important;
     }
+
+    .verification-level {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(122, 67, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .verification-level:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        border-color: rgba(122, 67, 255, 0.5);
+    }
+    
+    .verification-level.completed {
+        border-color: rgba(122, 67, 255, 0.6);
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.6));
+    }
+    
+    .level-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(122, 67, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.5rem;
+        font-size: 1.5rem;
+        color: #7a43ff;
+        transition: all 0.3s ease;
+    }
+    
+    .verification-level.completed .level-icon {
+        background: linear-gradient(135deg, #7a43ff, #43d1ff);
+        color: white;
+        box-shadow: 0 0 15px rgba(122, 67, 255, 0.5);
+    }
+    
+    .level-info {
+        flex: 1;
+    }
+    
+    .level-info h4 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .level-info p {
+        opacity: 0.8;
+        margin-bottom: 0;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <section class="section verification-section">
-        <div class="section-header">
+        <!-- Background orbs -->
+        <div class="verification-orb orb-1"></div>
+        <div class="verification-orb orb-2"></div>
+        
+        <div class="section-header text-center">
             <h1 class="section-title">Identity Verification</h1>
-            <p class="section-subtitle">Complete the verification process to increase your trust level in the PoH network</p>
+            <p class="section-subtitle">Complete the verification process to increase your trust level and unlock more features in the Proof of Humanity network</p>
         </div>
         
         <!-- Verification Progress -->
         <div class="verification-progress-container">
             <div class="progress-info">
                 <h3>Your Verification Progress</h3>
-                <div class="progress-percentage">{{ verification_progress.percent }}%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 28%"></div>
+                    <span class="progress-percentage">28%</span>
+                </div>
+                <p class="progress-message">You're on your way to becoming fully verified!</p>
             </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: {{ verification_progress.percent }}%"></div>
-            </div>
+            
+            <!-- Verification Levels -->
             <div class="verification-levels">
-                <div class="verification-level {% if user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                <div class="verification-level {% if user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                     <div class="level-icon">
                         <i class="fas fa-child"></i>
                     </div>
                     <div class="level-info">
                         <h4>Child</h4>
-                        <p>Basic verification</p>
+                        <p>Become Verified</p>
                     </div>
                 </div>
-                <div class="progress-connector {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' %}active{% endif %}"></div>
-                <div class="verification-level {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                <div class="progress-connector {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}active{% endif %}"></div>
+                <div class="verification-level {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                     <div class="level-icon">
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="level-info">
                         <h4>Parent</h4>
-                        <p>Verify others</p>
+                        <p>Invite 3 Others</p>
                     </div>
                 </div>
-                <div class="progress-connector {% if user_verification_level == 'grandparent' %}active{% endif %}"></div>
-                <div class="verification-level {% if user_verification_level == 'grandparent' %}completed{% endif %}">
+                <div class="progress-connector {% if user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}active{% endif %}"></div>
+                <div class="verification-level {% if user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                     <div class="level-icon">
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="level-info">
                         <h4>Grandparent</h4>
-                        <p>Council member</p>
+                        <p>Verify Your Families</p>
+                    </div>
+                </div>
+                <div class="progress-connector {% if user_verification_level == 'full_access' %}active{% endif %}"></div>
+                <div class="verification-level {% if user_verification_level == 'full_access' %}completed{% endif %}">
+                    <div class="level-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="level-info">
+                        <h4>Full Access</h4>
+                        <p>Graduation!</p>
                     </div>
                 </div>
             </div>
@@ -106,10 +237,10 @@
                     </div>
                     <h3 class="card-title">Child Verification</h3>
                     <p class="card-description">Complete a short video call with your first family unit to confirm your identity.</p>
-                    <div class="card-status {% if user_verification_level == 'none' %}active{% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                    <div class="card-status {% if user_verification_level == 'none' %}active{% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                         {% if user_verification_level == 'none' %}
                             <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                        {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                             <span class="status-badge completed">Completed</span>
                         {% else %}
                             <span class="status-badge">Not Started</span>
@@ -117,7 +248,7 @@
                     </div>
                     {% if user_verification_level == 'none' %}
                         <a href="{{ url_for('schedule_call') }}" class="card-button">Schedule Call</a>
-                    {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                    {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                         <button class="card-button disabled">Completed</button>
                     {% else %}
                         <button class="card-button disabled">Locked</button>
@@ -129,19 +260,19 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <h3 class="card-title">Parent Verification</h3>
-                    <p class="card-description">Invite 3 new users and validate their humanity by participating in a verification call with them and your inviting parent.</p>
-                    <div class="card-status {% if user_verification_level == 'child' and verification_stage == 'parent' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                    <p class="card-description">Invite 3 new users and validate their humanity by participating in a verification call with them.</p>
+                    <div class="card-status {% if user_verification_level == 'child' and verification_stage == 'parent' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                         {% if user_verification_level == 'child' and verification_stage == 'parent' %}
                             <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                        {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                             <span class="status-badge completed">Completed</span>
                         {% else %}
                             <span class="status-badge">Locked</span>
                         {% endif %}
                     </div>
                     {% if user_verification_level == 'child' and verification_stage == 'parent' %}
-                        <a href="{{ url_for('family.invite') }}" class="card-button">Invite Users</a>
-                    {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                        <a href="{{ url_for('family_tree') }}" class="card-button">Invite Users</a>
+                    {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                         <button class="card-button disabled">Completed</button>
                     {% else %}
                         <button class="card-button disabled">Locked</button>
@@ -153,11 +284,11 @@
                         <i class="fas fa-crown"></i>
                     </div>
                     <h3 class="card-title">Grandparent Verification</h3>
-                    <p class="card-description">Become a grandparent when your children have children and complete the Proof of Humanity verification process.</p>
-                    <div class="card-status {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}active{% elif user_verification_level == 'grandparent' %}completed{% endif %}">
+                    <p class="card-description">Guide and verify your family members as they advance through their own verification journeys.</p>
+                    <div class="card-status {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}active{% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
                         {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
                             <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'grandparent' %}
+                        {% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                             <span class="status-badge completed">Completed</span>
                         {% else %}
                             <span class="status-badge">Locked</span>
@@ -165,8 +296,32 @@
                     </div>
                     {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
                         <a href="{{ url_for('family_tree') }}" class="card-button">View Family Tree</a>
-                    {% elif user_verification_level == 'grandparent' %}
+                    {% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
                         <button class="card-button disabled">Completed</button>
+                    {% else %}
+                        <button class="card-button disabled">Locked</button>
+                    {% endif %}
+                </div>
+                
+                <div class="verification-card">
+                    <div class="card-icon full-access">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="card-title">Full Access Node</h3>
+                    <p class="card-description">Congratulations! You've completed all verification steps and have full access to the Proof of Humanity system.</p>
+                    <div class="card-status {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}active{% elif user_verification_level == 'full_access' %}completed{% endif %}">
+                        {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}
+                            <span class="status-badge">In Progress</span>
+                        {% elif user_verification_level == 'full_access' %}
+                            <span class="status-badge completed">Completed</span>
+                        {% else %}
+                            <span class="status-badge">Locked</span>
+                        {% endif %}
+                    </div>
+                    {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}
+                        <a href="{{ url_for('access_services') }}" class="card-button">Explore Benefits</a>
+                    {% elif user_verification_level == 'full_access' %}
+                        <a href="{{ url_for('access_services') }}" class="card-button">View Benefits</a>
                     {% else %}
                         <button class="card-button disabled">Locked</button>
                     {% endif %}

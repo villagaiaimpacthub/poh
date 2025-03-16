@@ -290,12 +290,12 @@ window.initializeNetworkViz = function() {
                     if (typeof checkD3AndInitialize === 'function') {
                         checkD3AndInitialize();
                     } else if (typeof initializeVisualization === 'function') {
-                        initializeVisualization();
-                    } else {
+        initializeVisualization();
+} else {
                         networkVizDebug('No initialization function found', 'error');
                         throw new Error('Initialization functions not found');
-                    }
-                } catch (e) {
+                }
+            } catch (e) {
                     networkVizDebug(`Error during initialization: ${e.message}`, 'error');
                     showVizError('Initialization Error', e.message);
                 }
@@ -376,5 +376,6 @@ window.addEventListener('load', function() {
 setTimeout(window.initializeNetworkViz, 500);
 
 // Immediate self-executing function to create a minimal working visualization
+
 
 

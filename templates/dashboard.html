@@ -1,0 +1,522 @@
+{% block scripts %}
+{{ super() }}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{{ url_for('static', filename='js/circular_family_tree.js') }}"></script>
+<!-- Adding FullCalendar for the booking functionality -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+<script>
+    // Accordion functionality
+    function toggleAccordion(element) {
+        const content = element.nextElementSibling;
+        const isActive = element.classList.contains('active');
+        
+        // Close all accordions
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.accordion-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Open current accordion if it wasn't already open
+        if (!isActive) {
+            element.classList.add('active');
+            content.classList.add('active');
+        }
+    }
+    
+    // Toggle verification stage details
+    function toggleStageDetails(element) {
+        // Toggle active class on the header
+        element.classList.toggle('active');
+        
+        // Get the details container
+        const detailsContainer = element.nextElementSibling;
+        
+        // Toggle open class on details
+        if (detailsContainer.classList.contains('open')) {
+            detailsContainer.classList.remove('open');
+            detailsContainer.style.maxHeight = '0px';
+        } else {
+            detailsContainer.classList.add('open');
+            detailsContainer.style.maxHeight = detailsContainer.scrollHeight + 'px';
+        }
+    }
+    
+    // Copy to clipboard functionality
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+    
+    // Modal functionality
+    function showInviteModal() {
+        document.getElementById('inviteModal').style.display = 'flex';
+    }
+    
+    function closeInviteModal() {
+        document.getElementById('inviteModal').style.display = 'none';
+    }
+    
+    // Calendar modal functionality
+    function showCalendarModal() {
+        document.getElementById('calendarModal').style.display = 'flex';
+        // Initialize calendar if not already initialized
+        if (!window.calendar) {
+            initializeCalendar();
+        }
+    }
+    
+    function closeCalendarModal() {
+        document.getElementById('calendarModal').style.display = 'none';
+    }
+    
+    // Initialize calendar for booking calls
+    function initializeCalendar() {
+        const calendarEl = document.getElementById('booking-calendar');
+        
+        // Mock data for family member availability
+        const familyAvailability = [
+            { title: 'John Smith Available', start: '2023-09-15T10:00:00', end: '2023-09-15T12:00:00', color: 'rgba(122, 67, 255, 0.7)' },
+            { title: 'Sarah Johnson Available', start: '2023-09-16T14:00:00', end: '2023-09-16T16:00:00', color: 'rgba(67, 209, 255, 0.7)' },
+            { title: 'Michael Brown Available', start: '2023-09-17T09:00:00', end: '2023-09-17T11:00:00', color: 'rgba(122, 67, 255, 0.7)' },
+            { title: 'Emma Davis Available', start: '2023-09-18T15:00:00', end: '2023-09-18T17:00:00', color: 'rgba(67, 209, 255, 0.7)' }
+        ];
+        
+        window.calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: familyAvailability,
+            selectable: true,
+            selectMirror: true,
+            dayMaxEvents: true,
+            select: function(arg) {
+                const title = prompt('Book a call with:');
+                if (title) {
+                    window.calendar.addEvent({
+                        title: title,
+                        start: arg.start,
+                        end: arg.end,
+                        allDay: arg.allDay,
+                        color: 'rgba(39, 174, 96, 0.7)'
+                    });
+                    
+                    // In a real app, you would send this to the server
+                    alert(`Call booked with ${title} for ${arg.start.toLocaleString()}`);
+                }
+                window.calendar.unselect();
+            },
+            eventClick: function(info) {
+                if (confirm(`Would you like to book this time slot? ${info.event.title}`)) {
+                    // In a real app, you would send this to the server
+                    alert(`Call booked for ${info.event.start.toLocaleString()}`);
+                    info.event.setProp('color', 'rgba(39, 174, 96, 0.7)');
+                    info.event.setProp('title', `Booked: ${info.event.title}`);
+                }
+            }
+        });
+        
+        window.calendar.render();
+    }
+    
+    function sendInvitation() {
+        const email = document.getElementById('inviteEmail').value;
+        const message = document.getElementById('inviteMessage').value;
+        
+        if (!email) {
+            alert('Please enter an email address');
+            return;
+        }
+        
+        // Mock sending invitation
+        alert(`Invitation sent to ${email}`);
+        closeInviteModal();
+    }
+    
+    // Initialize when document is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[DASHBOARD] DOM content loaded, initializing components');
+        
+        // Open the in-progress accordion by default
+        const inProgressHeader = document.querySelector('.verification-accordion.in-progress .accordion-header');
+        if (inProgressHeader) {
+            toggleAccordion(inProgressHeader);
+        }
+        
+        // Open the parent stage details by default since it's in progress
+        const parentStageHeader = document.querySelector('.verification-stage-card:nth-child(2) .stage-header');
+        if (parentStageHeader) {
+            setTimeout(() => toggleStageDetails(parentStageHeader), 500);
+        }
+        
+        // Initialize the visualization
+        console.log('[DASHBOARD] Initializing family network visualization');
+        try {
+            // Explicitly create the visualization with the correct container ID
+            new CircularFamilyTree({
+                containerId: "hero-visualization",
+                title: "Your Family Network"
+            });
+            console.log('[DASHBOARD] Family network visualization initialized');
+            
+            // Hide loading indicator if present
+            const loadingIndicator = document.querySelector('.network-visualization .loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('[DASHBOARD] Error initializing visualization:', error);
+            // Show error message in the visualization container
+            const visualizationContainer = document.getElementById('hero-visualization');
+            if (visualizationContainer) {
+                visualizationContainer.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: white;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                        <p>Failed to load visualization: ${error.message}</p>
+                        <button class="action-button" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">My Dashboard</h1>
+            <p class="dashboard-welcome">Welcome back, {{ current_user.username }}</p>
+        </div>
+        <div class="dashboard-status in-progress">
+            <i class="fas fa-star"></i>
+            <span>Verification Level: Parent (In Progress)</span>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <div class="dashboard-main">
+            <!-- Family Network Visualization -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <div class="dashboard-card-icon">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        Your Family Network
+                    </h2>
+                    <div class="card-actions">
+                        <button class="action-button">
+                            <i class="fas fa-expand"></i>
+                            <span>Full View</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="network-visualization" id="family-network">
+                    <!-- Loading indicator for visualization -->
+                    <div class="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; z-index: 1;">
+                        <div style="border: 3px solid rgba(122, 67, 255, 0.3); border-top: 3px solid #7a43ff; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 2s linear infinite;"></div>
+                        <p>Loading network visualization...</p>
+                    </div>
+                    <!-- Network visualization will be rendered here -->
+                    <div id="hero-visualization" style="width: 100%; height: 100%;"></div>
+                </div>
+                <div style="margin-top: 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; text-align: center;">
+                    <p>Your unique network of <span style="color: #43d1ff; font-weight: 600;">17 connections</span> (including yourself)</p>
+                </div>
+            </div>
+            
+            <!-- Verification Progress -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <div class="dashboard-card-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        Verification Progress
+                    </h2>
+                    <button class="action-button" onclick="window.location.href='{{ url_for('verification_manage') }}'">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Full Details</span>
+                    </button>
+                </div>
+                
+                <div class="verification-stages">
+                    <!-- Child Stage -->
+                    <div class="verification-stage-card">
+                        <div class="stage-header" onclick="toggleStageDetails(this)">
+                            <div class="stage-icon-wrapper">
+                                <div class="stage-icon child completed">
+                                    <i class="fas fa-child"></i>
+                                </div>
+                            </div>
+                            <div class="stage-info">
+                                <h3 class="stage-title">Child</h3>
+                                <p class="stage-subtitle">Become Verified</p>
+                            </div>
+                            <div class="stage-status completed">
+                                <span>Completed</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="stage-details">
+                            <div class="stage-details-content">
+                                <h4>Child Verification</h4>
+                                <p>Complete a short video call with your first family unit to confirm your identity.</p>
+                                <div class="verification-detail-status">
+                                    <span class="status-badge completed">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Parent Stage -->
+                    <div class="verification-stage-card">
+                        <div class="stage-header" onclick="toggleStageDetails(this)">
+                            <div class="stage-icon-wrapper">
+                                <div class="stage-icon parent active">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="stage-info">
+                                <h3 class="stage-title">Parent</h3>
+                                <p class="stage-subtitle">Invite 3 Others</p>
+                            </div>
+                            <div class="stage-status in-progress">
+                                <span>In Progress</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="stage-details">
+                            <div class="stage-details-content">
+                                <h4>Parent Verification</h4>
+                                <p>Invite 3 new users and validate their humanity by participating in a verification call with them.</p>
+                                <div class="verification-detail-status">
+                                    <span class="status-badge in-progress">In Progress</span>
+                                </div>
+                                <div class="verification-actions">
+                                    <button class="action-button" onclick="showInviteModal()">
+                                        <i class="fas fa-user-plus"></i>
+                                        <span>Invite Users</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grandparent Stage -->
+                    <div class="verification-stage-card">
+                        <div class="stage-header" onclick="toggleStageDetails(this)">
+                            <div class="stage-icon-wrapper">
+                                <div class="stage-icon grandparent locked">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                            </div>
+                            <div class="stage-info">
+                                <h3 class="stage-title">Grandparent</h3>
+                                <p class="stage-subtitle">Verify Your Families</p>
+                            </div>
+                            <div class="stage-status locked">
+                                <span>Locked</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="stage-details">
+                            <div class="stage-details-content">
+                                <h4>Grandparent Verification</h4>
+                                <p>Guide and verify your family members as they advance through their own verification journeys.</p>
+                                <div class="verification-detail-status">
+                                    <span class="status-badge locked">Locked</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Full Access Stage -->
+                    <div class="verification-stage-card">
+                        <div class="stage-header" onclick="toggleStageDetails(this)">
+                            <div class="stage-icon-wrapper">
+                                <div class="stage-icon full-access locked">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                            </div>
+                            <div class="stage-info">
+                                <h3 class="stage-title">Full Access</h3>
+                                <p class="stage-subtitle">Graduation!</p>
+                            </div>
+                            <div class="stage-status locked">
+                                <span>Locked</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="stage-details">
+                            <div class="stage-details-content">
+                                <h4>Full Access Node</h4>
+                                <p>Congratulations! You've completed all verification steps and have full access to the Proof of Humanity system.</p>
+                                <div class="verification-detail-status">
+                                    <span class="status-badge locked">Locked</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-sidebar">
+            <!-- Call Scheduling -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <div class="dashboard-card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        Upcoming Calls
+                    </h2>
+                    <button class="action-button" onclick="showCalendarModal()">
+                        <i class="fas fa-plus"></i>
+                        <span>Book Call</span>
+                    </button>
+                </div>
+                
+                <div class="call-list">
+                    <div class="call-item">
+                        <div class="call-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="call-info">
+                            <div class="call-name">Verification Call with Sarah Johnson</div>
+                            <div class="call-time">Tomorrow, 2:00 PM</div>
+                        </div>
+                        <button class="call-action">Join</button>
+                    </div>
+                    <div class="call-item">
+                        <div class="call-avatar">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <div class="call-info">
+                            <div class="call-name">Family Verification Call</div>
+                            <div class="call-time">Fri, Sep 16, 10:00 AM</div>
+                        </div>
+                        <button class="call-action">Info</button>
+                    </div>
+                    <div class="call-item">
+                        <div class="call-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="call-info">
+                            <div class="call-name">Follow-up with Michael Brown</div>
+                            <div class="call-time">Mon, Sep 19, 3:30 PM</div>
+                        </div>
+                        <button class="call-action">Info</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="action-button" onclick="showCalendarModal()">
+                        <i class="fas fa-users"></i>
+                        <span>Request Call with Family Member</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DID Information -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <div class="dashboard-card-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        Digital Identity
+                    </h2>
+                    <button class="action-button" onclick="copyToClipboard('did:poh:2a8F9d3b7C1e5A4d6B8c2E3f')">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy DID</span>
+                    </button>
+                </div>
+                
+                <div class="did-info" style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="margin-bottom: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Your Decentralized ID:</div>
+                    <div style="font-family: monospace; word-break: break-all; background: rgba(0, 0, 0, 0.2); padding: 0.75rem; border-radius: 6px; color: #43d1ff; font-size: 0.9rem;">did:poh:2a8F9d3b7C1e5A4d6B8c2E3f</div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: rgba(255, 255, 255, 0.7);">Verification Level:</span>
+                        <span style="color: #43d1ff; font-weight: 600;">Child</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: rgba(255, 255, 255, 0.7);">Joined Network:</span>
+                        <span>Aug 23, 2023</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: rgba(255, 255, 255, 0.7);">Last Verified:</span>
+                        <span>3 days ago</span>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(122, 67, 255, 0.1); border-radius: 8px; padding: 1rem; display: flex; align-items: center;">
+                    <i class="fas fa-shield-alt" style="font-size: 1.5rem; color: #7a43ff; margin-right: 1rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Privacy Protected</div>
+                        <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Your digital identity is secured and private.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar Modal for Booking Calls -->
+<div id="calendarModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background-color: rgba(30, 41, 59, 0.95); border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); width: 90%; max-width: 1000px; height: 80%; border: 1px solid rgba(122, 67, 255, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: white; margin: 0;">Book a Verification Call</h2>
+            <span onclick="closeCalendarModal()" style="cursor: pointer; font-size: 1.5rem; color: rgba(255, 255, 255, 0.7);">&times;</span>
+        </div>
+        
+        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">
+            Select from available time slots when your family members can join (shown in purple and blue), or propose a new time.
+        </p>
+        
+        <div id="booking-calendar" style="height: calc(100% - 120px); background-color: rgba(15, 23, 42, 0.5); border-radius: 8px; overflow: hidden; padding: 1rem;"></div>
+    </div>
+</div>
+
+<!-- Invite Modal -->
+<div id="inviteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Invite to Proof of Humanity</h2>
+            <button class="modal-close" onclick="closeInviteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Invite someone you trust to join the Proof of Humanity network. They will become part of your family tree.</p>
+            
+            <div class="form-group">
+                <label for="inviteEmail" class="form-label">Email Address</label>
+                <input type="email" id="inviteEmail" class="form-input" placeholder="Enter email address">
+            </div>
+            
+            <div class="form-group">
+                <label for="inviteMessage" class="form-label">Personal Message (Optional)</label>
+                <textarea id="inviteMessage" class="form-input" placeholder="Add a personal message to your invitation..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal btn-secondary" onclick="closeInviteModal()">Cancel</button>
+            <button class="btn-modal btn-primary" onclick="sendInvitation()">Send Invitation</button>
+        </div>
+    </div>
+</div>
+{% endblock %} 

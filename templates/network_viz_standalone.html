@@ -510,16 +510,16 @@
         
         // Log environment info immediately
         vizLog('Page loaded at ' + new Date().toISOString());
-        vizLog('URL: ' + window.location.href);
-        
+            vizLog('URL: ' + window.location.href);
+            
         // Check D3 availability
-        if (typeof d3 === 'undefined') {
-            vizLog('D3.js is not loaded!', 'error');
+            if (typeof d3 === 'undefined') {
+                vizLog('D3.js is not loaded!', 'error');
             showError('Visualization Error', 'D3.js library is missing. This is required for the network visualization.');
-        } else {
-            vizLog('D3.js version: ' + d3.version, 'success');
-        }
-        
+            } else {
+                vizLog('D3.js version: ' + d3.version, 'success');
+            }
+            
         // Set timeout to check if visualization initializes
         setTimeout(() => {
             const network = document.querySelector('#network svg');
