@@ -121,6 +121,29 @@
             opacity: 0.8 !important;
         }
         
+        .logo-text {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            margin-left: 0.75rem !important;
+            display: inline-block !important;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 60%, #cd5ff8 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            text-fill-color: transparent !important;
+        }
+        
+        .gradient-icon {
+            background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
         .main-nav {
             margin: 0 auto !important;
             justify-self: center !important;
@@ -392,6 +415,129 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             transform: translateY(-3px);
         }
+
+        /* Mobile Menu Styles */
+        .mobile-menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition-normal);
+        }
+
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background-color: var(--color-bg-dark);
+            z-index: 999;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            visibility: hidden;
+        }
+
+        .mobile-menu.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-inner {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-link {
+            color: var(--dark-text);
+            text-decoration: none;
+            font-size: 1.25rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: color 0.2s ease;
+        }
+
+        .mobile-nav-link:hover, .mobile-nav-link.active {
+            color: var(--primary);
+        }
+
+        .mobile-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-auth a {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-nav, .auth-buttons {
+                display: none !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex !important;
+            }
+            
+            /* Force header elements to stay visible */
+            .logo-link, .logo-image {
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            /* Fix z-index for the menu */
+            .main-header {
+                z-index: 1001 !important;
+            }
+        }
+
+        /* Mobile debugging styles */
+        .debug-outline {
+            outline: 2px dashed red !important;
+        }
+        
+        .debug-highlight {
+            background-color: rgba(255, 0, 0, 0.2) !important;
+        }
+
+        /* Mobile header styles */
+        .mobile-header {
+            padding: 1.25rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
     </style>
     
     <!-- Stylesheets -->
@@ -400,6 +546,132 @@
     
     <!-- Head block for page-specific head elements -->
     {% block head %}{% endblock %}
+
+    <script>
+        // Mobile diagnostic tools
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[MOBILE-DEBUG] DOMContentLoaded fired');
+            
+            // Setup debug logging
+            const debugBox = document.getElementById('globalDebugBox');
+            function mobileDiagnosticLog(message, type = 'info') {
+                console.log(`[MOBILE-DEBUG] ${message}`);
+                if (debugBox) {
+                    const logEntry = document.createElement('div');
+                    logEntry.innerHTML = `<span style="color: ${type === 'error' ? 'red' : type === 'warning' ? 'orange' : 'lime'}">[${new Date().toISOString().split('T')[1].split('.')[0]}]</span> ${message}`;
+                    debugBox.appendChild(logEntry);
+                    
+                    // Show debug box if it's not already visible
+                    const debugToggle = document.getElementById('globalDebugToggle');
+                    if (debugToggle && debugBox.style.display === 'none') {
+                        debugToggle.click();
+                    }
+                }
+            }
+            
+            // Expose the function globally
+            window.mobileDiagnosticLog = mobileDiagnosticLog;
+            
+            // Log information about the logo
+            const logoImage = document.querySelector('.logo-image');
+            if (logoImage) {
+                mobileDiagnosticLog('Logo found: ' + 
+                    JSON.stringify({
+                        src: logoImage.getAttribute('src'),
+                        complete: logoImage.complete,
+                        naturalWidth: logoImage.naturalWidth,
+                        display: window.getComputedStyle(logoImage).display,
+                        visibility: window.getComputedStyle(logoImage).visibility
+                    })
+                );
+                
+                // Add error handler to logo
+                logoImage.onerror = function() {
+                    mobileDiagnosticLog('Logo failed to load: ' + logoImage.getAttribute('src'), 'error');
+                    logoImage.classList.add('debug-outline');
+                };
+                
+                // Check if logo loaded correctly
+                if (logoImage.complete) {
+                    if (logoImage.naturalWidth === 0) {
+                        mobileDiagnosticLog('Logo failed to load (zero width)', 'error');
+                        logoImage.classList.add('debug-outline');
+                    } else {
+                        mobileDiagnosticLog('Logo loaded successfully');
+                    }
+                }
+            } else {
+                mobileDiagnosticLog('Logo image not found in DOM', 'error');
+            }
+            
+            // Log information about the mobile menu
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if (mobileMenuToggle) {
+                mobileDiagnosticLog('Mobile menu toggle found: ' + 
+                    JSON.stringify({
+                        display: window.getComputedStyle(mobileMenuToggle).display,
+                        visibility: window.getComputedStyle(mobileMenuToggle).visibility,
+                        position: window.getComputedStyle(mobileMenuToggle).position
+                    })
+                );
+                
+                // Add extra listener for diagnostic purposes
+                mobileMenuToggle.addEventListener('click', function() {
+                    mobileDiagnosticLog('Mobile menu toggle clicked');
+                    if (mobileMenu) {
+                        mobileDiagnosticLog('Mobile menu visibility after click: ' + 
+                            JSON.stringify({
+                                display: window.getComputedStyle(mobileMenu).display,
+                                visibility: window.getComputedStyle(mobileMenu).visibility,
+                                transform: window.getComputedStyle(mobileMenu).transform,
+                                opacity: window.getComputedStyle(mobileMenu).opacity,
+                                classList: [...mobileMenu.classList]
+                            })
+                        );
+                    }
+                });
+            } else {
+                mobileDiagnosticLog('Mobile menu toggle not found', 'error');
+            }
+            
+            if (mobileMenu) {
+                mobileDiagnosticLog('Mobile menu found: ' + 
+                    JSON.stringify({
+                        display: window.getComputedStyle(mobileMenu).display,
+                        visibility: window.getComputedStyle(mobileMenu).visibility,
+                        transform: window.getComputedStyle(mobileMenu).transform,
+                        opacity: window.getComputedStyle(mobileMenu).opacity,
+                        children: mobileMenu.children.length
+                    })
+                );
+            } else {
+                mobileDiagnosticLog('Mobile menu not found', 'error');
+            }
+            
+            // Check for dark mode
+            const bodyBgColor = window.getComputedStyle(document.body).backgroundColor;
+            mobileDiagnosticLog('Body background color: ' + bodyBgColor);
+            
+            // Check media query status
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            mobileDiagnosticLog('Mobile media query active: ' + isMobile);
+            
+            // Add a visible debug indicator for mobile
+            if (isMobile) {
+                const debugIndicator = document.createElement('div');
+                debugIndicator.style.cssText = 'position: fixed; top: 60px; right: 10px; background: rgba(255,0,0,0.7); color: white; padding: 5px; font-size: 10px; z-index: 9999; border-radius: 4px;';
+                debugIndicator.textContent = 'MOBILE DEBUG';
+                debugIndicator.addEventListener('click', function() {
+                    // Toggle debug box visibility when indicator is clicked
+                    const debugToggle = document.getElementById('globalDebugToggle');
+                    if (debugToggle) debugToggle.click();
+                });
+                document.body.appendChild(debugIndicator);
+            }
+        });
+    </script>
 </head>
 <body class="dark-theme">
     <!-- Debug Button (available on all pages) -->
@@ -418,25 +690,51 @@
         <div class="container">
             <div class="header-inner">
                 <a href="{{ url_for('index') }}" class="logo-link">
-                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Proof of Humanity Logo" class="logo-image" onerror="this.src='{{ url_for('static', filename='images/logo-fallback.png') }}';">
+                    <img src="{{ url_for('static', filename='images/logo-actual.png') }}" alt="Proof of Humanity Logo" class="logo-image">
+                    <span class="logo-text text-gradient">Proof of Humanity</span>
                 </a>
                 
                 <nav class="main-nav">
                     <ul class="nav-list">
-                        <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
-                        <li><a href="{{ url_for('benefits') }}" class="nav-link">Access Services</a></li>
-                        <li><a href="{{ url_for('verification_manage') }}" class="nav-link">Verification</a></li>
-                        <li><a href="{{ url_for('network.family_tree') }}" class="nav-link">Family Tree</a></li>
+                        <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                        <li><a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
+                        <li><a href="{{ url_for('access_services') }}" class="nav-link {% if request.endpoint == 'access_services' %}active{% endif %}">Access Services</a></li>
+                        <li><a href="{{ url_for('verification_manage') }}" class="nav-link {% if request.endpoint == 'verification_manage' %}active{% endif %}">Verification</a></li>
+                        <li><a href="{{ url_for('network.family_tree') }}" class="nav-link {% if request.endpoint == 'network.family_tree' %}active{% endif %}">Family Tree</a></li>
                     </ul>
                 </nav>
                 
                 <div class="auth-buttons">
-                    <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
                     <a href="{{ url_for('register') }}" class="btn-signup">Sign Up</a>
+                    <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
                 </div>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+                    <i class="fas fa-bars gradient-icon"></i>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Add mobile menu after main-header div -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-inner">
+            <div class="mobile-header">
+                <h2 class="mobile-title text-gradient">Proof of Humanity</h2>
+            </div>
+            <div class="mobile-nav">
+                <a href="{{ url_for('index') }}" class="mobile-nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about') }}" class="mobile-nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a>
+                <a href="{{ url_for('access_services') }}" class="mobile-nav-link {% if request.endpoint == 'access_services' %}active{% endif %}">Access Services</a>
+                <a href="{{ url_for('verification_manage') }}" class="mobile-nav-link {% if request.endpoint == 'verification_manage' %}active{% endif %}">Verification</a>
+                <a href="{{ url_for('network.family_tree') }}" class="mobile-nav-link {% if request.endpoint == 'network.family_tree' %}active{% endif %}">Family Tree</a>
+            </div>
+            <div class="mobile-auth">
+                <a href="{{ url_for('login') }}" class="btn-ghost">Log In</a>
+                <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
+            </div>
+        </div>
+    </div>
 
     <!-- Flash Messages -->
     <div class="flash-messages">
@@ -486,7 +784,7 @@
                             <ul class="footer-links">
                                 <li><a href="{{ url_for('index') }}">Home</a></li>
                                 <li><a href="{{ url_for('about') }}">About</a></li>
-                                <li><a href="{{ url_for('benefits') }}">Access Services</a></li>
+                                <li><a href="{{ url_for('access_services') }}">Access Services</a></li>
                                 <li><a href="{{ url_for('verification_manage') }}">Verification</a></li>
                             </ul>
                         </div>
@@ -712,6 +1010,116 @@
                         const y = Math.random() * 10 - 5;
                         orb.style.transform = `translate(${x}px, ${y}px)`;
                     }, 3000);
+                });
+            }
+        });
+    </script>
+
+    <!-- Add JavaScript for the mobile menu toggle at the end of the body -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[MENU] Setting up mobile menu');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if (mobileMenuToggle && mobileMenu) {
+                // Initial state check
+                console.log('[MENU] Initial menu state:', {
+                    toggle: {
+                        display: window.getComputedStyle(mobileMenuToggle).display,
+                        visibility: window.getComputedStyle(mobileMenuToggle).visibility
+                    },
+                    menu: {
+                        display: window.getComputedStyle(mobileMenu).display,
+                        visibility: window.getComputedStyle(mobileMenu).visibility,
+                        transform: window.getComputedStyle(mobileMenu).transform,
+                        opacity: window.getComputedStyle(mobileMenu).opacity
+                    }
+                });
+                
+                // Improved click handler
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default button action
+                    e.stopPropagation(); // Prevent event bubbling
+                    
+                    console.log('[MENU] Toggle clicked');
+                    const isActive = mobileMenu.classList.contains('active');
+                    
+                    if (isActive) {
+                        // Hide menu
+                        mobileMenu.classList.remove('active');
+                        console.log('[MENU] Closing menu');
+                        document.body.style.overflow = '';
+                    } else {
+                        // Show menu
+                        mobileMenu.classList.add('active');
+                        console.log('[MENU] Opening menu');
+                        document.body.style.overflow = 'hidden';
+                        
+                        // Force menu visibility after a slight delay
+                        setTimeout(() => {
+                            if (mobileMenu.classList.contains('active')) {
+                                mobileMenu.style.transform = 'translateY(0)';
+                                mobileMenu.style.opacity = '1';
+                                mobileMenu.style.visibility = 'visible';
+                                console.log('[MENU] Forced menu visibility');
+                            }
+                        }, 50);
+                    }
+                    
+                    // Check state after toggle
+                    setTimeout(() => {
+                        console.log('[MENU] Menu state after toggle:', {
+                            isActive: mobileMenu.classList.contains('active'),
+                            transform: window.getComputedStyle(mobileMenu).transform,
+                            opacity: window.getComputedStyle(mobileMenu).opacity,
+                            visibility: window.getComputedStyle(mobileMenu).visibility
+                        });
+                    }, 300);
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (mobileMenu.classList.contains('active') && 
+                        !mobileMenu.contains(event.target) && 
+                        event.target !== mobileMenuToggle) {
+                        console.log('[MENU] Closing menu on outside click');
+                        mobileMenu.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu when link is clicked
+                const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        console.log('[MENU] Closing menu after link click');
+                        mobileMenu.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                });
+                
+                // Mobile swipe to close
+                let touchStartY = 0;
+                mobileMenu.addEventListener('touchstart', function(e) {
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: true });
+                
+                mobileMenu.addEventListener('touchmove', function(e) {
+                    const touchY = e.touches[0].clientY;
+                    const diff = touchY - touchStartY;
+                    
+                    // If swiping up, close the menu
+                    if (diff < -50) {
+                        console.log('[MENU] Closing menu on swipe up');
+                        mobileMenu.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                }, { passive: true });
+            } else {
+                console.error('[MENU] Mobile menu elements not found:', {
+                    toggle: !!mobileMenuToggle,
+                    menu: !!mobileMenu
                 });
             }
         });

@@ -111,6 +111,7 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  background-color: var(--color-bg-dark) !important;
 }
 
 body {
@@ -121,6 +122,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* Essential reset for lists - ensure no bullets by default */
@@ -1270,5 +1272,202 @@ main {
   
   .footer-right {
     flex-direction: column;
+  }
+}
+
+/* Improved Mobile Responsiveness */
+@media (max-width: 992px) {
+  html {
+    font-size: 15px;
+  }
+  
+  .container {
+    padding: 0 1.25rem;
+  }
+  
+  .section {
+    padding: 3rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .section {
+    padding: 2.5rem 0;
+  }
+  
+  .section-title-web3 {
+    font-size: 2rem;
+  }
+  
+  .card-web3, .card-glass {
+    padding: 1.5rem;
+  }
+  
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .features-grid, .benefits-grid, .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .hero-section {
+    flex-direction: column;
+    padding: 2rem 1rem;
+  }
+  
+  .hero-content {
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .hero-visual {
+    max-width: 100%;
+    margin-top: 2rem;
+  }
+  
+  .hero-cta {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  html {
+    font-size: 13px;
+  }
+  
+  .section-title-web3 {
+    font-size: 1.75rem;
+  }
+  
+  .section-subtitle-web3 {
+    font-size: 1rem;
+  }
+  
+  .btn-web5, .btn-ghost {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+  }
+  
+  .main-header .container {
+    padding: 0 1rem;
+  }
+  
+  .navbar-link {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .card {
+    padding: 1.25rem;
+  }
+}
+
+/* Ensure dark mode for all screen sizes */
+@media (prefers-color-scheme: light) {
+  html, body {
+    background-color: var(--color-bg-dark) !important;
+    color: var(--text-inverted) !important;
+  }
+}
+
+/* Enhanced dark mode enforcing - higher specificity */
+html, 
+html body,
+html .main-content,
+html .hero-section, 
+html .features-section, 
+html .combined-features-benefits, 
+html .quote-section,
+html .how-it-works, 
+html .stats-section, 
+html .faq-section,
+html .cta-section {
+  background-color: var(--color-bg-dark) !important;
+  color: var(--text-inverted) !important;
+}
+
+/* Mobile dark mode diagnostic */
+@media (max-width: 768px) {
+  /* Add a diagnostic CSS property that can be checked in console */
+  html {
+    --mobile-dark-mode: "active";
+  }
+  
+  /* Force all sections to have dark background on mobile */
+  html body,
+  html body > *,
+  html .main-content,
+  html .hero-section, 
+  html .features-section, 
+  html .combined-features-benefits, 
+  html .quote-section,
+  html .how-it-works, 
+  html .stats-section, 
+  html .faq-section,
+  html .cta-section,
+  html .section,
+  html .container {
+    background-color: var(--color-bg-dark) !important;
+    color: var(--text-inverted) !important;
+  }
+  
+  /* Debug helper - will help diagnose which elements have problematic backgrounds */
+  html body *:not([style*="background"]) {
+    --debug-bg-missing: true;
+  }
+}
+
+/* Mobile hover effects adjustment */
+@media (hover: hover) {
+  /* Apply hover effects only on devices that support hover */
+  .feature-card:hover, .benefit-card:hover, .step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(122, 67, 255, 0.3) !important;
+  }
+  
+  .feature-card:hover::after, .benefit-card:hover::after, .step-card:hover::after {
+    opacity: 0.7;
+    animation: glowAnimation 2s infinite;
+  }
+}
+
+@media (hover: none) {
+  /* For touch devices, apply active state instead of hover */
+  .feature-card:active, .benefit-card:active, .step-card:active {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(122, 67, 255, 0.3) !important;
+  }
+  
+  /* Add tap highlight color for better feedback */
+  .feature-card, .benefit-card, .step-card {
+    -webkit-tap-highlight-color: rgba(122, 67, 255, 0.2);
+  }
+}
+
+/* Ensure dark mode for all screen sizes and browsers */
+@media (prefers-color-scheme: light) {
+  html, body {
+    background-color: var(--color-bg-dark) !important;
+    color: var(--text-inverted) !important;
   }
 } 

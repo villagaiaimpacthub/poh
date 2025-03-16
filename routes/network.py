@@ -9,7 +9,12 @@ def family_tree():
     """
     Render the family tree visualization page
     """
-    return render_template('family_tree.html')
+    try:
+        current_app.logger.info('Serving family tree page')
+        return render_template('family_tree.html')
+    except Exception as e:
+        current_app.logger.error(f'Error serving family tree: {e}', exc_info=True)
+        return render_template('errors/500.html'), 500
 
 @network_bp.route('/viz', methods=['GET'])
 def viz():

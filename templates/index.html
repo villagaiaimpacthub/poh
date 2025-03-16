@@ -5,65 +5,42 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v={{ now().strftime('%Y%m%d%H%M%S') }}">
 <style>
-  /* Diagnostic styles */
-  .debug-box {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: lime;
-    padding: 10px;
-    border-radius: 5px;
-    font-family: monospace;
-    z-index: 9999;
-    max-width: 400px;
-    max-height: 300px;
-    overflow: auto;
-    white-space: pre-wrap;
-    font-size: 12px;
-    display: none; /* Initially hidden, toggle with the debug-toggle button */
-  }
-  
-  .debug-toggle {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #7a43ff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    z-index: 10000;
-    font-family: monospace;
-  }
-  
-  /* Diagnostic outlines */
-  .debug-mode .hero-section {
-    outline: 2px dashed red !important;
-  }
-  
-  .debug-mode .hero-content {
-    outline: 2px dashed blue !important;
-  }
-  
-  .debug-mode .hero-visual {
-    outline: 2px dashed green !important;
-  }
-  
-  .debug-mode .feature-card, 
-  .debug-mode .benefit-card {
-    outline: 2px dashed orange !important;
-  }
-  
-  .debug-mode iframe {
-    outline: 2px solid magenta !important;
-  }
+    /* Force dark mode for all sections on the landing page */
+    body, 
+    .main-content, 
+    .hero-section, 
+    .features-section, 
+    .combined-features-benefits, 
+    .how-it-works, 
+    .network-preview-section, 
+    .testimonials-section, 
+    .faq-section, 
+    .cta-section {
+        background-color: var(--color-bg-dark) !important;
+        color: var(--text-inverted) !important;
+    }
+
+    /* Ensure cards and containers use dark mode as well */
+    .card, 
+    .feature-card, 
+    .step-card, 
+    .faq-item {
+        background-color: var(--color-surface-dark) !important;
+        border-color: var(--color-border-dark) !important;
+        color: var(--text-inverted) !important;
+    }
+    
+    /* Fix any white text that might be on dark backgrounds */
+    h1, h2, h3, h4, h5, h6, p, a, li, span:not(.text-gradient) {
+        color: var(--text-inverted) !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="debug-box" id="debugBox"></div>
+<div class="debug-box" id="debugBox" style="display: none; position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 5px; z-index: 9999; max-height: 80vh; overflow: auto; width: 400px;"></div>
+
+<button id="debugBtn" style="position: fixed; bottom: 20px; right: 20px; background: #7a43ff; color: white; border: none; border-radius: 5px; padding: 8px 16px; z-index: 10000; cursor: pointer;">Debug</button>
 
 <div class="hero-section">
     <div class="hero-content">
@@ -77,7 +54,22 @@
         </div>
     </div>
     <div class="hero-visual">
-        <iframe src="{{ url_for('network.viz', _external=True) }}" id="visualization-iframe" frameborder="0" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+        <div class="iframe-container" style="position: relative; width: 100%; height: 100%; min-height: 400px; border-radius: 16px; overflow: hidden; background: rgba(15, 23, 42, 0.8); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+            <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; z-index: 1;">
+                <div style="border: 3px solid rgba(122, 67, 255, 0.3); border-top: 3px solid #7a43ff; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 2s linear infinite;"></div>
+                <p>Loading network visualization...</p>
+            </div>
+            <iframe 
+                src="{{ url_for('network.viz') }}" 
+                id="visualization-iframe" 
+                frameborder="0" 
+                allow="fullscreen; clipboard-write" 
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
+                style="width: 100%; height: 100%; min-height: 400px; border: none; position: relative; z-index: 2;"
+                onload="handleIframeLoad(event)"
+                onerror="handleIframeError(event)"
+            ></iframe>
+        </div>
     </div>
 </div>
 
@@ -85,7 +77,7 @@
     <div class="container">
         <blockquote class="quote-card">
             <p>The Proof of Humanity system enables a new era of human verification, where identity is validated through social connections rather than centralized authorities. This creates possibilities for more equitable governance, trustless interactions, and protection against identity fraud and sybil attacks.</p>
-            <cite>Inspired by the principles of Web5 and decentralized identity</cite>
+            <cite>A revolutionary approach to human verification</cite>
         </blockquote>
     </div>
 </section>
@@ -273,217 +265,176 @@
     </div>
 </section>
 
-<button class="debug-toggle">Debug</button>
-
 <script>
-  // Debug logging function
-  function logDebug(message, type = 'info') {
-    const debugBox = document.getElementById('debugBox');
-    const timestamp = new Date().toISOString().substr(11, 8);
+  // Enhanced debug system
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Debug system initializing");
     
+    const debugBtn = document.getElementById('debugBtn');
+    const debugBox = document.getElementById('debugBox');
+    
+    if (debugBtn && debugBox) {
+      // Pre-populate debug box with a test message
+      debugBox.innerHTML = '<div style="color: #00ff66;">[INFO] Debug system ready</div>';
+      
+      // Listen for visualization debug messages
+      window.addEventListener('message', function(event) {
+        if (event.data && (event.data.type === 'viz-debug' || event.data.type === 'network-viz-debug')) {
+          const level = event.data.level || 'info';
+          const message = event.data.message || 'No message';
+          addDebugInfo(`[VIZ] ${message}`, level);
+        }
+      });
+
+      debugBtn.addEventListener('click', function() {
+        console.log("Debug button clicked");
+        const isVisible = debugBox.style.display !== 'none';
+        
+        if (isVisible) {
+          debugBox.style.display = 'none';
+          document.body.classList.remove('debug-mode');
+        } else {
+          debugBox.style.display = 'block';
+          document.body.classList.add('debug-mode');
+          
+          // Add debug information
+          addDebugInfo("Window dimensions: " + window.innerWidth + "x" + window.innerHeight);
+          addDebugInfo("User agent: " + navigator.userAgent);
+          
+          // Check visualization iframe
+          const iframe = document.getElementById('visualization-iframe');
+          if (iframe) {
+            addDebugInfo("Iframe found: " + iframe.src);
+            
+            try {
+              // Check iframe content
+              const iframeLoaded = iframe.contentWindow && iframe.contentDocument;
+              addDebugInfo("Iframe access: " + (iframeLoaded ? "Yes" : "No"));
+            } catch (e) {
+              addDebugInfo("Cannot access iframe content due to security restrictions", "warning");
+            }
+          } else {
+            addDebugInfo("Iframe not found", "error");
+          }
+          
+          // Check for D3.js
+          if (window.d3) {
+            addDebugInfo("D3.js in parent window: version " + window.d3.version);
+          } else {
+            addDebugInfo("D3.js not found in parent window", "info");
+          }
+        }
+      });
+    }
+  });
+  
+  // Add debug information to debug box
+  function addDebugInfo(message, type = "info") {
+    const debugBox = document.getElementById('debugBox');
     if (!debugBox) return;
     
-    const entry = document.createElement('div');
-    entry.className = `debug-entry debug-${type}`;
-    entry.textContent = `[${timestamp}] [${type}] ${message}`;
+    const color = type === "error" ? "#ff5757" : 
+                  type === "warning" ? "#ffbb00" : "#ffffff";
     
-    if (type === 'error') {
-      entry.style.color = '#ff5757';
-    } else if (type === 'warning') {
-      entry.style.color = '#ffbb00';
-    } else if (type === 'success') {
-      entry.style.color = '#00ff66';
-    }
+    const entry = document.createElement('div');
+    entry.style.color = color;
+    entry.style.margin = "5px 0";
+    entry.style.fontFamily = "monospace";
+    entry.textContent = '[' + type.toUpperCase() + '] ' + message;
     
     debugBox.appendChild(entry);
     debugBox.scrollTop = debugBox.scrollHeight;
-    
-    // Also log to console
-    console[type in console ? type : 'log'](message);
+    console.log(type.toUpperCase() + ": " + message);
   }
-  
-    document.addEventListener('DOMContentLoaded', function() {
-    // Debug toggle functionality
-    const debugToggle = document.querySelector('.debug-toggle');
-    const debugBox = document.querySelector('.debug-box');
+
+  // Enhanced iframe handlers
+  function handleIframeLoad(event) {
+    console.log("Iframe loaded successfully");
+    document.getElementById('loading-indicator').style.display = 'none';
     
-    if (debugToggle && debugBox) {
-      debugToggle.addEventListener('click', function() {
-        document.body.classList.toggle('debug-mode');
-        debugBox.style.display = debugBox.style.display === 'none' ? 'block' : 'none';
-        logDebug('Debug mode ' + (document.body.classList.contains('debug-mode') ? 'enabled' : 'disabled'));
-      });
-    }
-    
-    // Log CSS variables and computed styles
-    function logStyles() {
-      try {
-        const heroSection = document.querySelector('.hero-section');
-        const heroContent = document.querySelector('.hero-content');
-        const heroVisual = document.querySelector('.hero-visual');
-        
-        if (heroSection && heroContent && heroVisual) {
-          const heroSectionStyles = window.getComputedStyle(heroSection);
-          const heroContentStyles = window.getComputedStyle(heroContent);
-          const heroVisualStyles = window.getComputedStyle(heroVisual);
-          
-          logDebug('Hero Section - display: ' + heroSectionStyles.display + 
-                   ', grid-template-columns: ' + heroSectionStyles.gridTemplateColumns);
-          
-          logDebug('Hero Content - display: ' + heroContentStyles.display + 
-                   ', width: ' + heroContentStyles.width + 
-                   ', max-width: ' + heroContentStyles.maxWidth);
-          
-          logDebug('Hero Visual - display: ' + heroVisualStyles.display + 
-                   ', width: ' + heroVisualStyles.width + 
-                   ', height: ' + heroVisualStyles.height);
-          
-          // Check for grid layout
-          if (heroSectionStyles.display !== 'grid') {
-            logDebug('Hero section is not displaying as a grid!', 'error');
-          }
-          
-          // Check if media queries are active
-          const windowWidth = window.innerWidth;
-          logDebug('Window width: ' + windowWidth + 'px');
-          if (windowWidth <= 992) {
-            logDebug('Media query for <= 992px should be active', 'warning');
-          }
-          if (windowWidth <= 768) {
-            logDebug('Media query for <= 768px should be active', 'warning');
-          }
-          if (windowWidth <= 576) {
-            logDebug('Media query for <= 576px should be active', 'warning');
-          }
-        }
-        
-        // Check for style conflicts by inspecting CSS rules
-        const allStyles = Array.from(document.styleSheets).filter(sheet => {
-          try {
-            // Access cssRules to check if it's a same-origin stylesheet
-            return sheet.cssRules;
-          } catch (e) {
-            // This will throw an error for cross-origin stylesheets
-            return false;
-          }
-        });
-        
-        let conflictingRules = [];
-        allStyles.forEach(sheet => {
-          Array.from(sheet.cssRules).forEach(rule => {
-            if (rule.selectorText && 
-                (rule.selectorText.includes('hero-section') || 
-                 rule.selectorText.includes('hero-content') || 
-                 rule.selectorText.includes('hero-visual'))) {
-              conflictingRules.push(rule.selectorText);
-            }
-          });
-        });
-        
-        if (conflictingRules.length > 0) {
-          logDebug('Potentially conflicting CSS rules found: ' + conflictingRules.join(', '), 'warning');
-        }
-      } catch (error) {
-        logDebug('Error inspecting styles: ' + error.message, 'error');
+    // Try to communicate with the iframe
+    try {
+      const iframe = document.getElementById('visualization-iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: 'viz-parent-ready'
+        }, '*');
       }
+    } catch (e) {
+      console.error("Error communicating with iframe:", e);
     }
-    
-    // Log style information after a short delay
-    setTimeout(logStyles, 1000);
-    
-    // Check if hero visualization iframe loads correctly
-    const vizIframe = document.querySelector('#visualization-iframe');
-    if (vizIframe) {
-      logDebug('Visualization iframe found, monitoring for load events');
+  }
+
+  function handleIframeError(event) {
+    console.error("Iframe failed to load:", event);
+    document.getElementById('loading-indicator').innerHTML = `
+      <div style="color: #ff5757;">
+        <p>Visualization load error</p>
+        <button onclick="reloadVisualization()" style="background: #7a43ff; color: white; border: none; border-radius: 4px; padding: 5px 10px; margin-top: 10px; cursor: pointer;">
+          Retry
+        </button>
+        <button onclick="showFallbackVisualization()" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 4px; padding: 5px 10px; margin-top: 10px; margin-left: 10px; cursor: pointer;">
+          Show Fallback
+        </button>
+      </div>
+    `;
+  }
+
+  function reloadVisualization() {
+    const iframe = document.getElementById('visualization-iframe');
+    if (iframe) {
+      // Reset loading indicator
+      document.getElementById('loading-indicator').innerHTML = `
+        <div style="border: 3px solid rgba(122, 67, 255, 0.3); border-top: 3px solid #7a43ff; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 2s linear infinite;"></div>
+        <p>Reloading visualization...</p>
+      `;
+      document.getElementById('loading-indicator').style.display = 'block';
       
-      // Set a timeout to check if the iframe loaded
-      const timeoutId = setTimeout(() => {
-        logDebug('Network visualization timed out after 5 seconds', 'error');
-        addFallbackVisualization();
-      }, 5000);
-      
-      // Listen for iframe load success
-      vizIframe.addEventListener('load', function() {
-        clearTimeout(timeoutId);
-        logDebug('Visualization iframe load event fired', 'success');
-        
-        // Check if the iframe actually has content
-        try {
-          const iframeDocument = vizIframe.contentDocument || vizIframe.contentWindow.document;
-          if (iframeDocument) {
-            const networkNodes = iframeDocument.querySelectorAll('#network circle');
-            logDebug(`Found ${networkNodes.length} network nodes in iframe`);
-            if (networkNodes.length === 0) {
-              logDebug('Visualization iframe loaded but contains no network nodes', 'warning');
-              // Wait a bit more to see if D3 is still initializing
-              setTimeout(() => {
-                const updatedNodes = iframeDocument.querySelectorAll('#network circle');
-                if (updatedNodes.length === 0) {
-                  logDebug('No nodes appeared after delay, falling back to static visualization', 'error');
-                  addFallbackVisualization();
-                } else {
-                  logDebug(`Found ${updatedNodes.length} nodes after delay`, 'success');
-                }
-              }, 2000);
-            }
-          }
-        } catch (e) {
-          logDebug('Error accessing iframe content: ' + e.message, 'error');
-          logDebug('This may indicate a cross-origin issue', 'warning');
-        }
-        
-        // Add specific size requirements to ensure proper display
-        vizIframe.style.width = '100%';
-        vizIframe.style.height = '100%';
-        vizIframe.style.minHeight = '500px';
-        logDebug('Applied explicit dimensions to iframe');
-      });
-      
-      // Listen for iframe load error
-      vizIframe.addEventListener('error', function(e) {
-        clearTimeout(timeoutId);
-        logDebug('Network visualization failed to load: ' + (e.message || 'Unknown error'), 'error');
-        addFallbackVisualization();
-      });
-      
-      // Listen for messages from the iframe
-      window.addEventListener('message', function(event) {
-        if (event.data === 'viz-iframe-loaded') {
-          logDebug('Received "viz-iframe-loaded" message from iframe', 'success');
-        }
-      });
-    } else {
-      logDebug('Visualization iframe not found in DOM', 'error');
+      // Reload iframe with timestamp to prevent caching
+      iframe.src = "{{ url_for('network.viz') }}?t=" + new Date().getTime();
     }
+  }
+</script>
+
+<script>
+// Iframe error handler
+function handleIframeError(event) {
+    console.error("Iframe failed to load:", event);
+    document.getElementById('loading-indicator').innerHTML = `
+        <div style="color: #ff5757;">
+            <p>Using fallback visualization</p>
+        </div>
+    `;
     
-    function addFallbackVisualization() {
-      const vizContainer = document.querySelector('.hero-visual');
-      if (vizContainer) {
-        logDebug('Adding fallback visualization', 'warning');
-        // Create a fallback visualization
-        vizContainer.innerHTML = `
-          <div class="fallback-visualization">
-            <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-              <defs>
+    // Show fallback visualization immediately
+    showFallbackVisualization();
+}
+
+// Show fallback visualization
+function showFallbackVisualization() {
+    // Hide the iframe
+    const iframe = document.getElementById('visualization-iframe');
+    if (iframe) iframe.style.display = 'none';
+    
+    // Create fallback SVG
+    const container = document.querySelector('.iframe-container');
+    const fallbackViz = document.createElement('div');
+    fallbackViz.className = 'fallback-visualization';
+    fallbackViz.style.width = '100%';
+    fallbackViz.style.height = '100%';
+    fallbackViz.style.minHeight = '400px';
+    fallbackViz.style.position = 'relative';
+    fallbackViz.style.zIndex = '5';
+    
+    fallbackViz.innerHTML = `
+        <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
-                  <stop offset="100%" stop-color="#43d1ff" stop-opacity="0.7" />
+                    <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
+                    <stop offset="100%" stop-color="#43d1ff" stop-opacity="0.7" />
                 </linearGradient>
-              </defs>
-              <g class="nodes">
-                <circle cx="400" cy="300" r="40" fill="url(#grad1)" />
-                <circle cx="250" cy="200" r="20" fill="#7a43ff" opacity="0.7" />
-                <circle cx="550" cy="200" r="20" fill="#7a43ff" opacity="0.7" />
-                <circle cx="250" cy="400" r="20" fill="#7a43ff" opacity="0.7" />
-                <circle cx="550" cy="400" r="20" fill="#7a43ff" opacity="0.7" />
-                <circle cx="150" cy="300" r="15" fill="#43d1ff" opacity="0.7" />
-                <circle cx="650" cy="300" r="15" fill="#43d1ff" opacity="0.7" />
-                <circle cx="350" cy="120" r="15" fill="#43d1ff" opacity="0.7" />
-                <circle cx="450" cy="120" r="15" fill="#43d1ff" opacity="0.7" />
-                <circle cx="350" cy="480" r="15" fill="#43d1ff" opacity="0.7" />
-                <circle cx="450" cy="480" r="15" fill="#43d1ff" opacity="0.7" />
-              </g>
-              <g class="links" stroke-width="1" stroke-opacity="0.6">
+            </defs>
+            <g class="links" stroke-width="1" stroke-opacity="0.6">
                 <line x1="400" y1="300" x2="250" y2="200" stroke="#7a43ff" />
                 <line x1="400" y1="300" x2="550" y2="200" stroke="#7a43ff" />
                 <line x1="400" y1="300" x2="250" y2="400" stroke="#7a43ff" />
@@ -494,188 +445,332 @@
                 <line x1="550" y1="200" x2="450" y2="120" stroke="#43d1ff" />
                 <line x1="250" y1="400" x2="350" y2="480" stroke="#43d1ff" />
                 <line x1="550" y1="400" x2="450" y2="480" stroke="#43d1ff" />
-              </g>
-            </svg>
-          </div>
-        `;
-        logDebug('Fallback visualization added successfully', 'success');
-        
-        // Check if fallback is visible
-        setTimeout(() => {
-          const fallbackViz = document.querySelector('.fallback-visualization');
-          if (fallbackViz) {
-            const fallbackStyles = window.getComputedStyle(fallbackViz);
-            logDebug('Fallback visibility: ' + fallbackStyles.display + 
-                    ', width: ' + fallbackStyles.width + 
-                    ', height: ' + fallbackStyles.height);
-          }
-        }, 500);
-      } else {
-        logDebug('Hero visual container not found, cannot add fallback', 'error');
-      }
-    }
+            </g>
+            <g class="nodes">
+                <circle cx="400" cy="300" r="40" fill="url(#grad1)" class="pulse-circle" />
+                <circle cx="250" cy="200" r="20" fill="#7a43ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="550" cy="200" r="20" fill="#7a43ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="250" cy="400" r="20" fill="#7a43ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="550" cy="400" r="20" fill="#7a43ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="150" cy="300" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="650" cy="300" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="350" cy="120" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="450" cy="120" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="350" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+                <circle cx="450" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
+            </g>
+        </svg>
+    `;
     
-    // Log which stylesheet versions are loaded
-    const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
-    stylesheets.forEach(sheet => {
-      logDebug('Stylesheet: ' + sheet.href);
-    });
-
-    // Log calculated dimensions of key elements
-    function logElementDimensions() {
-      const elements = [
-        { selector: '.hero-section', name: 'Hero Section' },
-        { selector: '.hero-content', name: 'Hero Content' },
-        { selector: '.hero-visual', name: 'Hero Visual' },
-        { selector: '.hero-visual iframe', name: 'Visualization Iframe' },
-        { selector: '.feature-card', name: 'Feature Card' },
-        { selector: '.benefit-card', name: 'Benefit Card' }
-      ];
-      
-      elements.forEach(el => {
-        const element = document.querySelector(el.selector);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          logDebug(`${el.name}: width=${rect.width}px, height=${rect.height}px, top=${rect.top}px, left=${rect.left}px`);
-        } else {
-          logDebug(`${el.name} not found in DOM`, 'warning');
+    container.appendChild(fallbackViz);
+    
+    // Add subtle animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { r: attr(r); }
+            50% { r: calc(attr(r) * 1.1); }
+            100% { r: attr(r); }
         }
-      });
+        .pulse-circle {
+            animation: pulse 4s infinite;
+            transform-origin: center;
+            transform-box: fill-box;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Make circles pulsate independently
+    const circles = fallbackViz.querySelectorAll('circle');
+    circles.forEach((circle, index) => {
+        const originalR = parseFloat(circle.getAttribute('r'));
+        
+        setInterval(() => {
+            // Create a slightly different animation speed for each circle
+            const factor = 1 + 0.1 * Math.sin((Date.now() / 1000) + (index * 0.5));
+            circle.setAttribute('r', originalR * factor);
+        }, 50);
+    });
+    
+    console.log("Fallback visualization added");
+}
+
+// Add a timeout to check if iframe loaded and fall back if it didn't
+setTimeout(() => {
+    const iframe = document.getElementById('visualization-iframe');
+    // If loading indicator is still visible after 5 seconds, show fallback
+    if (document.getElementById('loading-indicator').style.display !== 'none') {
+        console.log("Iframe load timeout - showing fallback");
+        showFallbackVisualization();
+    }
+}, 5000);
+</script>
+
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Add hover glow effect to feature and benefit cards */
+.feature-card, .benefit-card, .step-card {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.feature-card:hover, .benefit-card:hover, .step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(122, 67, 255, 0.3) !important;
+}
+
+.feature-card::after, .benefit-card::after, .step-card::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #7a43ff, #43d1ff, #7a43ff);
+    border-radius: 18px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::after, .benefit-card:hover::after, .step-card:hover::after {
+    opacity: 0.7;
+    animation: glowAnimation 2s infinite;
+}
+
+@keyframes glowAnimation {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+    100% { opacity: 0.3; }
+}
+
+/* Add hover effects to How It Works cards */
+.how-it-works-card {
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.how-it-works-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(122, 67, 255, 0.3) !important;
+}
+
+.how-it-works-card::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #7a43ff, #43d1ff, #7a43ff);
+    border-radius: 18px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.how-it-works-card:hover::after {
+    opacity: 0.7;
+    animation: glowAnimation 2s infinite;
+}
+
+/* Mobile optimization styles */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+        padding: 2rem 1rem;
     }
     
-    // Run dimension logging after styles have been applied
-    setTimeout(logElementDimensions, 1500);
+    .hero-content {
+        margin-right: 0;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .hero-visual {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .hero-title {
+        font-size: 2.25rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .hero-cta {
+        justify-content: center;
+    }
+    
+    .iframe-container {
+        min-height: 300px !important;
+    }
+    
+    #visualization-iframe {
+        min-height: 300px !important;
+    }
+    
+    .features-grid, 
+    .steps-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .feature-card, 
+    .benefit-card, 
+    .step-card {
+        padding: 1.5rem;
+    }
+    
+    .section-title-web5 {
+        font-size: 2rem;
+    }
+    
+    .section-subtitle-web5 {
+        font-size: 1rem;
+    }
+    
+    .debugBtn {
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+</style>
 
-    // Add this to the beginning of the script to check CSS loading status
-    document.addEventListener('DOMContentLoaded', function() {
-      // Create a diagnostic tool for CSS inspection
-      const cssInspector = {
-        init: function() {
-          logDebug('CSS Inspector initialized', 'info');
-          this.checkStylesheetLoading();
-          this.checkCssVariables();
-          this.checkMainCssRules();
-          this.checkImportantRules();
-        },
-        
-        checkStylesheetLoading: function() {
-          const stylesheets = Array.from(document.styleSheets);
-          logDebug(`Found ${stylesheets.length} stylesheets`);
-          
-          // Check main.css and index.css specifically
-          const mainCss = stylesheets.find(sheet => sheet.href && sheet.href.includes('main.css'));
-          const indexCss = stylesheets.find(sheet => sheet.href && sheet.href.includes('index.css'));
-          
-          if (mainCss) {
-            logDebug('main.css is loaded: ' + mainCss.href, 'success');
-            try {
-              // Check if we can access rules (same-origin)
-              const rules = mainCss.cssRules || mainCss.rules;
-              logDebug(`main.css has ${rules.length} rules`);
-            } catch (e) {
-              logDebug('Cannot access main.css rules due to CORS: ' + e.message, 'warning');
-            }
-          } else {
-            logDebug('main.css not found!', 'error');
-          }
-          
-          if (indexCss) {
-            logDebug('index.css is loaded: ' + indexCss.href, 'success');
-            try {
-              // Check if we can access rules (same-origin)
-              const rules = indexCss.cssRules || indexCss.rules;
-              logDebug(`index.css has ${rules.length} rules`);
-            } catch (e) {
-              logDebug('Cannot access index.css rules due to CORS: ' + e.message, 'warning');
-            }
-          } else {
-            logDebug('index.css not found!', 'error');
-          }
-        },
-        
-        checkCssVariables: function() {
-          const root = document.documentElement;
-          const style = getComputedStyle(root);
-          
-          // Check some key CSS variables
-          const cssVars = [
-            '--primary', '--secondary', '--color-bg', '--color-surface', 
-            '--web5-primary', '--web5-accent', '--color-text'
-          ];
-          
-          let foundVars = 0;
-          cssVars.forEach(varName => {
-            const value = style.getPropertyValue(varName).trim();
-            if (value) {
-              logDebug(`CSS Variable ${varName}: ${value}`, 'success');
-              foundVars++;
-            } else {
-              logDebug(`CSS Variable ${varName} not found`, 'warning');
-            }
-          });
-          
-          if (foundVars === 0) {
-            logDebug('No CSS variables found - potential issue with stylesheets', 'error');
-          }
-        },
-        
-        checkMainCssRules: function() {
-          // Check if key styles from main.css are applied
-          const selectors = [
-            '.container', '.hero-section', '.btn-web5', '.btn-ghost'
-          ];
-          
-          selectors.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element) {
-              const style = window.getComputedStyle(element);
-              logDebug(`${selector} - display: ${style.display}, position: ${style.position}, bg-color: ${style.backgroundColor}`);
-                } else {
-              logDebug(`Element with selector "${selector}" not found in DOM`, 'warning');
-            }
-          });
-        },
-        
-        checkImportantRules: function() {
-          // Count !important declarations to detect specificity wars
-          try {
-            let importantCount = 0;
-            const sheets = Array.from(document.styleSheets).filter(sheet => {
-              try {
-                return sheet.cssRules; // This will fail for cross-origin sheets
-              } catch (e) {
-                return false;
-              }
-            });
-            
-            sheets.forEach(sheet => {
-              Array.from(sheet.cssRules).forEach(rule => {
-                if (rule.cssText && rule.cssText.includes('!important')) {
-                  importantCount++;
-                }
-            });
+<script>
+// Diagnostic tool for network visualization
+console.log("[DIAG] Page load started at: " + new Date().toISOString());
+window.vizDiagnostics = {
+    events: [],
+    log: function(message, type = 'info') {
+        const timestamp = new Date().toISOString();
+        console.log(`[DIAG][${type.toUpperCase()}] ${message}`);
+        this.events.push({
+            timestamp: timestamp,
+            type: type,
+            message: message
         });
         
-            logDebug(`Found ${importantCount} !important declarations`, importantCount > 50 ? 'warning' : 'info');
-          } catch (e) {
-            logDebug('Error checking !important rules: ' + e.message, 'error');
-          }
+        // Try to update DOM log if it exists
+        try {
+            const diagLog = document.getElementById('viz-diagnostics');
+            if (diagLog) {
+                const entry = document.createElement('div');
+                entry.innerHTML = `<span style="color:${type === 'error' ? 'red' : type === 'warning' ? 'orange' : 'green'}">[${type.toUpperCase()}]</span> ${message}`;
+                diagLog.appendChild(entry);
+            }
+        } catch (e) {
+            console.error("Error updating DOM log:", e);
         }
-      };
-      
-      // Run our CSS diagnostics
-      setTimeout(() => {
-        cssInspector.init();
-      }, 500);
-      
-      // Add listener for iframe messages from the visualization
-      window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'viz-log') {
-          logDebug(`[Viz Frame] ${event.data.message}`, event.data.logType || 'info');
+    },
+    checkResources: function() {
+        // Check if D3.js is loaded
+        if (typeof d3 === 'undefined') {
+            this.log('D3.js is NOT loaded', 'error');
+        } else {
+            this.log('D3.js is loaded, version: ' + d3.version, 'success');
         }
-      });
-    });
-  });
+        
+        // Check for network_viz.js script
+        const scripts = Array.from(document.scripts);
+        const networkVizScript = scripts.find(s => s.src && s.src.includes('network_viz.js'));
+        if (networkVizScript) {
+            this.log('network_viz.js script found: ' + networkVizScript.src, 'success');
+        } else {
+            this.log('network_viz.js script NOT found in document', 'error');
+        }
+        
+        // Check iframe
+        const iframe = document.getElementById('visualization-iframe');
+        if (iframe) {
+            this.log('Visualization iframe found, src: ' + iframe.src, 'info');
+            // Check if iframe is visible
+            const style = window.getComputedStyle(iframe);
+            this.log('Iframe display: ' + style.display + ', visibility: ' + style.visibility, 
+                    style.display === 'none' || style.visibility === 'hidden' ? 'warning' : 'info');
+        } else {
+            this.log('Visualization iframe NOT found', 'error');
+        }
+        
+        // Check container
+        const container = document.querySelector('.iframe-container');
+        if (container) {
+            this.log('Container found, dimensions: ' + container.offsetWidth + 'x' + container.offsetHeight, 'info');
+        } else {
+            this.log('Container NOT found', 'error');
+        }
+    }
+};
+
+// Attach listeners to key events
+document.addEventListener('DOMContentLoaded', function() {
+    window.vizDiagnostics.log('DOMContentLoaded event fired');
+    // Wait a bit to let other scripts initialize
+    setTimeout(function() {
+        window.vizDiagnostics.checkResources();
+    }, 500);
+});
+
+window.addEventListener('load', function() {
+    window.vizDiagnostics.log('Window load event fired');
+    // Check again after everything has loaded
+    setTimeout(function() {
+        window.vizDiagnostics.checkResources();
+        
+        // Add diagnostics UI
+        const diagContainer = document.createElement('div');
+        diagContainer.id = 'viz-diagnostics-container';
+        diagContainer.style.cssText = 'position: fixed; bottom: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; width: 400px; font-family: monospace; font-size: 12px; display: none;';
+        
+        const diagTitle = document.createElement('div');
+        diagTitle.textContent = 'Visualization Diagnostics';
+        diagTitle.style.cssText = 'font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px;';
+        
+        const diagLog = document.createElement('div');
+        diagLog.id = 'viz-diagnostics';
+        diagLog.style.cssText = 'max-height: 250px; overflow: auto;';
+        
+        diagContainer.appendChild(diagTitle);
+        diagContainer.appendChild(diagLog);
+        document.body.appendChild(diagContainer);
+        
+        // Add diagnostic toggle button
+        const diagButton = document.createElement('button');
+        diagButton.textContent = 'Viz Diagnostics';
+        diagButton.style.cssText = 'position: fixed; bottom: 80px; right: 10px; z-index: 9999; background: #7a43ff; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer;';
+        diagButton.addEventListener('click', function() {
+            const container = document.getElementById('viz-diagnostics-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        });
+        document.body.appendChild(diagButton);
+        
+        // Populate log with existing events
+        const diagLogElement = document.getElementById('viz-diagnostics');
+        window.vizDiagnostics.events.forEach(event => {
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span style="color:${event.type === 'error' ? 'red' : event.type === 'warning' ? 'orange' : 'green'}">[${event.type.toUpperCase()}]</span> ${event.message}`;
+            diagLogElement.appendChild(entry);
+        });
+    }, 1000);
+});
+
+// Error monitoring
+window.addEventListener('error', function(e) {
+    window.vizDiagnostics.log('JavaScript error: ' + e.message + ' in ' + (e.filename || 'unknown') + ':' + (e.lineno || '?'), 'error');
+});
 </script>
 {% endblock %}
 
@@ -683,79 +778,6 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Index page loaded - Running diagnostics");
-        
-        // Debug button test
-        const debugButton = document.querySelector('.debug-button');
-        if (debugButton) {
-            console.log("Debug button found:", debugButton);
-            debugButton.addEventListener('click', function(e) {
-                console.log("Debug button clicked", e);
-                alert("Debug button clicked - This alert confirms the button works");
-            });
-        } else {
-            console.error("Debug button not found in the DOM");
-            
-            // Create fallback debug button
-            const fallbackButton = document.createElement('button');
-            fallbackButton.className = 'debug-button';
-            fallbackButton.textContent = 'Debug';
-            fallbackButton.style.cssText = `
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                z-index: 9999;
-                background-color: #7a43ff;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 8px 16px;
-            `;
-            fallbackButton.addEventListener('click', function() {
-                console.log("Fallback debug button clicked");
-                alert("Fallback debug button clicked");
-            });
-            document.body.appendChild(fallbackButton);
-            console.log("Created fallback debug button");
-        }
-        
-        // Check CSS variables
-        const root = document.documentElement;
-        const computedStyle = getComputedStyle(root);
-        
-        console.log("CSS Variables check:");
-        console.log("--dark-bg:", computedStyle.getPropertyValue('--dark-bg'));
-        console.log("--dark-surface:", computedStyle.getPropertyValue('--dark-surface'));
-        
-        // Check if dark mode is applied to elements
-        const bgColor = getComputedStyle(document.body).backgroundColor;
-        console.log("Body background color:", bgColor);
-        
-        // Check hero section elements
-        const heroSection = document.querySelector('.hero-section');
-        if (heroSection) {
-            console.log("Hero section found with background:", getComputedStyle(heroSection).backgroundColor);
-        } else {
-            console.error("Hero section not found");
-        }
-        
-        // Check if iframe exists and loads
-        const heroVisual = document.querySelector('.hero-visual iframe');
-        if (heroVisual) {
-            console.log("Hero visualization iframe found:", heroVisual);
-            
-            // Add loading and error handlers
-            heroVisual.addEventListener('load', function() {
-                console.log("Iframe loaded successfully");
-            });
-            
-            heroVisual.addEventListener('error', function(e) {
-                console.error("Iframe failed to load:", e);
-            });
-        } else {
-            console.error("Hero visualization iframe not found");
-        }
-    });
+    // Removed duplicate DOMContentLoaded event listener that was conflicting with the main one
 </script>
 {% endblock %} 

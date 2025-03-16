@@ -1,0 +1,43 @@
+<svg width="160" height="48" viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Logo Container -->
+  <g id="poh-logo">
+    <!-- Gradient Definitions -->
+    <defs>
+      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7a43ff" />
+        <stop offset="100%" stop-color="#43d1ff" />
+      </linearGradient>
+      <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7a43ff" />
+        <stop offset="100%" stop-color="#ff57da" />
+      </linearGradient>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    
+    <!-- Network Circle -->
+    <circle cx="24" cy="24" r="22" fill="#0f172a" stroke="url(#logoGradient)" stroke-width="2" />
+    
+    <!-- P stylized as connected nodes -->
+    <g filter="url(#glow)">
+      <!-- Central Node -->
+      <circle cx="24" cy="18" r="6" fill="url(#nodeGradient)" />
+      
+      <!-- Connections -->
+      <line x1="24" y1="18" x2="24" y2="30" stroke="url(#logoGradient)" stroke-width="2" />
+      <line x1="24" y1="18" x2="17" y2="12" stroke="url(#logoGradient)" stroke-width="2" />
+      <line x1="24" y1="18" x2="31" y2="12" stroke="url(#logoGradient)" stroke-width="2" />
+      
+      <!-- Connected Nodes -->
+      <circle cx="24" cy="30" r="4" fill="url(#nodeGradient)" />
+      <circle cx="17" cy="12" r="4" fill="url(#nodeGradient)" />
+      <circle cx="31" cy="12" r="4" fill="url(#nodeGradient)" />
+    </g>
+    
+    <!-- "Proof of Humanity" text -->
+    <text x="54" y="22" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="white">Proof of</text>
+    <text x="54" y="38" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="url(#logoGradient)">Humanity</text>
+  </g>
+</svg> 

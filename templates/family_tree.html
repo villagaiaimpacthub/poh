@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Trust Network - Proof of Humanity{% endblock %}
+{% block title %}Family Tree | Proof of Humanity{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/family_tree.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/family-tree.css') }}">
 <style>
     .network-container {
         max-width: 1200px;
@@ -96,221 +96,231 @@
         margin-right: 0.75rem;
     }
     
-    .legend-label {
-        color: rgba(255, 255, 255, 0.9);
+    /* Pulse animation for nodes in the network */
+    @keyframes pulse {
+        0% { r: attr(r); }
+        50% { r: calc(attr(r) * 1.1); }
+        100% { r: attr(r); }
     }
     
-    .network-stats {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .pulse-circle {
+        animation: pulse 4s infinite ease-in-out;
+        transform-origin: center;
+        transform-box: fill-box;
     }
     
-    .stats-card {
-        flex: 1 1 200px;
-        background-color: rgba(30, 30, 40, 0.7);
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        padding: 1.5rem;
-        text-align: center;
-        border: 1px solid rgba(122, 67, 255, 0.3);
-        transition: transform 0.3s ease;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    }
-    
-    .stats-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, var(--web5-primary) 0%, var(--web5-accent) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .stats-label {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 1rem;
-    }
-    
-    .iframe-container {
-        width: 100%;
-        height: 600px;
-    }
-    
-    .iframe-container iframe {
+    /* Static visualization styles */
+    .static-visualization {
         width: 100%;
         height: 100%;
-        border: none;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
+<section class="page-header">
     <div class="container">
-        <h1>Trust Network</h1>
-        <p>Explore the interconnected network of verified humans in the Proof of Humanity ecosystem.</p>
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1>Family Tree</h1>
+                <p class="lead mb-0">Explore your connections in the Proof of Humanity trust network</p>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
-<div class="network-container">
-    <div class="network-stats">
-        <div class="stats-card">
-            <div class="stats-number" id="network-size">10,285</div>
-            <div class="stats-label">Verified Humans</div>
-        </div>
-        
-        <div class="stats-card">
-            <div class="stats-number" id="connections-count">28,741</div>
-            <div class="stats-label">Trust Connections</div>
-        </div>
-        
-        <div class="stats-card">
-            <div class="stats-number" id="growth-rate">+7.2%</div>
-            <div class="stats-label">Monthly Growth</div>
-        </div>
-        
-        <div class="stats-card">
-            <div class="stats-number" id="active-verifiers">1,529</div>
-            <div class="stats-label">Active Verifiers</div>
-        </div>
-    </div>
-    
+<section class="network-container">
     <div class="visualization-container">
         <div class="visualization-header">
-            <h2 class="visualization-title">Trust Network Visualization</h2>
-            
-            <div class="controls-container">
-                <button class="control-btn" id="reset-view"><i class="fas fa-sync-alt"></i>Reset</button>
-                <button class="control-btn" id="zoom-in"><i class="fas fa-search-plus"></i>Zoom In</button>
-                <button class="control-btn" id="zoom-out"><i class="fas fa-search-minus"></i>Zoom Out</button>
+            <h2 class="visualization-title">Your Trust Network</h2>
+            <div>
+                <button class="control-btn zoom-in">
+                    <i class="fas fa-search-plus"></i> Zoom In
+                </button>
+                <button class="control-btn zoom-out">
+                    <i class="fas fa-search-minus"></i> Zoom Out
+                </button>
+                <button class="control-btn reset">
+                    <i class="fas fa-sync"></i> Reset
+                </button>
             </div>
         </div>
         
-        <div class="iframe-container" id="network-container">
-            <iframe src="{{ url_for('network.viz') }}" frameborder="0" id="viz-iframe"></iframe>
+        <!-- Direct SVG Visualization instead of iframe -->
+        <div class="static-visualization" id="network-viz">
+            <svg width="100%" height="100%" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="founder-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff7a43" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#ffcb43" stop-opacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="grandparent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#9b43ff" stop-opacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="parent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#43a1ff" stop-opacity="0.7" />
+                    </linearGradient>
+                    <linearGradient id="child-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#43d1ff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#43ffd1" stop-opacity="0.7" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Links between nodes -->
+                <g class="links" stroke-width="2" stroke-opacity="0.6">
+                    <!-- Founder to Grandparents -->
+                    <line x1="500" y1="200" x2="300" y2="300" stroke="#7a43ff" />
+                    <line x1="500" y1="200" x2="700" y2="300" stroke="#7a43ff" />
+                    
+                    <!-- Grandparents to Parents -->
+                    <line x1="300" y1="300" x2="200" y2="400" stroke="#43a1ff" />
+                    <line x1="300" y1="300" x2="350" y2="400" stroke="#43a1ff" />
+                    <line x1="700" y1="300" x2="650" y2="400" stroke="#43a1ff" />
+                    <line x1="700" y1="300" x2="800" y2="400" stroke="#43a1ff" />
+                    
+                    <!-- Parents to Children -->
+                    <line x1="200" y1="400" x2="150" y2="500" stroke="#43d1ff" />
+                    <line x1="200" y1="400" x2="250" y2="500" stroke="#43d1ff" />
+                    <line x1="350" y1="400" x2="300" y2="500" stroke="#43d1ff" />
+                    <line x1="350" y1="400" x2="400" y2="500" stroke="#43d1ff" />
+                    <line x1="650" y1="400" x2="600" y2="500" stroke="#43d1ff" />
+                    <line x1="650" y1="400" x2="700" y2="500" stroke="#43d1ff" />
+                    <line x1="800" y1="400" x2="750" y2="500" stroke="#43d1ff" />
+                    <line x1="800" y1="400" x2="850" y2="500" stroke="#43d1ff" />
+                    
+                    <!-- Additional connections -->
+                    <line x1="500" y1="200" x2="500" y2="400" stroke="#7a43ff" stroke-dasharray="5,5" />
+                    <line x1="500" y1="400" x2="450" y2="500" stroke="#43d1ff" />
+                    <line x1="500" y1="400" x2="550" y2="500" stroke="#43d1ff" />
+                </g>
+                
+                <!-- Nodes for different levels in the tree -->
+                <g class="nodes">
+                    <!-- Founder (You) -->
+                    <circle cx="500" cy="200" r="40" fill="url(#founder-gradient)" class="pulse-circle" data-level="founder" />
+                    <text x="500" y="205" text-anchor="middle" fill="white" font-size="14" font-weight="bold">You</text>
+                    
+                    <!-- Grandparents -->
+                    <circle cx="300" cy="300" r="30" fill="url(#grandparent-gradient)" class="pulse-circle" data-level="grandparent" />
+                    <circle cx="700" cy="300" r="30" fill="url(#grandparent-gradient)" class="pulse-circle" data-level="grandparent" />
+                    
+                    <!-- Parents -->
+                    <circle cx="200" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
+                    <circle cx="350" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
+                    <circle cx="500" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
+                    <circle cx="650" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
+                    <circle cx="800" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
+                    
+                    <!-- Children -->
+                    <circle cx="150" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="250" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="300" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="400" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="450" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="550" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="600" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="700" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="750" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                    <circle cx="850" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
+                </g>
+            </svg>
         </div>
         
         <div class="legend-container">
-            <h4 style="margin-bottom: 1rem; color: white; font-size: 1rem;">Network Legend</h4>
+            <h4 style="margin-bottom: 1rem; font-size: 1rem;">Network Legend</h4>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #ffb86c;"></div>
-                <div class="legend-label">Founders</div>
+                <div class="legend-color" style="background: linear-gradient(135deg, #ff7a43, #ffcb43);"></div>
+                <span>Founders</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #cd5ff8;"></div>
-                <div class="legend-label">Grandparents</div>
+                <div class="legend-color" style="background: linear-gradient(135deg, #7a43ff, #9b43ff);"></div>
+                <span>Grandparents</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #7a43ff;"></div>
-                <div class="legend-label">Parents</div>
+                <div class="legend-color" style="background: linear-gradient(135deg, #7a43ff, #43a1ff);"></div>
+                <span>Parents</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #43d1ff;"></div>
-                <div class="legend-label">Children</div>
+                <div class="legend-color" style="background: linear-gradient(135deg, #43d1ff, #43ffd1);"></div>
+                <span>Children</span>
             </div>
         </div>
     </div>
     
-    <!-- Rest of content remains the same -->
-{% endblock %}
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>About Your Trust Network</h3>
+                    <p>This visualization represents your position in the Proof of Humanity trust network. Each node represents a verified human with connections to other members.</p>
+                    <ul>
+                        <li><strong>You</strong> are positioned at the top of your network as the center of your trust relationships.</li>
+                        <li><strong>Grandparents</strong> are the initial verifiers who helped establish your network.</li>
+                        <li><strong>Parents</strong> are directly verified by you or have verified others with you.</li>
+                        <li><strong>Children</strong> are newer members who have been verified with your participation.</li>
+                    </ul>
+                    <p>As more humans join through your trust connections, your network grows and strengthens the entire proof of humanity ecosystem.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("Family tree page loaded");
+        // Add animation to nodes
+        const circles = document.querySelectorAll('.pulse-circle');
+        circles.forEach((circle, index) => {
+            const originalR = parseFloat(circle.getAttribute('r'));
+            const level = circle.getAttribute('data-level');
+            let phaseOffset = index * 0.5; // Different starting phase for each circle
+            
+            // Different animation speeds based on network level
+            let speed = 1;
+            if (level === 'founder') speed = 0.7;
+            else if (level === 'grandparent') speed = 0.8;
+            else if (level === 'parent') speed = 0.9;
+            else if (level === 'child') speed = 1.1;
+            
+            setInterval(() => {
+                // Create a subtle pulsing effect
+                const time = Date.now() / 1000;
+                const factor = 1 + 0.1 * Math.sin(time * speed + phaseOffset);
+                circle.setAttribute('r', originalR * factor);
+            }, 50);
+        });
         
-        // Debug visualization iframe
-        const iframe = document.querySelector('#viz-iframe');
-        if (iframe) {
-            console.log("Visualization iframe found");
-            
-            // Check when iframe loads or errors
-            iframe.addEventListener('load', function() {
-                console.log("Iframe loaded successfully");
-                window.logDebug && window.logDebug("Visualization iframe loaded", "success");
-            });
-            
-            iframe.addEventListener('error', function(e) {
-                console.error("Iframe failed to load:", e);
-                window.logDebug && window.logDebug("Visualization iframe failed to load", "error");
-                
-                // Show fallback content if iframe fails
-                const container = document.getElementById('network-container');
-                if (container) {
-                    container.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 2rem; text-align: center;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                            <h3>Visualization Failed to Load</h3>
-                            <p>We're having trouble loading the network visualization. Please try refreshing the page.</p>
-                            <button class="control-btn" onclick="location.reload()" style="margin-top: 1rem;">
-                                <i class="fas fa-sync-alt"></i> Reload
-                            </button>
-                        </div>
-                    `;
-                }
-            });
-        } else {
-            console.error("Visualization iframe not found");
-            window.logDebug && window.logDebug("Visualization iframe not found in DOM", "error");
+        // Simple zoom controls
+        const svg = document.querySelector('svg');
+        let currentZoom = 1;
+        const zoomStep = 0.2;
+        
+        document.querySelector('.zoom-in').addEventListener('click', function() {
+            currentZoom += zoomStep;
+            updateZoom();
+        });
+        
+        document.querySelector('.zoom-out').addEventListener('click', function() {
+            currentZoom = Math.max(0.5, currentZoom - zoomStep);
+            updateZoom();
+        });
+        
+        document.querySelector('.reset').addEventListener('click', function() {
+            currentZoom = 1;
+            updateZoom();
+        });
+        
+        function updateZoom() {
+            // Apply zoom by scaling the SVG
+            svg.style.transform = `scale(${currentZoom})`;
+            svg.style.transformOrigin = 'center center';
         }
-        
-        // Simple animation for stats numbers
-        const statsNumbers = document.querySelectorAll('.stats-number');
-        
-        statsNumbers.forEach(number => {
-            const finalValue = number.textContent;
-            const duration = 2000; // 2 seconds
-            const startValue = 0;
-            
-            let startTime = null;
-            
-            function animate(currentTime) {
-                if (!startTime) startTime = currentTime;
-                const elapsedTime = currentTime - startTime;
-                const progress = Math.min(elapsedTime / duration, 1);
-                
-                // Parse the final value and format appropriately
-                if (finalValue.includes('%')) {
-                    const numericValue = parseFloat(finalValue);
-                    const currentValue = (startValue + (numericValue * progress)).toFixed(1);
-                    number.textContent = `+${currentValue}%`;
-                } else {
-                    const numericValue = parseInt(finalValue.replace(/,/g, ''), 10);
-                    const currentValue = Math.floor(startValue + (numericValue * progress));
-                    number.textContent = currentValue.toLocaleString();
-                }
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        });
-        
-        // Handle zoom controls to communicate with iframe
-        const iframe = document.querySelector('iframe');
-        const zoomInBtn = document.getElementById('zoom-in');
-        const zoomOutBtn = document.getElementById('zoom-out');
-        const resetBtn = document.getElementById('reset-view');
-        
-        zoomInBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'zoom-in' }, '*');
-        });
-        
-        zoomOutBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'zoom-out' }, '*');
-        });
-        
-        resetBtn.addEventListener('click', function() {
-            iframe.contentWindow.postMessage({ action: 'reset' }, '*');
-        });
     });
 </script>
 {% endblock %} 

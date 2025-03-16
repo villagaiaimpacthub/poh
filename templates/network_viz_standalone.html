@@ -4,14 +4,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Humanity Network Visualization</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="{{ url_for('static', filename='js/network_viz.js', _external=True) }}?v={{ now().timestamp() }}" defer></script>
+    
+    <!-- Log D3 loading time -->
+    <script>
+        window.d3LoadStartTime = new Date().getTime();
+        console.log('[D3-DEBUG] Starting D3.js load at:', window.d3LoadStartTime);
+    </script>
+    
+    <!-- Debug log panel -->
+    <div id="network-debug-log" style="display: none; position: fixed; top: 10px; right: 10px; width: 400px; max-height: 300px; overflow: auto; background: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 5px; z-index: 9999; font-family: monospace; font-size: 12px;"></div>
+    
+    <!-- Enhanced D3.js loading with better error handling -->
+    <script>
+        console.log('[D3-DEBUG] D3.js loading approach started');
+        function loadD3() {
+            return new Promise((resolve, reject) => {
+                if (typeof d3 !== 'undefined') {
+                    console.log('[D3-DEBUG] D3.js already loaded:', d3.version);
+                    return resolve(d3.version);
+                }
+                
+                console.log('[D3-DEBUG] Loading D3.js from CDN');
+                const script = document.createElement('script');
+                script.src = "https://d3js.org/d3.v7.min.js";
+                script.onload = function() {
+                    const loadTime = new Date().getTime() - window.d3LoadStartTime;
+                    console.log('[D3-DEBUG] D3.js loaded from CDN in', loadTime, 'ms. Version:', d3?.version);
+                    resolve(d3?.version);
+                };
+                script.onerror = function() {
+                    console.error('[D3-DEBUG] Failed to load D3.js from CDN, trying local file');
+                    const localScript = document.createElement('script');
+                    localScript.src = "{{ url_for('static', filename='js/d3.v7.min.js') }}";
+                    localScript.onload = function() {
+                        const loadTime = new Date().getTime() - window.d3LoadStartTime;
+                        console.log('[D3-DEBUG] D3.js loaded from local file in', loadTime, 'ms. Version:', d3?.version);
+                        resolve(d3?.version);
+                    };
+                    localScript.onerror = function() {
+                        console.error('[D3-DEBUG] Failed to load D3.js from local file');
+                        reject(new Error('Failed to load D3.js from both CDN and local file'));
+                    };
+                    document.head.appendChild(localScript);
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Execute D3 loading
+        loadD3()
+            .then(version => {
+                console.log('[D3-DEBUG] D3.js successfully loaded:', version);
+                window.d3Loaded = true;
+                window.dispatchEvent(new CustomEvent('d3-loaded', { detail: { version } }));
+            })
+            .catch(error => {
+                console.error('[D3-DEBUG] D3.js loading failed:', error);
+                window.d3LoadError = error;
+                window.dispatchEvent(new CustomEvent('d3-load-error', { detail: { error } }));
+            });
+    </script>
+    
+    <!-- Network viz script with enhanced loading checks -->
+    <script>
+        // Log initial setup
+        console.log('[VIZ] Initializing network visualization page');
+        
+        // Create a debug log function
+        window.vizDebugLog = function(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            console.log(`[VIZ-DEBUG] [${type.toUpperCase()}] ${message}`);
+            
+            // Try to update UI log element if it exists
+            try {
+                const debugElement = document.getElementById('viz-debug-log');
+                if (debugElement) {
+                    const entry = document.createElement('div');
+                    entry.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+                    debugElement.appendChild(entry);
+                    debugElement.scrollTop = debugElement.scrollHeight;
+                }
+            } catch (e) {
+                console.error('[VIZ-DEBUG] Error updating debug UI:', e);
+            }
+        };
+        
+        // Track visualization loading
+        window.vizLoadStartTime = new Date().getTime();
+        vizDebugLog('Visualization load started');
+        
+        // Add a better D3 loading function that ensures D3 is fully loaded
+        function ensureD3Loaded(callback) {
+            vizDebugLog('Ensuring D3.js is loaded');
+            
+            if (typeof d3 !== 'undefined') {
+                vizDebugLog(`D3.js already available (version ${d3.version})`);
+                callback(d3.version);
+                return;
+            }
+            
+            vizDebugLog('Loading D3.js from CDN');
+            
+            const d3Script = document.createElement('script');
+            d3Script.src = 'https://d3js.org/d3.v7.min.js';
+            d3Script.async = true;
+            
+            d3Script.onload = function() {
+                if (typeof d3 !== 'undefined') {
+                    vizDebugLog(`D3.js loaded successfully (version ${d3.version})`);
+                    
+                    // Dispatch a custom event indicating D3 is loaded
+                    const event = new CustomEvent('d3-loaded', {
+                        detail: {
+                            version: d3.version,
+                            loadTime: new Date().getTime() - window.vizLoadStartTime
+                        }
+                    });
+                    window.dispatchEvent(event);
+                    
+                    callback(d3.version);
+                } else {
+                    vizDebugLog('D3.js script loaded but d3 object not available', 'error');
+                }
+            };
+            
+            d3Script.onerror = function() {
+                vizDebugLog('Failed to load D3.js from CDN', 'error');
+            };
+            
+            document.head.appendChild(d3Script);
+        }
+        
+        // Call this when the document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            vizDebugLog('DOM content loaded, preparing visualization');
+            
+            // Ensure D3 is loaded first
+            ensureD3Loaded(function(version) {
+                vizDebugLog(`Loading network_viz.js now that D3.js ${version} is available`);
+                
+                // Load the network_viz.js script
+                const vizScript = document.createElement('script');
+                vizScript.src = "{{ url_for('static', filename='js/network_viz.js') }}?v={{ now().timestamp() }}";
+                
+                vizScript.onload = function() {
+                    const loadTime = new Date().getTime() - window.vizLoadStartTime;
+                    vizDebugLog(`network_viz.js loaded in ${loadTime}ms`);
+                };
+                
+                vizScript.onerror = function() {
+                    vizDebugLog('Failed to load network_viz.js', 'error');
+                };
+                
+                document.body.appendChild(vizScript);
+            });
+        });
+    </script>
+    
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: transparent !important;
+            background: rgba(15, 23, 42, 0.95) !important;
             color: white;
             display: flex;
             flex-direction: column;
@@ -92,10 +247,91 @@
             z-index: 9999;
             white-space: pre-wrap;
         }
+        
+        /* Fallback visualization */
+        .fallback-visualization {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Loading indicator */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 1;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(122, 67, 255, 0.3);
+            border-top: 3px solid #7a43ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 20px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Debug styling */
+        .debug-info { color: #43d1ff; }
+        .debug-warn { color: #ffbb00; }
+        .debug-error { color: #ff5757; }
+        
+        #debug-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 9999;
+            background: #7a43ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        /* Improved mobile styles */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
+            #debug-toggle {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+            
+            .loading-indicator p {
+                font-size: 14px;
+            }
+            
+            .spinner {
+                width: 30px;
+                height: 30px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Debug toggle button -->
+    <button id="debug-toggle" onclick="toggleDebugLog()">Debug</button>
+    
     <div id="network-container">
+        <div id="loading-indicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Loading network visualization...</p>
+        </div>
         <div id="network"></div>
     </div>
     <div class="tooltip"></div>
@@ -104,6 +340,8 @@
     <script>
         // Debug log function
         function vizLog(message, type = 'info') {
+            console.log(`[VIZ][${type.toUpperCase()}] ${message}`);
+            
             const debugLog = document.getElementById('debug-log');
             if (!debugLog) {
                 // Create debug log if it doesn't exist
@@ -131,9 +369,6 @@
             document.getElementById('debug-log').appendChild(entry);
             document.getElementById('debug-log').scrollTop = document.getElementById('debug-log').scrollHeight;
             
-            // Also log to console with better formatting
-            console[type in console ? type : 'log'](`[VIZ][${type.toUpperCase()}] ${message}`);
-            
             // Send message to parent
             try {
                 if (window.parent && window.parent !== window) {
@@ -155,6 +390,12 @@
         function showError(title, message) {
             vizLog('Showing error: ' + title + ' - ' + message, 'error');
             
+            // Hide loading indicator
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            
             const networkContainer = document.getElementById('network-container');
             if (!networkContainer) {
                 console.error('Cannot show error - network container not found');
@@ -168,255 +409,163 @@
                 <h3>${title}</h3>
                 <p>${message}</p>
                 <button id="refresh-btn" style="margin-top: 15px; padding: 8px 16px; background: #7a43ff; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh</button>
+                <button id="fallback-btn" style="margin-top: 15px; margin-left: 10px; padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 4px; cursor: pointer;">Show Fallback</button>
             `;
             
-            // Clear container and add error
-            networkContainer.innerHTML = '';
+            // Add to container
             networkContainer.appendChild(errorElement);
             
             // Add refresh button handler
             document.getElementById('refresh-btn').addEventListener('click', function() {
                 window.location.reload();
             });
+            
+            // Add fallback button handler
+            document.getElementById('fallback-btn').addEventListener('click', function() {
+                showFallbackVisualization();
+            });
         }
         
         // Make showError global
         window.showError = showError;
         
-        // Enhanced environment info logging with more detail
-        function logEnvironmentInfo() {
-            vizLog('DIAGNOSTIC SESSION START', 'info');
-            vizLog('Timestamp: ' + new Date().toISOString());
-            vizLog('URL: ' + window.location.href);
-            vizLog('Referrer: ' + document.referrer);
-            vizLog('Window dimensions: ' + window.innerWidth + 'x' + window.innerHeight);
+        // Create a fallback visualization
+        function showFallbackVisualization() {
+            vizLog('Showing fallback visualization', 'info');
+            
+            // Hide loading indicator
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            
+            // Hide any error messages
+            const errorMessage = document.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
             
             const networkContainer = document.getElementById('network-container');
-            if (networkContainer) {
-                vizLog('Network container dimensions: ' + 
-                      networkContainer.offsetWidth + 'x' + 
-                      networkContainer.offsetHeight);
-            } else {
-                vizLog('Network container element not found!', 'error');
-            }
-            
-            // Check if D3 is available
-            if (typeof d3 === 'undefined') {
-                vizLog('D3.js is not loaded!', 'error');
-            } else {
-                vizLog('D3.js version: ' + d3.version, 'success');
-                
-                // Log some D3 capabilities to confirm it's working properly
-                try {
-                    const testSelection = d3.select('body');
-                    vizLog('D3 selection test: ' + (testSelection.size() > 0 ? 'Success' : 'Failed'), 
-                           testSelection.size() > 0 ? 'success' : 'error');
-                } catch (e) {
-                    vizLog('D3 selection test error: ' + e.message, 'error');
-                }
-            }
-            
-            // Check if we're in an iframe
-            if (window.self !== window.top) {
-                vizLog('Running in iframe', 'info');
-                
-                // Try to get parent page URL
-                try {
-                    const parentUrl = document.referrer || 'unknown';
-                    vizLog('Parent page: ' + parentUrl);
-                } catch (e) {
-                    vizLog('Cannot access parent information: ' + e.message, 'warning');
-                }
-            } else {
-                vizLog('Running in top window', 'warning');
-            }
-            
-            // Check if network_viz.js script is loaded
-            const scripts = Array.from(document.scripts);
-            const networkVizScript = scripts.find(script => script.src && script.src.includes('network_viz.js'));
-            if (networkVizScript) {
-                vizLog('network_viz.js script found: ' + networkVizScript.src, 'success');
-                if (networkVizScript.defer) {
-                    vizLog('network_viz.js has defer attribute', 'info');
-                }
-            } else {
-                vizLog('network_viz.js script not found in DOM!', 'error');
-                
-                // Forcibly load it
-                vizLog('Attempting to load network_viz.js dynamically', 'warning');
-                const scriptElement = document.createElement('script');
-                scriptElement.src = '/static/js/network_viz.js?v=' + new Date().getTime();
-                scriptElement.onload = () => vizLog('Dynamic script load succeeded', 'success');
-                scriptElement.onerror = () => vizLog('Dynamic script load failed', 'error');
-                document.head.appendChild(scriptElement);
-            }
-            
-            // Check if global network_viz functions exist
-            setTimeout(() => {
-                if (typeof window.initializeVisualization === 'function') {
-                    vizLog('initializeVisualization function exists', 'success');
-                } else {
-                    vizLog('initializeVisualization function not found', 'error');
-                }
-                
-                if (typeof window.loadNetworkData === 'function') {
-                    vizLog('loadNetworkData function exists', 'success');
-                    
-                    // Try loading network data
-                    window.loadNetworkData()
-                        .then(data => {
-                            vizLog(`Network data loaded successfully: ${data.nodes.length} nodes, ${data.links.length} links`, 'success');
-                        })
-                        .catch(error => {
-                            vizLog('Error loading network data: ' + error.message, 'error');
-                        });
-                } else {
-                    vizLog('loadNetworkData function not found', 'error');
-                }
-            }, 1000);
-            
-            // Check CSS computed styles
-            if (networkContainer) {
-                const style = window.getComputedStyle(networkContainer);
-                vizLog('Container background: ' + style.backgroundColor);
-                vizLog('Container position: ' + style.position);
-                vizLog('Container dimensions (computed): ' + style.width + ' x ' + style.height);
-            }
-            
-            // Browser capabilities
-            vizLog('User agent: ' + navigator.userAgent);
-            vizLog('Device pixel ratio: ' + window.devicePixelRatio);
-            vizLog('Platform: ' + navigator.platform);
-        }
-        
-        // Expose environment info function globally
-        window.logEnvironmentInfo = logEnvironmentInfo;
-        
-        // Log environment information
-        function logEnvironmentInfo() {
-            vizLog('URL: ' + window.location.href);
-            vizLog('Referrer: ' + document.referrer);
-            vizLog('Window dimensions: ' + window.innerWidth + 'x' + window.innerHeight);
-            vizLog('Network container dimensions: ' + 
-                  document.getElementById('network-container').offsetWidth + 'x' + 
-                  document.getElementById('network-container').offsetHeight);
-            
-            // Check if D3 is available
-            if (typeof d3 === 'undefined') {
-                vizLog('D3.js is not loaded!', 'error');
-            } else {
-                vizLog('D3.js version: ' + d3.version, 'success');
-            }
-            
-            // Check if we're in an iframe
-            if (window.self !== window.top) {
-                vizLog('Running in iframe', 'info');
-            } else {
-                vizLog('Running in top window', 'warning');
-            }
-            
-            // Check if network_viz.js script is loaded
-            const scripts = Array.from(document.scripts);
-            const networkVizScript = scripts.find(script => script.src && script.src.includes('network_viz.js'));
-            if (networkVizScript) {
-                vizLog('network_viz.js script found: ' + networkVizScript.src, 'success');
-                if (networkVizScript.defer) {
-                    vizLog('network_viz.js has defer attribute', 'info');
-                }
-            } else {
-                vizLog('network_viz.js script not found in DOM!', 'error');
-            }
-            
-            // Check CSS computed styles
-            const networkContainer = document.getElementById('network-container');
-            if (networkContainer) {
-                const style = window.getComputedStyle(networkContainer);
-                vizLog('Container background: ' + style.backgroundColor);
-                vizLog('Container position: ' + style.position);
-                vizLog('Container dimensions (computed): ' + style.width + ' x ' + style.height);
-            }
-        }
-        
-        // Error handling
-        window.addEventListener('DOMContentLoaded', () => {
-            vizLog('DOMContentLoaded event fired', 'success');
-            logEnvironmentInfo();
-            
-            // Check for network div
-            const networkDiv = document.getElementById('network');
-            if (!networkDiv) {
-                vizLog('Network div not found in DOM!', 'error');
-            } else {
-                vizLog('Network div found', 'success');
-            }
-            
-            if (typeof d3 === 'undefined') {
-                vizLog('D3.js failed to load', 'error');
-                showError('Error: D3.js failed to load', 'Please check your internet connection and try again.');
+            if (!networkContainer) {
+                console.error('Cannot show fallback - network container not found');
                 return;
             }
             
-            // Monitor for network_viz.js to load and execute
-            let vizInitCheckCount = 0;
-            const checkVizInit = setInterval(() => {
-                vizInitCheckCount++;
-                
-                // Check if any SVG elements are created in the network div
-                const svgElements = document.querySelectorAll('#network svg');
-                if (svgElements.length > 0) {
-                    vizLog('SVG elements found in network div (' + svgElements.length + ')', 'success');
-                    clearInterval(checkVizInit);
-                    
-                    // Check for network nodes
-                    const nodes = document.querySelectorAll('#network circle.node');
-                    vizLog('Found ' + nodes.length + ' network nodes', nodes.length > 0 ? 'success' : 'warning');
-                    
-                    if (nodes.length > 0) {
-                        // Success - notify parent window
-                        try {
-                            if (window.parent && window.parent !== window) {
-                                vizLog('Sending vizLoaded event to parent window', 'success');
-                                window.parent.postMessage('viz-iframe-loaded', '*');
-                                
-                                // Create custom event
-                                const vizLoadedEvent = new CustomEvent('vizLoaded');
-                                document.dispatchEvent(vizLoadedEvent);
-                            }
-                        } catch (e) {
-                            vizLog('Error sending message to parent: ' + e.message, 'error');
-                        }
-                    }
-                } else if (vizInitCheckCount >= 20) { // 5 seconds (250ms * 20)
-                    vizLog('Visualization did not initialize within timeout period', 'error');
-                    clearInterval(checkVizInit);
-                    showError('Visualization Failed to Load', 'The network visualization is taking too long to render. This may be due to high network traffic or resource constraints.');
-                } else {
-                    vizLog('Waiting for visualization to initialize... (' + vizInitCheckCount + '/20)');
-                }
-            }, 250);
+            // Create fallback div
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'fallback-visualization';
+            fallbackDiv.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
+                            <stop offset="100%" stop-color="#43d1ff" stop-opacity="0.7" />
+                        </linearGradient>
+                    </defs>
+                    <g class="nodes">
+                        <circle cx="400" cy="300" r="40" fill="url(#grad1)" />
+                        <circle cx="250" cy="200" r="20" fill="#7a43ff" opacity="0.7" />
+                        <circle cx="550" cy="200" r="20" fill="#7a43ff" opacity="0.7" />
+                        <circle cx="250" cy="400" r="20" fill="#7a43ff" opacity="0.7" />
+                        <circle cx="550" cy="400" r="20" fill="#7a43ff" opacity="0.7" />
+                        <circle cx="150" cy="300" r="15" fill="#43d1ff" opacity="0.7" />
+                        <circle cx="650" cy="300" r="15" fill="#43d1ff" opacity="0.7" />
+                        <circle cx="350" cy="120" r="15" fill="#43d1ff" opacity="0.7" />
+                        <circle cx="450" cy="120" r="15" fill="#43d1ff" opacity="0.7" />
+                        <circle cx="350" cy="480" r="15" fill="#43d1ff" opacity="0.7" />
+                        <circle cx="450" cy="480" r="15" fill="#43d1ff" opacity="0.7" />
+                    </g>
+                    <g class="links" stroke-width="1" stroke-opacity="0.6">
+                        <line x1="400" y1="300" x2="250" y2="200" stroke="#7a43ff" />
+                        <line x1="400" y1="300" x2="550" y2="200" stroke="#7a43ff" />
+                        <line x1="400" y1="300" x2="250" y2="400" stroke="#7a43ff" />
+                        <line x1="400" y1="300" x2="550" y2="400" stroke="#7a43ff" />
+                        <line x1="250" y1="200" x2="150" y2="300" stroke="#43d1ff" />
+                        <line x1="550" y1="200" x2="650" y2="300" stroke="#43d1ff" />
+                        <line x1="250" y1="200" x2="350" y2="120" stroke="#43d1ff" />
+                        <line x1="550" y1="200" x2="450" y2="120" stroke="#43d1ff" />
+                        <line x1="250" y1="400" x2="350" y2="480" stroke="#43d1ff" />
+                        <line x1="550" y1="400" x2="450" y2="480" stroke="#43d1ff" />
+                    </g>
+                </svg>
+            `;
             
-            // Monitor for errors
-            window.addEventListener('error', function(event) {
-                vizLog('JavaScript error: ' + event.message + ' in ' + event.filename + ' line ' + event.lineno, 'error');
+            networkContainer.appendChild(fallbackDiv);
+            
+            // Add animation to make it more dynamic
+            const nodes = fallbackDiv.querySelectorAll('circle');
+            nodes.forEach(node => {
+                setInterval(() => {
+                    const r = parseFloat(node.getAttribute('r'));
+                    const newR = r + Math.sin(Date.now() / 1000) * 2;
+                    node.setAttribute('r', newR);
+                }, 50);
             });
             
-            // Monitor for rejected promises
-            window.addEventListener('unhandledrejection', function(event) {
-                vizLog('Unhandled promise rejection: ' + (event.reason ? event.reason.message : 'Unknown reason'), 'error');
-            });
+            vizLog('Fallback visualization displayed', 'success');
+        }
+        
+        // Make showFallbackVisualization global
+        window.showFallbackVisualization = showFallbackVisualization;
+        
+        // Log environment info immediately
+        vizLog('Page loaded at ' + new Date().toISOString());
+        vizLog('URL: ' + window.location.href);
+        
+        // Check D3 availability
+        if (typeof d3 === 'undefined') {
+            vizLog('D3.js is not loaded!', 'error');
+            showError('Visualization Error', 'D3.js library is missing. This is required for the network visualization.');
+        } else {
+            vizLog('D3.js version: ' + d3.version, 'success');
+        }
+        
+        // Set timeout to check if visualization initializes
+        setTimeout(() => {
+            const network = document.querySelector('#network svg');
+            if (!network || network.childNodes.length === 0) {
+                vizLog('Visualization failed to initialize after 5 seconds', 'error');
+                showError('Visualization Not Loaded', 'The network visualization failed to initialize properly. Try refreshing or use the fallback visualization.');
+            }
+        }, 5000);
+        
+        // Manually trigger network_viz.js initialization if it doesn't auto-start
+        setTimeout(() => {
+            if (typeof initializeNetworkVisualization === 'function' && !window.vizInitialized) {
+                vizLog('Manually triggering visualization initialization', 'warning');
+                initializeNetworkVisualization();
+            } else if (typeof checkD3AndInitialize === 'function' && !window.vizInitialized) {
+                vizLog('Manually triggering D3 check and initialization', 'warning');
+                checkD3AndInitialize();
+            }
+        }, 1000);
+        
+        // Show fallback immediately as a temporary measure
+        setTimeout(() => {
+            showFallbackVisualization();
+        }, 500);
+        
+        // Debug toggle function
+        function toggleDebugLog() {
+            const debugLog = document.getElementById('network-debug-log');
+            debugLog.style.display = debugLog.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Log received messages from parent
+        window.addEventListener('message', function(event) {
+            console.log('Message received from parent:', event.data);
         });
         
-        // Notify the parent window that this iframe has loaded
-        window.addEventListener('load', () => {
-            vizLog('Window load event fired', 'success');
+        // Log initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Visualization page loaded');
             
-            if (window.parent && window.parent !== window) {
-                try {
-                    window.parent.postMessage('viz-iframe-loaded', '*');
-                    vizLog('Sent viz-iframe-loaded message to parent', 'success');
-                } catch (e) {
-                    vizLog('Error sending message to parent: ' + e.message, 'error');
-                }
+            // Add debug toggle functionality
+            const debugToggle = document.getElementById('debug-toggle');
+            const debugLog = document.getElementById('network-debug-log');
+            
+            if (debugToggle && debugLog) {
+                debugToggle.addEventListener('click', toggleDebugLog);
             }
         });
     </script>

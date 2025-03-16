@@ -237,7 +237,33 @@ def create_app(test_config=None):
     @app.route('/benefits')
     def benefits():
         """Page displaying benefits and services available after completing PoH verification"""
-        return render_template('benefits.html')
+        try:
+            return render_template('benefits.html')
+        except Exception as e:
+            logger.error(f"Error in benefits route: {e}", exc_info=True)
+            flash('An error occurred while loading the page.', 'error')
+            return render_template('errors/500.html'), 500
+    
+    @app.route('/access_services')
+    def access_services():
+        """Alias for the benefits page, now called Access Services"""
+        try:
+            # Add diagnostic logging
+            logger.info(f"Accessing access_services route - template: benefits.html")
+            logger.debug(f"Template search path: {app.jinja_loader.searchpath}")
+            logger.debug(f"Available templates: {[t for t in app.jinja_loader.list_templates() if t.endswith('.html')]}")
+            
+            if 'benefits.html' not in app.jinja_loader.list_templates():
+                logger.error(f"benefits.html template not found")
+                # Fallback to a generic template if benefits.html doesn't exist
+                flash('The requested page is not available.', 'warning')
+                return render_template('index.html')
+            
+            return render_template('benefits.html')
+        except Exception as e:
+            logger.error(f"Error in access_services route: {e}", exc_info=True)
+            flash('An error occurred while loading the page.', 'error')
+            return render_template('errors/500.html'), 500
     
     @app.route('/login', methods=['GET', 'POST'])
     def login():
