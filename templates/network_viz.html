@@ -1,102 +1,135 @@
 {% extends "base.html" %}
 
-{% block title %}Network Visualization - Proof of Humanity{% endblock %}
+{% block title %}Proof of Humanity - Network Visualization{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/network_viz.css') }}">
 {% endblock %}
 
 {% block head %}
-<!-- Add D3.js library -->
+<!-- D3.js for network visualization -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
 {% endblock %}
 
 {% block content %}
-<div id="network-container">
-    <div id="network"></div>
+<div class="network-section">
+    <div class="network-header">
+        <h1>Network Visualization</h1>
+        <p>Watch the Proof of Humanity network grow and evolve. Each node represents a verified human, connected through trust relationships.</p>
+    </div>
     
-    <div class="controls">
-        <div class="buttons">
-            <button id="reset-btn">Reset</button>
-            <button id="grow-btn">Grow</button>
-            <button id="center-btn">Center</button>
-            <button id="back-btn" disabled>Back</button>
-            <button id="verify-btn">Verify Selected</button>
+    <div class="viz-container card-web5">
+        <div class="controls-container">
+            <div class="controls">
+                <button id="reset-btn" class="control-btn">Reset</button>
+                <button id="grow-btn" class="control-btn">Grow</button>
+                <button id="verify-btn" class="control-btn">Verify</button>
+                
+                <div class="slider-container">
+                    <label for="growth-speed">Growth Speed</label>
+                    <input type="range" id="growth-speed" min="1" max="10" value="5">
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value" id="verified-count">0</span>
+                    <span class="stat-label">Verified Humans</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="connection-count">0</span>
+                    <span class="stat-label">Trust Connections</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="network-days">0</span>
+                    <span class="stat-label">Days Since Launch</span>
+                </div>
+            </div>
         </div>
         
-        <div class="toggle-container">
-            <span class="toggle-label">Auto Verification</span>
-            <label class="toggle">
-                <input type="checkbox" id="auto-grow">
-                <span class="slider"></span>
-            </label>
+        <div class="network-container" id="network-container">
+            <!-- Network visualization will render here -->
+            <iframe src="http://127.0.0.1:5003/network/viz" width="100%" height="600px" frameborder="0" id="network-iframe"></iframe>
+            <div class="zoom-controls">
+                <button id="zoom-in" class="zoom-btn" title="Zoom In"><i class="fas fa-plus"></i></button>
+                <button id="zoom-out" class="zoom-btn" title="Zoom Out"><i class="fas fa-minus"></i></button>
+                <button id="zoom-reset" class="zoom-btn" title="Reset Zoom"><i class="fas fa-expand"></i></button>
+            </div>
         </div>
         
-        <div class="slider-container">
-            <span class="toggle-label">Verification Period (days)</span>
-            <input type="range" id="invite-frequency" min="1" max="7" value="3" class="range-slider">
-            <span class="slider-value" id="invite-value">3 days</span>
-        </div>
-        
-        <div class="slider-container">
-            <span class="toggle-label">Initial Founders</span>
-            <input type="range" id="founder-count" min="2" max="12" value="8" class="range-slider">
-            <span class="slider-value" id="founder-value">8 founders</span>
-        </div>
-    </div>
-
-    <div class="stats">
-        <div class="stat-item">
-            <div class="stat-label">Selected Nodes</div>
-            <div class="stat-value" id="selected-nodes">None</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Verification Status</div>
-            <div class="stat-value" id="verification-status">Select nodes for verification</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Network Stats</div>
-            <div class="stat-value" id="network-stats">F:0 G:0 P:0 C:0</div>
+        <div class="tooltip" id="node-tooltip">
+            <div class="tooltip-content">
+                <h3 class="tooltip-title">Node Information</h3>
+                <div class="tooltip-info">
+                    <p><strong>ID:</strong> <span id="tooltip-id"></span></p>
+                    <p><strong>Type:</strong> <span id="tooltip-type"></span></p>
+                    <p><strong>Joined:</strong> <span id="tooltip-joined"></span></p>
+                    <p><strong>DID:</strong> <span id="tooltip-did"></span></p>
+                </div>
+                <div class="tooltip-actions">
+                    <button id="tooltip-verify" class="tooltip-btn">Verify</button>
+                    <button id="tooltip-details" class="tooltip-btn">View Details</button>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="zoom-controls">
-        <button id="zoom-in" class="zoom-btn">+</button>
-        <button id="zoom-reset" class="zoom-btn">⟲</button>
-        <button id="zoom-out" class="zoom-btn">-</button>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color founder"></span>
+            <span class="legend-label">Founders</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color grandparent"></span>
+            <span class="legend-label">Grandparents</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color parent"></span>
+            <span class="legend-label">Parents</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color child"></span>
+            <span class="legend-label">Children</span>
+        </div>
     </div>
-
-    <div class="tooltip" style="visibility: hidden;"></div>
 </div>
-{% endblock %}
 
-{% block scripts %}
-<!-- Initialize debug and error handling -->
 <script>
-// Set up global debug function
-window.debug = function() {
-    if (console && console.log) {
-        console.log.apply(console, arguments);
-    }
-};
-
-// Global error handler
-window.onerror = function(msg, url, lineNo, columnNo, error) {
-    console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
-    return false;
-};
-
-// Verify D3.js is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof d3 === 'undefined') {
-        console.error('D3.js failed to load!');
-        document.getElementById('network').innerHTML = '<div style="color: white; padding: 20px;">Error: D3.js failed to load. Please refresh the page.</div>';
-    } else {
-        console.log('D3.js loaded successfully, version:', d3.version);
-    }
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up controls for the iframe visualization
+        const iframe = document.getElementById('network-iframe');
+        const resetBtn = document.getElementById('reset-btn');
+        const growBtn = document.getElementById('grow-btn');
+        const verifyBtn = document.getElementById('verify-btn');
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const zoomReset = document.getElementById('zoom-reset');
+        
+        // Function to send message to iframe
+        function sendCommand(command, data = {}) {
+            iframe.contentWindow.postMessage({ command, data }, '*');
+        }
+        
+        // Set up event listeners for buttons
+        resetBtn.addEventListener('click', () => sendCommand('reset'));
+        growBtn.addEventListener('click', () => sendCommand('grow'));
+        verifyBtn.addEventListener('click', () => sendCommand('verify'));
+        zoomIn.addEventListener('click', () => sendCommand('zoomIn'));
+        zoomOut.addEventListener('click', () => sendCommand('zoomOut'));
+        zoomReset.addEventListener('click', () => sendCommand('zoomReset'));
+        
+        // Listen for messages from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.origin !== 'http://127.0.0.1:5003') return;
+            
+            const { type, data } = event.data;
+            
+            if (type === 'stats') {
+                document.getElementById('verified-count').textContent = data.verifiedCount;
+                document.getElementById('connection-count').textContent = data.connectionCount;
+                document.getElementById('network-days').textContent = data.networkDays;
+            }
+        });
+    });
 </script>
-
-<!-- Load network visualization -->
-<script src="{{ url_for('static', filename='js/network_viz.js') }}"></script>
 {% endblock %} 
