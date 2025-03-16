@@ -368,16 +368,16 @@
 }
 
 .legend-indicator.medium {
-  background: var(--web5-primary);
-}
-
-.legend-indicator.low {
   background: var(--web5-warning);
 }
 
+.legend-indicator.low {
+  background: var(--web5-danger);
+}
+
 .legend-indicator.none {
-  background: var(--color-text-secondary);
-  opacity: 0.3;
+  background: #6c757d;
+  opacity: 0.5;
 }
 
 /* Upcoming Calls */
@@ -590,11 +590,11 @@
 }
 
 .availability-dot.medium {
-  background: var(--web5-primary);
+  background: var(--web5-warning);
 }
 
 .availability-dot.low {
-  background: var(--web5-warning);
+  background: var(--web5-danger);
 }
 
 /* Selected Slot */
@@ -765,15 +765,15 @@
 }
 
 .week-slot.available.high {
-  background: rgba(16, 185, 129, 0.05);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .week-slot.available.medium {
-  background: rgba(122, 67, 255, 0.05);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 .week-slot.available.low {
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* Day View */
@@ -835,14 +835,17 @@
 
 .slot-content.available.high {
   background: rgba(16, 185, 129, 0.05);
+  border-left: 3px solid var(--web5-success);
 }
 
 .slot-content.available.medium {
-  background: rgba(122, 67, 255, 0.05);
+  background: rgba(245, 158, 11, 0.05);
+  border-left: 3px solid var(--web5-warning);
 }
 
 .slot-content.available.low {
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(239, 68, 68, 0.05);
+  border-left: 3px solid var(--web5-danger);
 }
 
 .slot-info {
@@ -1236,4 +1239,43 @@
 
 .float-animation {
   animation: float 6s ease-in-out infinite;
+}
+
+/* Selected state for time slots */
+.slot-content.selected {
+  background: rgba(122, 67, 255, 0.15) !important; /* Purple background for selected slot */
+  border-left: 3px solid var(--web5-primary) !important;
+  box-shadow: 0 4px 12px rgba(122, 67, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.slot-content.selected .select-slot-btn {
+  background: var(--web5-primary);
+  color: white;
+}
+
+/* Update the time availability color descriptions in the legend */
+.availability-legend {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  margin-bottom: 0.5rem;
+}
+
+.legend-item .legend-indicator.high + span::after {
+  content: "High Availability";
+}
+
+.legend-item .legend-indicator.medium + span::after {
+  content: "Medium Availability";
+}
+
+.legend-item .legend-indicator.low + span::after {
+  content: "Low Availability";
+}
+
+.legend-item .legend-indicator.none + span::after {
+  content: "No Availability";
 } 

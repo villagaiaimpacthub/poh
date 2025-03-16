@@ -2,43 +2,142 @@
 
 {% block title %}Schedule Verification Call - Proof of Humanity{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/schedule_call.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <section class="section schedule-section">
-        <div class="section-header">
-            <h1 class="section-title">Schedule Your Verification Call</h1>
-            <p class="section-subtitle">Choose a date and time that works for you to complete your identity verification</p>
+<div class="web5-background">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<section class="verification-header">
+    <div class="container">
+        <div class="section-header-web5">
+            <h1 class="section-title-web5">Schedule Verification Call</h1>
+            <p class="section-subtitle-web5">Choose a time that works for you and your family members</p>
         </div>
         
+        <div class="verification-progress">
+            <div class="progress-stages">
+                <div class="progress-stage completed">
+                    <div class="stage-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Join Family</h4>
+                        <p>Invited by a trusted family member</p>
+                    </div>
+                    <div class="stage-badge">Completed</div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage active">
+                    <div class="stage-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Schedule Call</h4>
+                        <p>Choose a time when your family is available</p>
+                    </div>
+                    <div class="stage-badge">In Progress</div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage">
+                    <div class="stage-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Video Verification</h4>
+                        <p>Complete the guided verification call</p>
+                    </div>
+                </div>
+                <div class="progress-connector"></div>
+                
+                <div class="progress-stage">
+                    <div class="stage-icon">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <div class="stage-info">
+                        <h4>Receive DIDs</h4>
+                        <p>Get your digital identity credentials</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="schedule-section">
+    <div class="container">
         <div class="schedule-container">
             <div class="calendar-sidebar">
                 <div class="profile-card">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user-circle"></i>
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Your Avatar">
+                        </div>
+                        <div class="profile-info">
+                            <h3>{{ current_user.name }}</h3>
+                            <div class="family-status">
+                                <span class="status-badge status-child">Child</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="profile-info">
-                        <h3>Your Verification</h3>
-                        <p class="verification-stage">Stage: Child Verification</p>
+                    
+                    <div class="family-info">
+                        <h4>Your Family Network</h4>
+                        <div class="family-members">
+                            <div class="family-member">
+                                <div class="member-avatar">
+                                    <img src="{{ url_for('static', filename='images/testimonial-1.jpg') }}" 
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                </div>
+                                <span>Sarah Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                            
+                            <div class="family-member">
+                                <div class="member-avatar">
+                                    <img src="{{ url_for('static', filename='images/testimonial-2.jpg') }}" 
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                </div>
+                                <span>Michael Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                            
+                            <div class="family-member">
+                                <div class="member-avatar">
+                                    <img src="{{ url_for('static', filename='images/testimonial-3.jpg') }}" 
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                </div>
+                                <span>Elizabeth Smith</span>
+                                <span class="status-badge status-grandparent">Grandparent</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="time-slot-info">
-                    <h3>Available Time Slots</h3>
+                    <h3>Time Slot Availability</h3>
                     <div class="availability-legend">
                         <div class="legend-item">
-                            <span class="legend-indicator high"></span>
-                            <span>High Availability</span>
+                            <div class="legend-indicator high"></div>
+                            <span>High Availability (3+ family members)</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-indicator medium"></span>
-                            <span>Medium Availability</span>
+                            <div class="legend-indicator medium"></div>
+                            <span>Medium Availability (2 family members)</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-indicator low"></span>
-                            <span>Low Availability</span>
+                            <div class="legend-indicator low"></div>
+                            <span>Low Availability (1 family member)</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-indicator none"></span>
+                            <div class="legend-indicator none"></div>
                             <span>No Availability</span>
                         </div>
                     </div>
@@ -46,21 +145,23 @@
                 
                 <div class="upcoming-calls">
                     <h3>Your Upcoming Calls</h3>
-                    <div class="call-list">
-                        <div class="call-item">
-                            <div class="call-icon">
-                                <i class="fas fa-video"></i>
+                    <div class="call-item">
+                        <div class="call-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="call-details">
+                            <h4>Verification Call</h4>
+                            <div class="call-date">
+                                <i class="fas fa-calendar"></i>
+                                <span id="selected-date">Select a date</span>
                             </div>
-                            <div class="call-details">
-                                <h4>Child Verification</h4>
-                                <p class="call-date">June 15, 2023 • 2:00 PM</p>
-                                <p class="call-info">With: Parent Verifier</p>
+                            <div class="call-time">
+                                <i class="fas fa-clock"></i>
+                                <span id="selected-time">Select a time</span>
                             </div>
-                            <div class="call-actions">
-                                <button class="btn btn-small btn-ghost">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                            </div>
+                        </div>
+                        <div class="call-actions">
+                            <button class="btn-ghost" id="cancel-selection" disabled>Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -69,22 +170,18 @@
             <div class="calendar-main">
                 <div class="calendar-controls">
                     <div class="month-selector">
-                        <button class="btn btn-icon" id="prev-month">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <h2 id="current-month">June 2023</h2>
-                        <button class="btn btn-icon" id="next-month">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                        <button class="btn-icon" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                        <h2 id="current-month">May 2023</h2>
+                        <button class="btn-icon" id="next-month"><i class="fas fa-chevron-right"></i></button>
                     </div>
                     <div class="view-controls">
-                        <button class="btn btn-small btn-ghost active" data-view="month">Month</button>
-                        <button class="btn btn-small btn-ghost" data-view="week">Week</button>
-                        <button class="btn btn-small btn-ghost" data-view="day">Day</button>
+                        <button class="btn-icon" id="month-view"><i class="fas fa-calendar-alt"></i></button>
+                        <button class="btn-icon" id="week-view"><i class="fas fa-calendar-week"></i></button>
+                        <button class="btn-icon" id="day-view"><i class="fas fa-calendar-day"></i></button>
                     </div>
                 </div>
                 
-                <div class="calendar-grid" id="calendar-month-view">
+                <div id="month-view-container">
                     <div class="calendar-weekdays">
                         <div class="weekday">Sun</div>
                         <div class="weekday">Mon</div>
@@ -94,828 +191,573 @@
                         <div class="weekday">Fri</div>
                         <div class="weekday">Sat</div>
                     </div>
+                    
                     <div class="calendar-days" id="calendar-days">
                         <!-- Calendar days will be generated by JavaScript -->
                     </div>
                 </div>
                 
-                <div class="time-slot-picker" id="time-slot-picker" style="display: none;">
-                    <div class="time-slot-header">
-                        <button class="btn btn-icon" id="back-to-calendar">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <h3 id="selected-date">June 15, 2023</h3>
+                <div id="week-view-container" style="display: none;">
+                    <div class="calendar-time-headers">
+                        <div class="time-header-space"></div>
+                        <div class="day-header">Sun <span>May 1</span></div>
+                        <div class="day-header">Mon <span>May 2</span></div>
+                        <div class="day-header">Tue <span>May 3</span></div>
+                        <div class="day-header">Wed <span>May 4</span></div>
+                        <div class="day-header">Thu <span>May 5</span></div>
+                        <div class="day-header">Fri <span>May 6</span></div>
+                        <div class="day-header">Sat <span>May 7</span></div>
                     </div>
-                    <div class="time-slots" id="time-slots-container">
-                        <!-- Time slots will be generated by JavaScript -->
+                    
+                    <div class="week-grid">
+                        <!-- Week grid will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="day-view-container" style="display: none;">
+                    <div class="day-header-detail">
+                        <h3>Wednesday, May 3, 2023</h3>
+                    </div>
+                    
+                    <div class="day-time-slots">
+                        <!-- Day slots will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="selected-slot-container" style="display: none;">
+                    <div class="selected-slot-header">
+                        <h3>Selected Time Slot</h3>
+                        <button class="btn-close">&times;</button>
+                    </div>
+                    
+                    <div class="slot-date-time">
+                        <div class="slot-date">
+                            <i class="fas fa-calendar"></i>
+                            <span id="slot-date">Wednesday, May 3, 2023</span>
+                        </div>
+                        <div class="slot-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="slot-time">2:00 PM - 3:00 PM</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slot-availability">
+                        <h4>Available Family Members</h4>
+                        <div class="available-members">
+                            <div class="member">
+                                <img src="{{ url_for('static', filename='images/testimonial-1.jpg') }}" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                <span>Sarah Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                            <div class="member">
+                                <img src="{{ url_for('static', filename='images/testimonial-2.jpg') }}" 
+                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                                <span>Michael Johnson</span>
+                                <span class="status-badge status-parent">Parent</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slot-actions">
+                        <button class="btn-web5" id="confirm-slot">Confirm Time Slot</button>
+                        <button class="btn-ghost" id="close-slot">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="schedule-confirmation" id="schedule-confirmation" style="display: none;">
-            <div class="confirmation-card">
-                <div class="confirmation-header">
-                    <i class="fas fa-calendar-check"></i>
-                    <h3>Confirm Your Appointment</h3>
-                </div>
-                <div class="confirmation-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Date:</span>
-                        <span class="detail-value" id="confirm-date">June 15, 2023</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Time:</span>
-                        <span class="detail-value" id="confirm-time">2:00 PM</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Type:</span>
-                        <span class="detail-value">Child Verification Call</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Estimated Duration:</span>
-                        <span class="detail-value">15-20 minutes</span>
-                    </div>
-                </div>
-                <div class="confirmation-message">
-                    <p>By confirming this appointment, you agree to be available for the video call at the scheduled time. You'll receive a link to join the call 15 minutes before the scheduled time.</p>
-                </div>
-                <div class="confirmation-actions">
-                    <button class="btn btn-ghost" id="back-to-slots">
-                        <i class="fas fa-arrow-left"></i>
-                        Change Time
-                    </button>
-                    <button class="btn btn-primary" id="confirm-appointment">
-                        <i class="fas fa-check"></i>
-                        Confirm Appointment
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-{% endblock %}
+    </div>
+</section>
 
-{% block styles %}
-<style>
-    /* Schedule page styling */
-    .schedule-section {
-        padding: 3rem 0;
-    }
-    
-    .schedule-container {
-        display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 2rem;
-        margin-top: 2rem;
-        position: relative;
-    }
-    
-    /* Sidebar styling */
-    .calendar-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    .profile-card {
-        background-color: var(--color-surface);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .profile-avatar {
-        width: 60px;
-        height: 60px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 2rem;
-    }
-    
-    .profile-info h3 {
-        margin-bottom: 0.25rem;
-        font-size: 1.125rem;
-    }
-    
-    .verification-stage {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-    
-    .time-slot-info {
-        background-color: var(--color-surface);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .time-slot-info h3 {
-        margin-bottom: 1rem;
-        font-size: 1.125rem;
-    }
-    
-    .availability-legend {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-    }
-    
-    .legend-indicator {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-    }
-    
-    .legend-indicator.high {
-        background-color: var(--success);
-    }
-    
-    .legend-indicator.medium {
-        background-color: var(--accent-secondary);
-    }
-    
-    .legend-indicator.low {
-        background-color: var(--primary);
-    }
-    
-    .legend-indicator.none {
-        background-color: var(--text-secondary);
-        opacity: 0.3;
-    }
-    
-    .upcoming-calls {
-        background-color: var(--color-surface);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .upcoming-calls h3 {
-        margin-bottom: 1rem;
-        font-size: 1.125rem;
-    }
-    
-    .call-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .call-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background-color: var(--color-bg-subtle);
-        border-radius: var(--radius-md);
-    }
-    
-    .call-icon {
-        width: 40px;
-        height: 40px;
-        background: var(--gradient-secondary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-    }
-    
-    .call-details {
-        flex: 1;
-    }
-    
-    .call-details h4 {
-        margin-bottom: 0.25rem;
-        font-size: 1rem;
-    }
-    
-    .call-date {
-        color: var(--primary);
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-    }
-    
-    .call-info {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-    
-    /* Calendar styling */
-    .calendar-main {
-        background-color: var(--color-surface);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .calendar-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    
-    .month-selector {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .month-selector h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-    
-    .view-controls {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .btn-icon {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        border: 1px solid var(--color-border);
-        background-color: transparent;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-icon:hover {
-        background-color: var(--color-bg-subtle);
-        color: var(--primary);
-    }
-    
-    .calendar-grid {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .calendar-weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        text-align: center;
-        margin-bottom: 0.5rem;
-    }
-    
-    .weekday {
-        padding: 0.75rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-    
-    .calendar-days {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        gap: 0.5rem;
-        height: 400px;
-    }
-    
-    .calendar-day {
-        position: relative;
-        border-radius: var(--radius-md);
-        padding: 0.5rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        background-color: var(--color-bg-subtle);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid transparent;
-    }
-    
-    .calendar-day:hover {
-        background-color: rgba(99, 102, 241, 0.1);
-        border-color: var(--primary);
-    }
-    
-    .day-number {
-        font-size: 1.125rem;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    
-    .calendar-day.other-month {
-        opacity: 0.5;
-    }
-    
-    .calendar-day.today {
-        background-color: rgba(99, 102, 241, 0.15);
-        border-color: var(--primary);
-        font-weight: 700;
-    }
-    
-    .calendar-day.selected {
-        background-color: var(--primary);
-        color: white;
-    }
-    
-    .availability-indicator {
-        display: flex;
-        gap: 2px;
-    }
-    
-    .availability-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-    
-    /* Time slot picker */
-    .time-slot-picker {
-        width: 100%;
-    }
-    
-    .time-slot-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .time-slot-header h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-    
-    .time-slots {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem;
-    }
-    
-    .time-slot {
-        padding: 1rem;
-        border-radius: var(--radius-md);
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        background-color: var(--color-bg-subtle);
-        border: 1px solid var(--color-border);
-    }
-    
-    .time-slot:hover {
-        background-color: rgba(99, 102, 241, 0.1);
-        border-color: var(--primary);
-    }
-    
-    .time-slot.selected {
-        background-color: var(--primary);
-        color: white;
-        border-color: var(--primary);
-    }
-    
-    .time-slot.unavailable {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background-color: var(--color-bg-subtle);
-        border-color: var(--color-border);
-    }
-    
-    /* Confirmation card */
-    .schedule-confirmation {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        border-radius: var(--radius-lg);
-    }
-    
-    .confirmation-card {
-        background-color: var(--color-surface);
-        border-radius: var(--radius-lg);
-        padding: 2rem;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: var(--shadow-lg);
-    }
-    
-    .confirmation-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    
-    .confirmation-header i {
-        font-size: 3rem;
-        color: var(--primary);
-        margin-bottom: 1rem;
-    }
-    
-    .confirmation-header h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-    
-    .confirmation-details {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .detail-label {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.25rem;
-    }
-    
-    .detail-value {
-        font-weight: 600;
-    }
-    
-    .confirmation-message {
-        padding: 1rem;
-        background-color: rgba(59, 130, 246, 0.1);
-        border-radius: var(--radius-md);
-        margin-bottom: 1.5rem;
-    }
-    
-    .confirmation-message p {
-        font-size: 0.875rem;
-        color: var(--info);
-    }
-    
-    .confirmation-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    /* Responsive styles */
-    @media (max-width: 992px) {
-        .schedule-container {
-            grid-template-columns: 1fr;
-        }
-        
-        .calendar-sidebar {
-            order: 2;
-        }
-        
-        .calendar-main {
-            order: 1;
-            margin-bottom: 1.5rem;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .calendar-controls {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-        
-        .month-selector {
-            width: 100%;
-            justify-content: space-between;
-        }
-        
-        .view-controls {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .calendar-days {
-            height: auto;
-            aspect-ratio: 1/0.8;
-        }
-        
-        .confirmation-details {
-            grid-template-columns: 1fr;
-        }
-        
-        .confirmation-actions {
-            flex-direction: column-reverse;
-            gap: 1rem;
-        }
-        
-        .confirmation-actions .btn {
-            width: 100%;
-        }
-    }
-</style>
+<div class="modal" id="confirmation-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Verification Call Scheduled!</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="success-animation">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p>Your verification call has been successfully scheduled.</p>
+            
+            <div class="call-summary">
+                <div class="summary-item">
+                    <i class="fas fa-calendar"></i>
+                    <span id="summary-date">Wednesday, May 3, 2023</span>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="summary-time">2:00 PM - 3:00 PM</span>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-users"></i>
+                    <span>2 family members will join you</span>
+                </div>
+            </div>
+            
+            <p class="reminder-text">You'll receive an email reminder 1 hour before the call. Make sure to join on time!</p>
+        </div>
+        <div class="modal-footer">
+            <a href="{{ url_for('index') }}" class="btn-secondary">Back to Home</a>
+            <a href="#" class="btn-web5" id="add-to-calendar">Add to Calendar</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // DOM elements
-        const calendarDaysEl = document.getElementById('calendar-days');
-        const currentMonthEl = document.getElementById('current-month');
-        const prevMonthBtn = document.getElementById('prev-month');
-        const nextMonthBtn = document.getElementById('next-month');
-        const calendarView = document.getElementById('calendar-month-view');
-        const timeSlotPicker = document.getElementById('time-slot-picker');
-        const timeSlotsContainer = document.getElementById('time-slots-container');
-        const selectedDateEl = document.getElementById('selected-date');
-        const backToCalendarBtn = document.getElementById('back-to-calendar');
-        const scheduleConfirmation = document.getElementById('schedule-confirmation');
-        const backToSlotsBtn = document.getElementById('back-to-slots');
-        const confirmAppointmentBtn = document.getElementById('confirm-appointment');
-        const confirmDateEl = document.getElementById('confirm-date');
-        const confirmTimeEl = document.getElementById('confirm-time');
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    const currentMonthElement = document.getElementById('current-month');
+    const calendarDays = document.getElementById('calendar-days');
+    const monthViewBtn = document.getElementById('month-view');
+    const weekViewBtn = document.getElementById('week-view');
+    const dayViewBtn = document.getElementById('day-view');
+    const monthViewContainer = document.getElementById('month-view-container');
+    const weekViewContainer = document.getElementById('week-view-container');
+    const dayViewContainer = document.getElementById('day-view-container');
+    const selectedSlotContainer = document.getElementById('selected-slot-container');
+    const closeSlotBtn = document.getElementById('close-slot');
+    const btnClose = document.querySelector('.btn-close');
+    const confirmSlotBtn = document.getElementById('confirm-slot');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const modalClose = document.querySelector('.modal-close');
+    const cancelSelectionBtn = document.getElementById('cancel-selection');
+    const selectedDate = document.getElementById('selected-date');
+    const selectedTime = document.getElementById('selected-time');
+    
+    // Current date
+    const currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    let currentMonth = currentDate.getMonth();
+    let selectedDay = null;
+    let selectedSlot = null;
+    
+    // Update current month display
+    const updateCurrentMonth = () => {
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June', 
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        currentMonthElement.textContent = `${months[currentMonth]} ${currentYear}`;
+    };
+    
+    // Generate calendar days
+    const generateCalendarDays = () => {
+        calendarDays.innerHTML = '';
         
-        // Current date
-        let currentDate = new Date();
-        let currentMonth = currentDate.getMonth();
-        let currentYear = currentDate.getFullYear();
-        let selectedDay = null;
-        let selectedTimeSlot = null;
+        // Get first day of month and total days
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
         
-        // Initialize the calendar
-        updateCalendarHeader();
-        generateCalendarDays();
+        // Get previous month's last days
+        const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
         
-        // Event listeners
-        prevMonthBtn.addEventListener('click', () => {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            updateCalendarHeader();
-            generateCalendarDays();
-        });
-        
-        nextMonthBtn.addEventListener('click', () => {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            updateCalendarHeader();
-            generateCalendarDays();
-        });
-        
-        backToCalendarBtn.addEventListener('click', () => {
-            timeSlotPicker.style.display = 'none';
-            calendarView.style.display = 'block';
-        });
-        
-        backToSlotsBtn.addEventListener('click', () => {
-            scheduleConfirmation.style.display = 'none';
-        });
-        
-        confirmAppointmentBtn.addEventListener('click', () => {
-            alert('Appointment confirmed! You will receive a confirmation email shortly.');
-            window.location.href = '/verification';
-        });
-        
-        // Functions
-        function updateCalendarHeader() {
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                              'July', 'August', 'September', 'October', 'November', 'December'];
-            currentMonthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        // Add previous month's days
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('day', 'empty');
+            dayElement.textContent = prevMonthLastDay - i;
+            calendarDays.appendChild(dayElement);
         }
         
-        function generateCalendarDays() {
-            calendarDaysEl.innerHTML = '';
+        // Add current month's days
+        for (let day = 1; day <= totalDays; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('day');
             
-            // Get the first day of the month
-            const firstDay = new Date(currentYear, currentMonth, 1);
-            const lastDay = new Date(currentYear, currentMonth + 1, 0);
-            
-            // Calculate days from previous month to show
-            const daysFromPrevMonth = firstDay.getDay();
-            
-            // Calculate days from next month to show
-            const totalDays = 42; // 6 rows x 7 columns
-            const daysThisMonth = lastDay.getDate();
-            const daysFromNextMonth = totalDays - daysThisMonth - daysFromPrevMonth;
-            
-            // Get the last day of the previous month
-            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
-            
-            // Generate previous month's days
-            for (let i = 0; i < daysFromPrevMonth; i++) {
-                const day = prevMonthLastDay - daysFromPrevMonth + i + 1;
-                addDayToCalendar(day, 'other-month', getRandomAvailability());
+            // Check if it's today
+            if (
+                currentYear === currentDate.getFullYear() &&
+                currentMonth === currentDate.getMonth() &&
+                day === currentDate.getDate()
+            ) {
+                dayElement.classList.add('today');
             }
             
-            // Generate current month's days
-            for (let day = 1; day <= daysThisMonth; day++) {
-                const isToday = day === currentDate.getDate() && 
-                              currentMonth === currentDate.getMonth() && 
-                              currentYear === currentDate.getFullYear();
+            // Add random availability for demo purposes
+            const availabilityChance = Math.random();
+            if (availabilityChance > 0.3) {
+                dayElement.classList.add('has-availability');
                 
-                let availability;
+                const availabilityDot = document.createElement('div');
+                availabilityDot.classList.add('availability-dot');
                 
-                // Add some semi-random patterns to availability for demo
-                if (day % 7 === 0 || day % 7 === 6) {
-                    // Weekends have higher availability
-                    availability = ['high', 'high', 'medium'][Math.floor(Math.random() * 3)];
-                } else if (day % 5 === 0) {
-                    // Every 5th day has low availability
-                    availability = 'low';
+                if (availabilityChance > 0.8) {
+                    availabilityDot.classList.add('high');
+                } else if (availabilityChance > 0.6) {
+                    availabilityDot.classList.add('medium');
                 } else {
-                    // Random for other days
-                    availability = getRandomAvailability();
+                    availabilityDot.classList.add('low');
                 }
                 
-                addDayToCalendar(day, isToday ? 'today' : '', availability);
+                dayElement.appendChild(availabilityDot);
             }
             
-            // Generate next month's days
-            for (let day = 1; day <= daysFromNextMonth; day++) {
-                addDayToCalendar(day, 'other-month', getRandomAvailability());
-            }
+            dayElement.innerHTML += `<span class="day-number">${day}</span>`;
+            
+            // Add click event
+            dayElement.addEventListener('click', () => {
+                if (dayElement.classList.contains('has-availability')) {
+                    // Update selected day
+                    selectedDay = day;
+                    
+                    // Show day view with this day
+                    showDayView(day);
+                }
+            });
+            
+            calendarDays.appendChild(dayElement);
         }
         
-        function addDayToCalendar(day, extraClass, availability) {
-            const dayEl = document.createElement('div');
-            dayEl.classList.add('calendar-day');
-            if (extraClass) {
-                dayEl.classList.add(extraClass);
-            }
+        // Add next month's days to fill the calendar
+        const totalCells = 42; // 6 rows of 7 days
+        const remainingCells = totalCells - (firstDay + totalDays);
+        
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('day', 'empty');
+            dayElement.textContent = day;
+            calendarDays.appendChild(dayElement);
+        }
+    };
+    
+    // Show day view
+    const showDayView = (day) => {
+        // Update day view header
+        const dayHeader = document.querySelector('.day-header-detail h3');
+        const date = new Date(currentYear, currentMonth, day);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dayHeader.textContent = date.toLocaleDateString('en-US', options);
+        
+        // Generate time slots
+        generateDayTimeSlots(day);
+        
+        // Show day view
+        monthViewContainer.style.display = 'none';
+        weekViewContainer.style.display = 'none';
+        dayViewContainer.style.display = 'block';
+        
+        // Update view buttons
+        monthViewBtn.classList.remove('active');
+        weekViewBtn.classList.remove('active');
+        dayViewBtn.classList.add('active');
+    };
+    
+    // Generate day time slots
+    const generateDayTimeSlots = (day) => {
+        const dayTimeSlots = document.querySelector('.day-time-slots');
+        dayTimeSlots.innerHTML = '';
+        
+        // Generate slots from 9 AM to 5 PM
+        for (let hour = 9; hour <= 17; hour++) {
+            const slotElement = document.createElement('div');
+            slotElement.classList.add('day-time-slot');
             
-            const dayNumber = document.createElement('div');
-            dayNumber.classList.add('day-number');
-            dayNumber.textContent = day;
+            const timeLabel = document.createElement('div');
+            timeLabel.classList.add('time-label');
+            timeLabel.textContent = `${hour % 12 === 0 ? 12 : hour % 12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
             
-            const availabilityIndicator = document.createElement('div');
-            availabilityIndicator.classList.add('availability-indicator');
+            const slotContent = document.createElement('div');
+            slotContent.classList.add('slot-content');
             
-            // Show different indicator based on availability
-            if (availability !== 'none') {
-                const dot = document.createElement('div');
-                dot.classList.add('availability-dot');
-                dot.style.backgroundColor = getAvailabilityColor(availability);
-                availabilityIndicator.appendChild(dot);
-            }
-            
-            dayEl.appendChild(dayNumber);
-            dayEl.appendChild(availabilityIndicator);
-            
-            // Skip past days
-            const isPastDay = extraClass !== 'other-month' && 
-                          currentMonth === currentDate.getMonth() && 
-                          currentYear === currentDate.getFullYear() && 
-                          day < currentDate.getDate();
-            
-            if (!isPastDay && availability !== 'none') {
-                dayEl.addEventListener('click', () => {
-                    // Clear previous selection
-                    document.querySelectorAll('.calendar-day.selected').forEach(el => {
-                        el.classList.remove('selected');
+            // Add random availability for demo purposes
+            const availabilityChance = Math.random();
+            if (availabilityChance > 0.3) {
+                slotContent.classList.add('available');
+                
+                if (availabilityChance > 0.8) {
+                    slotContent.classList.add('high');
+                    slotContent.innerHTML = `<div class="slot-info">3 family members available</div>`;
+                } else if (availabilityChance > 0.6) {
+                    slotContent.classList.add('medium');
+                    slotContent.innerHTML = `<div class="slot-info">2 family members available</div>`;
+                } else {
+                    slotContent.classList.add('low');
+                    slotContent.innerHTML = `<div class="slot-info">1 family member available</div>`;
+                }
+                
+                const selectBtn = document.createElement('button');
+                selectBtn.classList.add('select-slot-btn');
+                selectBtn.textContent = 'Select';
+                slotContent.appendChild(selectBtn);
+                
+                // Add click event
+                selectBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update selected slot info in both UI elements
+                    const selectedDate = document.getElementById('selected-date');
+                    const selectedTime = document.getElementById('selected-time');
+                    const slotDate = document.getElementById('slot-date');
+                    const slotTime = document.getElementById('slot-time');
+                    
+                    const date = new Date(currentYear, currentMonth, day);
+                    const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+                    const formattedDate = date.toLocaleDateString('en-US', options);
+                    
+                    const timeEnd = (hour + 1) % 12 === 0 ? 12 : (hour + 1) % 12;
+                    const formattedTime = `${hour % 12 === 0 ? 12 : hour % 12}:00 ${hour < 12 ? 'AM' : 'PM'} - ${timeEnd}:00 ${hour + 1 < 12 ? 'AM' : 'PM'}`;
+                    
+                    // Update in sidebar
+                    selectedDate.textContent = formattedDate;
+                    selectedTime.textContent = formattedTime;
+                    
+                    // Update in selected slot container
+                    slotDate.textContent = formattedDate;
+                    slotTime.textContent = formattedTime;
+                    
+                    // Show selected slot container and enable cancel button
+                    selectedSlotContainer.style.display = 'block';
+                    document.getElementById('cancel-selection').disabled = false;
+                    
+                    // Update the "slot selected" indicator in the UI
+                    const progressStage = document.querySelector('.progress-stage.active');
+                    const nextStage = progressStage.nextElementSibling;
+                    if (nextStage && nextStage.classList.contains('progress-stage')) {
+                        nextStage.classList.add('active');
+                    }
+                    
+                    // Highlight the selected slot in the calendar
+                    const allSlots = document.querySelectorAll('.slot-content');
+                    allSlots.forEach(slot => {
+                        slot.classList.remove('selected');
                     });
+                    slotContent.classList.add('selected');
                     
-                    // Add selection class
-                    dayEl.classList.add('selected');
-                    
-                    // Store selected day
-                    selectedDay = {
-                        day,
-                        month: currentMonth,
-                        year: currentYear
+                    // Store selected slot info for submission
+                    selectedSlot = {
+                        date: date,
+                        startHour: hour,
+                        endHour: hour + 1,
+                        familyMembers: slotContent.querySelector('.slot-info').textContent
                     };
                     
-                    // Show time slot picker
-                    showTimeSlotPicker();
+                    // Scroll to the selected slot container
+                    selectedSlotContainer.scrollIntoView({ behavior: 'smooth' });
                 });
             } else {
-                dayEl.style.opacity = '0.5';
-                dayEl.style.cursor = 'default';
+                slotContent.innerHTML = `<div class="slot-info">No availability</div>`;
             }
             
-            calendarDaysEl.appendChild(dayEl);
+            slotElement.appendChild(timeLabel);
+            slotElement.appendChild(slotContent);
+            
+            dayTimeSlots.appendChild(slotElement);
+        }
+    };
+    
+    // Initialize calendar
+    updateCurrentMonth();
+    generateCalendarDays();
+    
+    // Event listeners for navigation
+    prevMonthBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        updateCurrentMonth();
+        generateCalendarDays();
+    });
+    
+    nextMonthBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        updateCurrentMonth();
+        generateCalendarDays();
+    });
+    
+    // View toggle
+    monthViewBtn.addEventListener('click', () => {
+        monthViewContainer.style.display = 'block';
+        weekViewContainer.style.display = 'none';
+        dayViewContainer.style.display = 'none';
+        selectedSlotContainer.style.display = 'none';
+        
+        monthViewBtn.classList.add('active');
+        weekViewBtn.classList.remove('active');
+        dayViewBtn.classList.remove('active');
+    });
+    
+    weekViewBtn.addEventListener('click', () => {
+        monthViewContainer.style.display = 'none';
+        weekViewContainer.style.display = 'block';
+        dayViewContainer.style.display = 'none';
+        selectedSlotContainer.style.display = 'none';
+        
+        monthViewBtn.classList.remove('active');
+        weekViewBtn.classList.add('active');
+        dayViewBtn.classList.remove('active');
+        
+        // Generate week view (simplified for demo)
+        const weekGrid = document.querySelector('.week-grid');
+        weekGrid.innerHTML = '';
+        
+        // Create time column
+        const timeColumn = document.createElement('div');
+        timeColumn.classList.add('time-column');
+        
+        // Generate slots from 9 AM to 5 PM
+        for (let hour = 9; hour <= 17; hour++) {
+            const timeSlot = document.createElement('div');
+            timeSlot.classList.add('time-slot');
+            timeSlot.textContent = `${hour % 12 === 0 ? 12 : hour % 12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
+            timeColumn.appendChild(timeSlot);
         }
         
-        function showTimeSlotPicker() {
-            // Update selected date display
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                              'July', 'August', 'September', 'October', 'November', 'December'];
-            selectedDateEl.textContent = `${monthNames[selectedDay.month]} ${selectedDay.day}, ${selectedDay.year}`;
-            
-            // Generate time slots
-            generateTimeSlots();
-            
-            // Hide calendar view and show time slot picker
-            calendarView.style.display = 'none';
-            timeSlotPicker.style.display = 'block';
-        }
+        weekGrid.appendChild(timeColumn);
         
-        function generateTimeSlots() {
-            timeSlotsContainer.innerHTML = '';
+        // Create day columns
+        for (let day = 0; day < 7; day++) {
+            const dayColumn = document.createElement('div');
+            dayColumn.classList.add('day-column');
             
-            // Generate time slots from 9 AM to 5 PM
-            const startHour = 9;
-            const endHour = 17;
-            const interval = 30; // minutes
-            
-            for (let hour = startHour; hour < endHour; hour++) {
-                for (let minute = 0; minute < 60; minute += interval) {
-                    const time = formatTime(hour, minute);
-                    const slot = document.createElement('div');
-                    slot.classList.add('time-slot');
+            // Generate slots from 9 AM to 5 PM
+            for (let hour = 9; hour <= 17; hour++) {
+                const weekSlot = document.createElement('div');
+                weekSlot.classList.add('week-slot');
+                
+                // Add random availability for demo purposes
+                const availabilityChance = Math.random();
+                if (availabilityChance > 0.3) {
+                    weekSlot.classList.add('available');
                     
-                    // Randomize availability for demo
-                    const isAvailable = Math.random() > 0.3;
-                    if (!isAvailable) {
-                        slot.classList.add('unavailable');
+                    if (availabilityChance > 0.8) {
+                        weekSlot.classList.add('high');
+                    } else if (availabilityChance > 0.6) {
+                        weekSlot.classList.add('medium');
+                    } else {
+                        weekSlot.classList.add('low');
                     }
                     
-                    slot.textContent = time;
-                    
-                    if (isAvailable) {
-                        slot.addEventListener('click', () => {
-                            // Clear previous selection
-                            document.querySelectorAll('.time-slot.selected').forEach(el => {
-                                el.classList.remove('selected');
-                            });
-                            
-                            // Add selection class
-                            slot.classList.add('selected');
-                            
-                            // Store selected time slot
-                            selectedTimeSlot = time;
-                            
-                            // Update confirmation modal
-                            confirmDateEl.textContent = `${monthNames[selectedDay.month]} ${selectedDay.day}, ${selectedDay.year}`;
-                            confirmTimeEl.textContent = time;
-                            
-                            // Show confirmation modal
-                            scheduleConfirmation.style.display = 'flex';
-                        });
-                    }
-                    
-                    timeSlotsContainer.appendChild(slot);
+                    // Add click event
+                    weekSlot.addEventListener('click', () => {
+                        // Show day view with this day
+                        showDayView(day + 1);
+                    });
                 }
-            }
-        }
-        
-        function formatTime(hour, minute) {
-            const period = hour >= 12 ? 'PM' : 'AM';
-            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-            const formattedMinute = minute < 10 ? `0${minute}` : minute;
-            return `${formattedHour}:${formattedMinute} ${period}`;
-        }
-        
-        function getRandomAvailability() {
-            const availabilities = ['high', 'medium', 'low', 'none'];
-            const weights = [3, 4, 2, 1]; // Weight distribution for random selection
-            
-            let totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-            let random = Math.random() * totalWeight;
-            
-            for (let i = 0; i < availabilities.length; i++) {
-                if (random < weights[i]) {
-                    return availabilities[i];
-                }
-                random -= weights[i];
+                
+                dayColumn.appendChild(weekSlot);
             }
             
-            return 'none';
-        }
-        
-        function getAvailabilityColor(availability) {
-            switch (availability) {
-                case 'high':
-                    return getComputedStyle(document.documentElement).getPropertyValue('--success');
-                case 'medium':
-                    return getComputedStyle(document.documentElement).getPropertyValue('--accent-secondary');
-                case 'low':
-                    return getComputedStyle(document.documentElement).getPropertyValue('--primary');
-                default:
-                    return getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
-            }
+            weekGrid.appendChild(dayColumn);
         }
     });
+    
+    dayViewBtn.addEventListener('click', () => {
+        if (selectedDay) {
+            showDayView(selectedDay);
+        } else {
+            showDayView(currentDate.getDate());
+        }
+    });
+    
+    // Close selected slot
+    closeSlotBtn.addEventListener('click', () => {
+        selectedSlotContainer.style.display = 'none';
+    });
+    
+    btnClose.addEventListener('click', () => {
+        selectedSlotContainer.style.display = 'none';
+    });
+    
+    // Confirm slot
+    confirmSlotBtn.addEventListener('click', () => {
+        if (selectedSlot) {
+            // Update summary in confirmation modal
+            const summaryDate = document.getElementById('summary-date');
+            const summaryTime = document.getElementById('summary-time');
+            
+            const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+            summaryDate.textContent = selectedSlot.date.toLocaleDateString('en-US', options);
+            
+            const startHour = selectedSlot.startHour % 12 === 0 ? 12 : selectedSlot.startHour % 12;
+            const endHour = selectedSlot.endHour % 12 === 0 ? 12 : selectedSlot.endHour % 12;
+            summaryTime.textContent = `${startHour}:00 ${selectedSlot.startHour < 12 ? 'AM' : 'PM'} - ${endHour}:00 ${selectedSlot.endHour < 12 ? 'AM' : 'PM'}`;
+            
+            // Update selected call in sidebar
+            selectedDate.textContent = selectedSlot.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            selectedTime.textContent = `${startHour}:00 ${selectedSlot.startHour < 12 ? 'AM' : 'PM'} - ${endHour}:00 ${selectedSlot.endHour < 12 ? 'AM' : 'PM'}`;
+            
+            // Enable cancel button
+            cancelSelectionBtn.disabled = false;
+            
+            // Show confirmation modal
+            confirmationModal.style.display = 'flex';
+            
+            // Hide selected slot container
+            selectedSlotContainer.style.display = 'none';
+        }
+    });
+    
+    // Close modal
+    modalClose.addEventListener('click', () => {
+        confirmationModal.style.display = 'none';
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === confirmationModal) {
+            confirmationModal.style.display = 'none';
+        }
+    });
+    
+    // Cancel selection
+    cancelSelectionBtn.addEventListener('click', () => {
+        // Clear the selected slot
+        selectedSlot = null;
+        
+        // Hide the selected slot container
+        selectedSlotContainer.style.display = 'none';
+        
+        // Reset UI
+        document.getElementById('selected-date').textContent = 'Select a date';
+        document.getElementById('selected-time').textContent = 'Select a time';
+        
+        // Disable the cancel button
+        document.getElementById('cancel-selection').disabled = true;
+        
+        // Remove active class from the next progress stage
+        const progressStages = document.querySelectorAll('.progress-stage');
+        progressStages.forEach((stage, index) => {
+            if (index > 1) {
+                stage.classList.remove('active');
+            }
+        });
+        
+        // Remove selected class from all slots
+        const allSlots = document.querySelectorAll('.slot-content');
+        allSlots.forEach(slot => {
+            slot.classList.remove('selected');
+        });
+    });
+    
+    // Add to calendar button
+    document.getElementById('add-to-calendar').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Calendar invite would be generated here in a real application.');
+    });
+    
+    // Add animation to orbs
+    const orbs = document.querySelectorAll('.orb');
+    orbs.forEach(orb => {
+        const randomX = Math.random() * 10 - 5;
+        const randomY = Math.random() * 10 - 5;
+        const randomDelay = Math.random() * 2;
+        const randomDuration = 3 + Math.random() * 2;
+        
+        orb.style.animation = `float ${randomDuration}s ease-in-out ${randomDelay}s infinite alternate`;
+        orb.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    });
+});
 </script>
 {% endblock %} 
