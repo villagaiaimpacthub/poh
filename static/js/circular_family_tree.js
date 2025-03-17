@@ -101,6 +101,9 @@ class CircularFamilyTree {
         this.height = config.height || 600;
         this.title = config.title || 'Family Network Visualization';
         
+        // D3 visualization elements
+        this.svg = null;
+        
         // Node colors for different levels
         this.nodeColors = {
             1: "#FFD700", // Gold for center/user
@@ -218,8 +221,7 @@ class CircularFamilyTree {
                     }
                     
                     console.log(`[CIRCULAR-TREE] Final dimensions set to: ${this.width}x${this.height}`);
-                    
-                    // Initialize the visualization
+        
                     this.initialize();
                 } catch (error) {
                     console.error('[CIRCULAR-TREE] Error getting container dimensions:', error);
@@ -250,8 +252,8 @@ class CircularFamilyTree {
             // This provides an additional layer of safety
             this.svg = d3.select(`#${this.containerId}`)
                 .append("svg")
-                .attr("width", this.width)
-                .attr("height", this.height)
+                .attr("width", "100%")
+                .attr("height", "100%")
                 .attr("viewBox", `0 0 ${this.width} ${this.height}`)
                 .attr("preserveAspectRatio", "xMidYMid meet")
                 .style("background", "rgba(15, 15, 35, 0.3)")
@@ -300,70 +302,6 @@ class CircularFamilyTree {
     }
     
     /**
-     * Hide loading indicator if it exists
-     */
-    hideLoadingIndicator() {
-        try {
-            // Try multiple selector approaches for robustness
-            const selectors = [
-                `#${this.containerId} .loading-indicator`,
-                `#loading-indicator`,
-                `.loading-indicator`
-            ];
-            
-            for (const selector of selectors) {
-                const indicator = document.querySelector(selector);
-                if (indicator) {
-                    console.log(`[CIRCULAR-TREE] Found loading indicator with selector: ${selector}`);
-                    indicator.style.display = 'none';
-                    return;
-                }
-            }
-        } catch (error) {
-            console.error('[CIRCULAR-TREE] Error hiding loading indicator:', error);
-        }
-    }
-    
-    /**
-     * Show error message in the visualization container
-     */
-    showErrorMessage(message) {
-        try {
-            // Try to find the container again
-            const container = document.getElementById(this.containerId);
-            if (container) {
-                container.innerHTML = `
-                    <div style="padding: 2rem; text-align: center; color: white; background-color: rgba(15, 23, 42, 0.7); border-radius: 8px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                        <p>Error loading visualization: ${message}</p>
-                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Try refreshing the page or check console for details.</p>
-                    </div>
-                `;
-            }
-            
-            // Also try to update any loading indicators
-            const selectors = [
-                `#loading-indicator`,
-                `.loading-indicator`
-            ];
-            
-            for (const selector of selectors) {
-                const indicator = document.querySelector(selector);
-                if (indicator) {
-                    indicator.innerHTML = `
-                        <div style="text-align: center; color: white;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                            <p>Error loading visualization: ${message}</p>
-                        </div>
-                    `;
-                }
-            }
-        } catch (error) {
-            console.error('[CIRCULAR-TREE] Error showing error message:', error);
-        }
-    }
-    
-    /**
      * Create the circular tree visualization
      */
     createCircularTree() {
@@ -374,12 +312,16 @@ class CircularFamilyTree {
         this.nodes = [];
         this.links = [];
         
-        // Define level properties
+        // Calculate a scale factor to ensure visualization fits within container
+        // Increase scale factor to make network larger and more visible
+        const scaleFactor = 0.9; // Increase from 0.8 to 0.9 for better visibility
+        
+        // Define level properties - adjust radii to ensure full network is visible
         const levels = {
-            1: { count: 1, radius: Math.min(this.width, this.height) * 0.05, nodeRadius: 20 },
-            2: { count: 8, radius: Math.min(this.width, this.height) * 0.15, nodeRadius: 15 },
-            3: { count: 24, radius: Math.min(this.width, this.height) * 0.25, nodeRadius: 12 },
-            4: { count: 48, radius: Math.min(this.width, this.height) * 0.35, nodeRadius: 8 }
+            1: { count: 1, radius: Math.min(this.width, this.height) * 0.04 * scaleFactor, nodeRadius: 18 * scaleFactor },
+            2: { count: 8, radius: Math.min(this.width, this.height) * 0.14 * scaleFactor, nodeRadius: 14 * scaleFactor },
+            3: { count: 24, radius: Math.min(this.width, this.height) * 0.24 * scaleFactor, nodeRadius: 10 * scaleFactor },
+            4: { count: 48, radius: Math.min(this.width, this.height) * 0.34 * scaleFactor, nodeRadius: 7 * scaleFactor }
         };
         
         // Create center node (level 1 - gold)
@@ -622,47 +564,51 @@ class CircularFamilyTree {
      * Add a button to grow the network (level up all nodes)
      */
     addGrowNetworkButton() {
+        // Position the button at the bottom of the visualization where it's more visible
+        // Move from bottom right to bottom center for better visibility
         const buttonGroup = this.svg.append("g")
             .attr("class", "button-group")
-            .attr("transform", `translate(${this.width - 120}, ${this.height - 60})`)
+            .attr("transform", `translate(${this.width/2 - 60}, ${this.height - 60})`)
             .style("cursor", "pointer")
             .on("click", () => this.levelUpNodes());
             
-        // Button background
+        // Button background - make slightly larger and more visible
         buttonGroup.append("rect")
-            .attr("width", 120)
-            .attr("height", 40)
-            .attr("rx", 20)
-            .attr("ry", 20)
-            .attr("fill", "rgba(122, 67, 255, 0.8)")
+            .attr("width", 130)
+            .attr("height", 44)
+            .attr("rx", 22)
+            .attr("ry", 22)
+            .attr("fill", "rgba(122, 67, 255, 0.9)")
             .attr("stroke", "white")
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1.5);
             
         // Button text
         buttonGroup.append("text")
-            .attr("x", 60)
+            .attr("x", 65)
             .attr("y", 25)
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
             .attr("fill", "white")
-            .attr("font-size", "14px")
+            .attr("font-size", "15px")
             .attr("font-weight", "bold")
             .text("Grow Network");
             
-        // Button hover effect
+        // Button hover effect - enhance for better user feedback
         buttonGroup.on("mouseover", function() {
             d3.select(this).select("rect")
                 .transition()
                 .duration(200)
                 .attr("fill", "rgba(122, 67, 255, 1)")
-                .attr("transform", "scale(1.05)");
+                .attr("transform", "scale(1.05)")
+                .attr("stroke-width", 2);
         })
         .on("mouseout", function() {
             d3.select(this).select("rect")
                 .transition()
                 .duration(200)
-                .attr("fill", "rgba(122, 67, 255, 0.8)")
-                .attr("transform", "scale(1)");
+                .attr("fill", "rgba(122, 67, 255, 0.9)")
+                .attr("transform", "scale(1)")
+                .attr("stroke-width", 1.5);
         });
     }
     
@@ -670,30 +616,31 @@ class CircularFamilyTree {
      * Add a reset button to reset the visualization
      */
     addResetButton() {
+        // Position the reset button to the left of the grow network button
         const buttonGroup = this.svg.append("g")
             .attr("class", "reset-button-group")
-            .attr("transform", `translate(${this.width - 120}, ${this.height - 110})`)
+            .attr("transform", `translate(${this.width/2 - 200}, ${this.height - 60})`)
             .style("cursor", "pointer")
             .on("click", () => this.resetNetwork());
             
         // Button background
         buttonGroup.append("rect")
-            .attr("width", 120)
-            .attr("height", 40)
-            .attr("rx", 20)
-            .attr("ry", 20)
-            .attr("fill", "rgba(67, 209, 255, 0.8)")
+            .attr("width", 100)
+            .attr("height", 44)
+            .attr("rx", 22)
+            .attr("ry", 22)
+            .attr("fill", "rgba(67, 209, 255, 0.9)")
             .attr("stroke", "white")
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1.5);
             
         // Button text
         buttonGroup.append("text")
-            .attr("x", 60)
+            .attr("x", 50)
             .attr("y", 25)
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
             .attr("fill", "white")
-            .attr("font-size", "14px")
+            .attr("font-size", "15px")
             .attr("font-weight", "bold")
             .text("Reset");
             
@@ -703,35 +650,23 @@ class CircularFamilyTree {
                 .transition()
                 .duration(200)
                 .attr("fill", "rgba(67, 209, 255, 1)")
-                .attr("transform", "scale(1.05)");
+                .attr("transform", "scale(1.05)")
+                .attr("stroke-width", 2);
         })
         .on("mouseout", function() {
             d3.select(this).select("rect")
                 .transition()
                 .duration(200)
-                .attr("fill", "rgba(67, 209, 255, 0.8)")
-                .attr("transform", "scale(1)");
+                .attr("fill", "rgba(67, 209, 255, 0.9)")
+                .attr("transform", "scale(1)")
+                .attr("stroke-width", 1.5);
         });
-    }
-    
-    /**
-     * Reset the network to its original state
-     */
-    resetNetwork() {
-        // Reset all nodes to their original levels
-        this.nodes.forEach(node => {
-            node.currentLevel = node.level;
-        });
-        
-        // Update node colors
-        this.vizGroup.selectAll(".node circle")
-            .transition()
-            .duration(800)
-            .attr("fill", d => this.nodeColors[d.currentLevel]);
     }
     
     /**
      * Level up all nodes (change color based on level)
+     * Updated to change colors according to the specified progression:
+     * purple → gold, blue → purple, green → blue
      */
     levelUpNodes() {
         // Start from outer nodes and work inward
@@ -744,11 +679,12 @@ class CircularFamilyTree {
         console.log("[VISUALIZATION] Level 3 nodes:", level3Nodes.length);
         console.log("[VISUALIZATION] Level 2 nodes:", level2Nodes.length);
         
-        // First animation: level 4 nodes turn to level 3 color
+        // Updated color progression:
+        // Level 4 (green) nodes → Level 3 color (blue)
         this.animateLevelChange(level4Nodes, 3, () => {
-            // Second animation: level 3 nodes turn to level 2 color
+            // Level 3 (blue) nodes → Level 2 color (purple)
             this.animateLevelChange(level3Nodes, 2, () => {
-                // Third animation: level 2 nodes turn to level 1 color
+                // Level 2 (purple) nodes → Level 1 color (gold)
                 this.animateLevelChange(level2Nodes, 1, () => {
                     console.log("[VISUALIZATION] Level up sequence complete");
                 });
@@ -759,18 +695,21 @@ class CircularFamilyTree {
     /**
      * Animate level change for a set of nodes
      * @param {Array} nodes - Nodes to animate
-     * @param {number} newLevel - New level value
+     * @param {number} newLevel - New level for the nodes
      * @param {Function} callback - Callback after animation completes
      */
     animateLevelChange(nodes, newLevel, callback) {
-        if (nodes.length === 0) {
-            if (callback) callback();
+        if (!nodes || nodes.length === 0) {
+            if (callback) {
+                callback();
+            }
             return;
         }
         
         console.log(`[VISUALIZATION] Animating ${nodes.length} nodes to level ${newLevel}`);
         
-        const duration = 1000;
+        // Slow down the animation to make it more visible
+        const duration = 1500;
         let completed = 0;
         
         // Animate each node's color change
@@ -778,15 +717,19 @@ class CircularFamilyTree {
             const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
             
             if (!nodeElement.empty()) {
+                // Add a slight delay for each node based on its position
+                // to create a wave-like effect
+                const delay = Math.random() * 500;
+            
                 nodeElement.transition()
+                    .delay(delay)
                     .duration(duration)
                     .attr("fill", this.nodeColors[newLevel])
                     .on("end", () => {
-                        // Update node data
-                        node.color = this.nodeColors[newLevel];
+                        // Update the node's current level
                         node.currentLevel = newLevel;
                         
-                        // Check if all nodes completed animation
+                        // Call callback when all animations are complete
                         completed++;
                         if (completed === nodes.length && callback) {
                             callback();
@@ -806,14 +749,15 @@ class CircularFamilyTree {
      * Add a legend to explain node colors
      */
     addLegend() {
+        // Position the legend where it won't overlap with the buttons
         const legendGroup = this.svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(20, ${this.height - 120})`);
+            .attr("transform", `translate(20, ${this.height - 150})`);
             
         const legendBackground = legendGroup.append("rect")
             .attr("width", 180)
             .attr("height", 110)
-            .attr("fill", "rgba(15, 15, 35, 0.7)")
+            .attr("fill", "rgba(15, 15, 35, 0.8)")
             .attr("rx", 8)
             .attr("ry", 8)
             .attr("stroke", "rgba(255, 255, 255, 0.2)")
@@ -849,6 +793,86 @@ class CircularFamilyTree {
                 .attr("font-size", "12px")
                 .text(item.label);
         });
+    }
+    
+    /**
+     * Reset the network to its original state
+     */
+    resetNetwork() {
+        // Reset all nodes to their original levels
+        this.nodes.forEach(node => {
+            node.currentLevel = node.level;
+        });
+        
+        // Update node colors
+        this.vizGroup.selectAll(".node circle")
+            .transition()
+            .duration(800)
+            .attr("fill", d => this.nodeColors[d.currentLevel]);
+    }
+    
+    /**
+     * Hide loading indicator if it exists
+     */
+    hideLoadingIndicator() {
+        try {
+            // Try multiple selector approaches for robustness
+            const selectors = [
+                `#${this.containerId} .loading-indicator`,
+                `#loading-indicator`,
+                `.loading-indicator`
+            ];
+            
+            for (const selector of selectors) {
+                const indicator = document.querySelector(selector);
+                if (indicator) {
+                    console.log(`[CIRCULAR-TREE] Found loading indicator with selector: ${selector}`);
+                    indicator.style.display = 'none';
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('[CIRCULAR-TREE] Error hiding loading indicator:', error);
+        }
+    }
+    
+    /**
+     * Show error message in the visualization container
+     */
+    showErrorMessage(message) {
+        try {
+            // Try to find the container again
+            const container = document.getElementById(this.containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: white; background-color: rgba(15, 23, 42, 0.7); border-radius: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                        <p>Error loading visualization: ${message}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Try refreshing the page or check console for details.</p>
+                    </div>
+                `;
+            }
+            
+            // Also try to update any loading indicators
+            const selectors = [
+                `#loading-indicator`,
+                `.loading-indicator`
+            ];
+            
+            for (const selector of selectors) {
+                const indicator = document.querySelector(selector);
+                if (indicator) {
+                    indicator.innerHTML = `
+                        <div style="text-align: center; color: white;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                            <p>Error loading visualization: ${message}</p>
+                        </div>
+                    `;
+                }
+            }
+        } catch (error) {
+            console.error('[CIRCULAR-TREE] Error showing error message:', error);
+        }
     }
 }
 
