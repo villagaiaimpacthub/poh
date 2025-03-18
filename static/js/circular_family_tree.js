@@ -347,6 +347,33 @@ class CircularFamilyTree {
     }
     
     /**
+     * Mobile device specific configuration for gold-only visualization
+     */
+    configureMobileColorScheme() {
+        if (this.isMobile) {
+            console.log('[CIRCULAR-TREE] Configuring mobile-specific gold color scheme');
+            
+            // For mobile devices, create a uniform gold color scheme for better visual appearance
+            const goldColor = this.isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700';
+            
+            // Special case for mobile: initialize all nodes as gold for better appearance
+            // We'll keep a reference to original colors for when switching back to original state
+            this.originalNodeColors = { ...this.nodeColors };
+            
+            // Override colors for mobile to match iPhone screenshot (all gold)
+            this.mobileGoldMode = true;
+            
+            // Keep a consistent set of colors for level-based operations
+            this.nodeColors = {
+                1: goldColor,
+                2: goldColor,
+                3: goldColor,
+                4: goldColor
+            };
+        }
+    }
+    
+    /**
      * Initialize the visualization
      */
     initialize() {
@@ -357,6 +384,11 @@ class CircularFamilyTree {
         
         try {
             console.log(`[CIRCULAR-TREE] Beginning initialization of circular family tree`);
+            
+            // For mobile, apply the gold color scheme
+            if (this.isMobile) {
+                this.configureMobileColorScheme();
+            }
             
             // Create the main visualization
             this.createCircularTree();
@@ -637,252 +669,6 @@ class CircularFamilyTree {
     }
     
     /**
-     * Add a legend to explain node colors
-     */
-    addLegend() {
-        // Add a legend to the visualization
-        const legendContainer = document.createElement('div');
-        legendContainer.className = 'legend-container';
-        
-        // Position legend differently for mobile vs desktop
-        if (this.isMobile) {
-            // For mobile, position at the top to give more space to the visualization
-            legendContainer.style.position = 'absolute';
-            legendContainer.style.top = '10px';
-            legendContainer.style.left = '50%';
-            legendContainer.style.transform = 'translateX(-50%)';
-            legendContainer.style.width = '90%';
-            legendContainer.style.maxWidth = '300px';
-        } else {
-            // Keep default positioning for desktop
-            legendContainer.style.position = 'absolute';
-            legendContainer.style.top = '10px';
-            legendContainer.style.right = '10px';
-        }
-        
-        // Define legend data
-        const legendData = [
-            { color: this.nodeColors[1], text: 'Full Network Nodes' },
-            { color: this.nodeColors[2], text: 'Parent Nodes' },
-            { color: this.nodeColors[3], text: 'Child Nodes' },
-            { color: this.nodeColors[4], text: 'Grandchild Nodes' },
-            { 
-                special: 'founder-connection', 
-                text: 'Founder Direct Connection', 
-                color: this.nodeColors[1] 
-            }
-        ];
-        
-        // Create legend items
-        legendData.forEach(item => {
-            const legendItem = document.createElement('div');
-            legendItem.className = 'legend-item';
-            
-            if (item.special === 'founder-connection') {
-                // Special case for founder connection line
-                const lineElement = document.createElement('div');
-                lineElement.className = 'legend-line legend-founder-connection';
-                legendItem.appendChild(lineElement);
-            } else {
-                // Standard color circle
-                const colorElement = document.createElement('div');
-                colorElement.className = 'legend-color';
-                colorElement.style.backgroundColor = item.color;
-                legendItem.appendChild(colorElement);
-            }
-            
-            const textElement = document.createElement('div');
-            textElement.className = 'legend-text';
-            textElement.textContent = item.text;
-            legendItem.appendChild(textElement);
-            
-            legendContainer.appendChild(legendItem);
-        });
-        
-        // Add buttons for interaction
-        const buttonsContainer = document.createElement('div');
-        buttonsContainer.className = 'legend-buttons';
-        
-        // Reset button
-        const resetButton = document.createElement('button');
-        resetButton.className = 'legend-button';
-        resetButton.textContent = 'Reset';
-        resetButton.addEventListener('click', () => {
-            this.resetVisualization();
-        });
-        buttonsContainer.appendChild(resetButton);
-        
-        // Grow Network button
-        const growButton = document.createElement('button');
-        growButton.className = 'legend-button';
-        growButton.textContent = 'Grow Network';
-        growButton.addEventListener('click', () => {
-            this.levelUpNodes();
-        });
-        buttonsContainer.appendChild(growButton);
-        
-        legendContainer.appendChild(buttonsContainer);
-        
-        // Add the legend to the container
-        this.container.appendChild(legendContainer);
-    }
-    
-    /**
-     * Reset the network to its original state
-     */
-    resetNetwork() {
-        // Reset all nodes to their original levels
-        this.nodes.forEach(node => {
-            node.currentLevel = node.level;
-        });
-        
-        // Update node colors
-        this.vizGroup.selectAll(".node circle")
-            .transition()
-            .duration(800)
-            .attr("fill", d => this.nodeColors[d.currentLevel]);
-    }
-    
-    /**
-     * Reset the visualization
-     */
-    resetVisualization() {
-        // Clear the visualization and recreate it
-        this.vizGroup.selectAll("*").remove();
-        this.createCircularTree();
-        
-        // Add pulsing animation to gold nodes
-        this.addPulsingToGoldNodes();
-    }
-    
-    /**
-     * Hide loading indicator if it exists
-     */
-    hideLoadingIndicator() {
-        try {
-            // Try multiple selector approaches for robustness
-            const selectors = [
-                `#${this.containerId} .loading-indicator`,
-                `#loading-indicator`,
-                `.loading-indicator`
-            ];
-            
-            for (const selector of selectors) {
-                const indicator = document.querySelector(selector);
-                if (indicator) {
-                    console.log(`[CIRCULAR-TREE] Found loading indicator with selector: ${selector}`);
-                    indicator.style.display = 'none';
-                    return;
-                }
-            }
-        } catch (error) {
-            console.error('[CIRCULAR-TREE] Error hiding loading indicator:', error);
-        }
-    }
-    
-    /**
-     * Show error message in the visualization container
-     */
-    showErrorMessage(message) {
-        try {
-            // Try to find the container again
-            const container = document.getElementById(this.containerId);
-            if (container) {
-                container.innerHTML = `
-                    <div style="padding: 2rem; text-align: center; color: white; background-color: rgba(15, 23, 42, 0.7); border-radius: 8px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                        <p>Error loading visualization: ${message}</p>
-                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Try refreshing the page or check console for details.</p>
-                    </div>
-                `;
-            }
-            
-            // Also try to update any loading indicators
-            const selectors = [
-                `#loading-indicator`,
-                `.loading-indicator`
-            ];
-            
-            for (const selector of selectors) {
-                const indicator = document.querySelector(selector);
-                if (indicator) {
-                    indicator.innerHTML = `
-                        <div style="text-align: center; color: white;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                            <p>Error loading visualization: ${message}</p>
-                        </div>
-                    `;
-                }
-            }
-        } catch (error) {
-            console.error('[CIRCULAR-TREE] Error showing error message:', error);
-        }
-    }
-
-    /**
-     * Level up all nodes (change color based on level) in a single animation
-     */
-    levelUpNodes() {
-        console.log("[VISUALIZATION] Starting level up sequence");
-        
-        // Get nodes at each level
-        const level4Nodes = this.nodes.filter(n => n.currentLevel === 4);
-        const level3Nodes = this.nodes.filter(n => n.currentLevel === 3);
-        const level2Nodes = this.nodes.filter(n => n.currentLevel === 2);
-        
-        console.log(`Level 4 nodes: ${level4Nodes.length}, Level 3: ${level3Nodes.length}, Level 2: ${level2Nodes.length}`);
-        
-        // Promote green nodes to blue (level 4 to 3)
-        level4Nodes.forEach(node => {
-            // Select the node using the data-id attribute
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            console.log(`Looking for node ${node.id}, found: ${!nodeElement.empty()}`);
-            
-            if (!nodeElement.empty()) {
-                const delay = Math.random() * 300; // Staggered animation
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[3]);
-                node.currentLevel = 3;
-            }
-        });
-        
-        // Promote blue nodes to purple (level 3 to 2)
-        level3Nodes.forEach(node => {
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            if (!nodeElement.empty()) {
-                const delay = 300 + Math.random() * 300;
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[2]);
-                node.currentLevel = 2;
-            }
-        });
-        
-        // Promote purple nodes to gold (level 2 to 1)
-        level2Nodes.forEach(node => {
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            if (!nodeElement.empty()) {
-                const delay = 600 + Math.random() * 300;
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[1]);
-                node.currentLevel = 1;
-            }
-        });
-        
-        console.log("[VISUALIZATION] Level up sequence complete");
-        
-        // Add a delay before applying the pulsing animation to the newly gold nodes
-        setTimeout(() => {
-            this.addPulsingToGoldNodes();
-        }, 1200); // Wait for all transitions to complete
-    }
-
-    /**
      * Add an enhanced legend and control buttons in better positions
      */
     addEnhancedLegendAndButtons() {
@@ -892,12 +678,12 @@ class CircularFamilyTree {
         let legendX, legendY;
         
         if (this.isMobile) {
-            // For mobile, position the legend at the bottom
-            legendX = this.width/2 - 90;
-            legendY = this.height - 180;
+            // For mobile, position the legend at the top-right corner, away from the center
+            legendX = this.width - 170;
+            legendY = 20;
         } else {
             // For desktop, position on the right side
-            legendX = this.width - 210;
+            legendX = this.width - 220;
             legendY = this.height/2 - 100;
         }
         
@@ -972,36 +758,9 @@ class CircularFamilyTree {
         const btnHeight = this.isMobile ? 32 : 36;
         const fontSize = this.isMobile ? "12px" : "14px";
         
-        // Add Reset button
-        const resetButton = buttonGroup.append("g")
-            .attr("class", "viz-button reset-button")
-            .style("cursor", "pointer")
-            .on("click", () => this.resetVisualization());
-        
-        resetButton.append("rect")
-            .attr("width", resetBtnWidth)
-            .attr("height", btnHeight)
-            .attr("rx", 6)
-            .attr("ry", 6)
-            .attr("fill", "rgba(50, 50, 70, 0.8)")
-            .attr("stroke", "rgba(255, 255, 255, 0.3)")
-            .attr("stroke-width", 1);
-        
-        resetButton.append("text")
-            .attr("x", resetBtnWidth/2)
-            .attr("y", btnHeight/2)
-            .text("Reset")
-            .attr("font-size", fontSize)
-            .attr("fill", "white")
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle");
-        
-        // Add Grow Network button
-        const growButtonOffset = this.isMobile ? 85 : 100;
-        
+        // SWAP BUTTON ORDER - First create Grow Network button (on left for mobile)
         const growButton = buttonGroup.append("g")
             .attr("class", "viz-button grow-button")
-            .attr("transform", `translate(${growButtonOffset}, 0)`)
             .style("cursor", "pointer")
             .on("click", () => this.levelUpNodes());
         
@@ -1022,22 +781,61 @@ class CircularFamilyTree {
             .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle");
+        
+        // Then add Reset button (on right for mobile)
+        const resetButtonOffset = this.isMobile ? 135 : 155;
+        
+        const resetButton = buttonGroup.append("g")
+            .attr("class", "viz-button reset-button")
+            .attr("transform", `translate(${resetButtonOffset}, 0)`)
+            .style("cursor", "pointer")
+            .on("click", () => this.resetVisualization());
+        
+        resetButton.append("rect")
+            .attr("width", resetBtnWidth)
+            .attr("height", btnHeight)
+            .attr("rx", 6)
+            .attr("ry", 6)
+            .attr("fill", "rgba(50, 50, 70, 0.8)")
+            .attr("stroke", "rgba(255, 255, 255, 0.3)")
+            .attr("stroke-width", 1);
+        
+        resetButton.append("text")
+            .attr("x", resetBtnWidth/2)
+            .attr("y", btnHeight/2)
+            .text("Reset")
+            .attr("font-size", fontSize)
+            .attr("fill", "white")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle");
     }
 
     /**
      * Add pulsing animation to gold nodes
      * This makes all nodes with currentLevel=1 (gold) pulse, including those that
-     * have been promoted from other levels
+     * have been promoted from other levels. On mobile, we may want all gold nodes to pulse.
      */
     addPulsingToGoldNodes() {
         console.log('[VISUALIZATION] Adding pulsing animation to gold nodes');
         
-        // Find all nodes that currently have level 1 (gold) - this includes
-        // both original gold nodes and any that have been promoted
-        const goldNodes = this.vizGroup.selectAll(".node")
-            .filter(function(d) { 
-                return d.currentLevel === 1; 
-            });
+        // Different selection logic for mobile gold mode vs. desktop
+        let goldNodes;
+        
+        if (this.isMobile && this.mobileGoldMode) {
+            // In mobile gold mode, all nodes are gold, but we only want to animate those at level 1
+            goldNodes = this.vizGroup.selectAll(".node")
+                .filter(function(d) { 
+                    return d.currentLevel === 1; 
+                });
+            
+            console.log('[VISUALIZATION] Mobile gold mode: animating only level 1 nodes');
+        } else {
+            // Standard behavior - animate all nodes with currentLevel=1
+            goldNodes = this.vizGroup.selectAll(".node")
+                .filter(function(d) { 
+                    return d.currentLevel === 1; 
+                });
+        }
         
         if (goldNodes.empty()) {
             console.log('[VISUALIZATION] No gold nodes found to animate');
@@ -1213,6 +1011,284 @@ class CircularFamilyTree {
         `;
         
         document.head.appendChild(style);
+    }
+
+    /**
+     * Add a legend to explain node colors
+     */
+    addLegend() {
+        // Add a legend to the visualization
+        const legendContainer = document.createElement('div');
+        legendContainer.className = 'legend-container';
+        
+        // Position legend differently for mobile vs desktop
+        if (this.isMobile) {
+            // For mobile, position at the top to give more space to the visualization
+            legendContainer.style.position = 'absolute';
+            legendContainer.style.top = '10px';
+            legendContainer.style.left = '50%';
+            legendContainer.style.transform = 'translateX(-50%)';
+            legendContainer.style.width = '90%';
+            legendContainer.style.maxWidth = '300px';
+        } else {
+            // Keep default positioning for desktop
+            legendContainer.style.position = 'absolute';
+            legendContainer.style.top = '10px';
+            legendContainer.style.right = '10px';
+        }
+        
+        // Define legend data
+        const legendData = [
+            { color: this.nodeColors[1], text: 'Full Network Nodes' },
+            { color: this.nodeColors[2], text: 'Parent Nodes' },
+            { color: this.nodeColors[3], text: 'Child Nodes' },
+            { color: this.nodeColors[4], text: 'Grandchild Nodes' },
+            { 
+                special: 'founder-connection', 
+                text: 'Founder Direct Connection', 
+                color: this.nodeColors[1] 
+            }
+        ];
+        
+        // Create legend items
+        legendData.forEach(item => {
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            
+            if (item.special === 'founder-connection') {
+                // Special case for founder connection line
+                const lineElement = document.createElement('div');
+                lineElement.className = 'legend-line legend-founder-connection';
+                legendItem.appendChild(lineElement);
+            } else {
+                // Standard color circle
+                const colorElement = document.createElement('div');
+                colorElement.className = 'legend-color';
+                colorElement.style.backgroundColor = item.color;
+                legendItem.appendChild(colorElement);
+            }
+            
+            const textElement = document.createElement('div');
+            textElement.className = 'legend-text';
+            textElement.textContent = item.text;
+            legendItem.appendChild(textElement);
+            
+            legendContainer.appendChild(legendItem);
+        });
+        
+        // Add buttons for interaction
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'legend-buttons';
+        
+        // Reset button
+        const resetButton = document.createElement('button');
+        resetButton.className = 'legend-button';
+        resetButton.textContent = 'Reset';
+        resetButton.addEventListener('click', () => {
+            this.resetVisualization();
+        });
+        buttonsContainer.appendChild(resetButton);
+        
+        // Grow Network button
+        const growButton = document.createElement('button');
+        growButton.className = 'legend-button';
+        growButton.textContent = 'Grow Network';
+        growButton.addEventListener('click', () => {
+            this.levelUpNodes();
+        });
+        buttonsContainer.appendChild(growButton);
+        
+        legendContainer.appendChild(buttonsContainer);
+        
+        // Add the legend to the container
+        this.container.appendChild(legendContainer);
+    }
+    
+    /**
+     * Reset the network to its original state
+     */
+    resetNetwork() {
+        // Reset all nodes to their original levels
+        this.nodes.forEach(node => {
+            node.currentLevel = node.level;
+        });
+        
+        // Update node colors
+        this.vizGroup.selectAll(".node circle")
+            .transition()
+            .duration(800)
+            .attr("fill", d => this.nodeColors[d.currentLevel]);
+    }
+    
+    /**
+     * Reset the visualization
+     */
+    resetVisualization() {
+        // Clear the visualization and recreate it
+        this.vizGroup.selectAll("*").remove();
+        
+        // For mobile devices, decide if we should reset to original colors or keep gold mode
+        if (this.isMobile && this.mobileGoldMode) {
+            console.log('[CIRCULAR-TREE] Maintaining mobile gold mode during reset');
+            // Keep gold mode active - everything stays gold
+        } else if (this.originalNodeColors && this.mobileGoldMode) {
+            // If switching out of gold mode, restore original colors
+            console.log('[CIRCULAR-TREE] Restoring original colors from gold mode');
+            this.nodeColors = { ...this.originalNodeColors };
+            this.mobileGoldMode = false;
+        }
+        
+        // Recreate the visualization
+        this.createCircularTree();
+        
+        // Add pulsing animation to gold nodes
+        this.addPulsingToGoldNodes();
+    }
+    
+    /**
+     * Hide loading indicator if it exists
+     */
+    hideLoadingIndicator() {
+        try {
+            // Try multiple selector approaches for robustness
+            const selectors = [
+                `#${this.containerId} .loading-indicator`,
+                `#loading-indicator`,
+                `.loading-indicator`
+            ];
+            
+            for (const selector of selectors) {
+                const indicator = document.querySelector(selector);
+                if (indicator) {
+                    console.log(`[CIRCULAR-TREE] Found loading indicator with selector: ${selector}`);
+                    indicator.style.display = 'none';
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('[CIRCULAR-TREE] Error hiding loading indicator:', error);
+        }
+    }
+    
+    /**
+     * Show error message in the visualization container
+     */
+    showErrorMessage(message) {
+        try {
+            // Try to find the container again
+            const container = document.getElementById(this.containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: white; background-color: rgba(15, 23, 42, 0.7); border-radius: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                        <p>Error loading visualization: ${message}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Try refreshing the page or check console for details.</p>
+                    </div>
+                `;
+            }
+            
+            // Also try to update any loading indicators
+            const selectors = [
+                `#loading-indicator`,
+                `.loading-indicator`
+            ];
+            
+            for (const selector of selectors) {
+                const indicator = document.querySelector(selector);
+                if (indicator) {
+                    indicator.innerHTML = `
+                        <div style="text-align: center; color: white;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                            <p>Error loading visualization: ${message}</p>
+                        </div>
+                    `;
+                }
+            }
+        } catch (error) {
+            console.error('[CIRCULAR-TREE] Error showing error message:', error);
+        }
+    }
+
+    /**
+     * Level up all nodes (change color based on level) in a single animation
+     */
+    levelUpNodes() {
+        console.log("[VISUALIZATION] Starting level up sequence");
+        
+        // For mobile, just keep everything gold
+        if (this.isMobile && this.mobileGoldMode) {
+            console.log('[VISUALIZATION] Mobile gold mode active - skipping color transitions');
+            
+            // Update currentLevel values without changing colors (they're already gold)
+            this.nodes.forEach(node => {
+                if (node.currentLevel > 1) {
+                    node.currentLevel -= 1; // Level up the node's internal level
+                }
+            });
+            
+            // Refresh the pulsing for nodes that became level 1
+            setTimeout(() => {
+                this.addPulsingToGoldNodes();
+            }, 100);
+            
+            return;
+        }
+        
+        // Standard level-up animation for desktop
+        const level4Nodes = this.nodes.filter(n => n.currentLevel === 4);
+        const level3Nodes = this.nodes.filter(n => n.currentLevel === 3);
+        const level2Nodes = this.nodes.filter(n => n.currentLevel === 2);
+        
+        console.log(`Level 4 nodes: ${level4Nodes.length}, Level 3: ${level3Nodes.length}, Level 2: ${level2Nodes.length}`);
+        
+        // Promote green nodes to blue (level 4 to 3)
+        level4Nodes.forEach(node => {
+            // Select the node using the data-id attribute
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            console.log(`Looking for node ${node.id}, found: ${!nodeElement.empty()}`);
+            
+            if (!nodeElement.empty()) {
+                const delay = Math.random() * 300; // Staggered animation
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[3]);
+                node.currentLevel = 3;
+            }
+        });
+        
+        // Promote blue nodes to purple (level 3 to 2)
+        level3Nodes.forEach(node => {
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            if (!nodeElement.empty()) {
+                const delay = 300 + Math.random() * 300;
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[2]);
+                node.currentLevel = 2;
+            }
+        });
+        
+        // Promote purple nodes to gold (level 2 to 1)
+        level2Nodes.forEach(node => {
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            if (!nodeElement.empty()) {
+                const delay = 600 + Math.random() * 300;
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[1]);
+                node.currentLevel = 1;
+            }
+        });
+        
+        console.log("[VISUALIZATION] Level up sequence complete");
+        
+        // Add a delay before applying the pulsing animation to the newly gold nodes
+        setTimeout(() => {
+            this.addPulsingToGoldNodes();
+        }, 1200); // Wait for all transitions to complete
     }
 }
 
