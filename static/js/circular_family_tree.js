@@ -1,6 +1,12 @@
 /**
  * Browser detection utility
- * @returns {Object} Object containing browser information
+ * This function is critical for ensuring consistent color rendering across different browsers,
+ * especially between Safari/iOS and other browsers which may handle color values differently.
+ * 
+ * Safari on iOS has known issues with certain hex color formats, and using RGB values can help
+ * ensure consistent color display across platforms.
+ * 
+ * @returns {Object} Object containing browser information including name, version, and boolean flags
  */
 function detectBrowser() {
     const userAgent = navigator.userAgent;
@@ -119,13 +125,19 @@ class CircularFamilyTree {
             this.height = Math.min(600, window.innerHeight - 100);
         }
         
-        // Set color scheme
+        // Detect browser for color compatibility
+        const browser = detectBrowser();
+        const isSafariOrIOS = browser.isSafari || browser.isIOS;
+        
+        // Set color scheme with browser-specific adjustments
         this.nodeColors = {
-            1: '#FFD700',  // Gold - Founders
-            2: '#7a43ff',  // Purple - Parents
-            3: '#43d1ff',  // Blue - Children
-            4: '#4CAF50'   // Green - Grandchildren
+            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#FFD700',  // Gold - Founders
+            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple - Parents
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue - Children
+            4: isSafariOrIOS ? 'rgb(76, 175, 80)' : '#4CAF50'   // Green - Grandchildren
         };
+        
+        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser`);
         
         // Add styles to the page
         this.addStyles();
@@ -381,13 +393,19 @@ class CircularFamilyTree {
         // Clear any existing visualization
         this.vizGroup.selectAll("*").remove();
         
-        // Set the custom colors
+        // Detect browser for color compatibility
+        const browser = detectBrowser();
+        const isSafariOrIOS = browser.isSafari || browser.isIOS;
+        
+        // Set the custom colors - using rgb for better cross-browser compatibility
         this.nodeColors = {
-            1: '#FFD700',  // Gold - Founders
-            2: '#7a43ff',  // Purple - Parents
-            3: '#43d1ff',  // Blue - Children
-            4: '#4CAF50'   // Green - Grandchildren
+            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#FFD700',  // Gold - Founders
+            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple - Parents
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue - Children
+            4: isSafariOrIOS ? 'rgb(76, 175, 80)' : '#4CAF50'   // Green - Grandchildren
         };
+        
+        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name}`);
         
         // Calculate the total nodes for each level
         const level1Count = 8;  // Gold - Founders

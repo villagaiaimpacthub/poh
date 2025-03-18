@@ -282,6 +282,16 @@ def create_app(test_config=None):
         """Page displaying information about the Proof of Humanity project"""
         return render_template('about.html', debug=app.debug)
     
+    @app.route('/contact', methods=['GET', 'POST'])
+    def contact():
+        """Handle contact form submissions"""
+        if request.method == 'POST':
+            # In a real app, we would process the form data here
+            # For now, just flash a success message
+            flash('Your message has been sent successfully!', 'success')
+            return redirect(url_for('about'))
+        return redirect(url_for('about'))
+    
     @app.route('/did_manage')
     def did_manage():
         return render_template('did_manage.html', debug=app.debug)
