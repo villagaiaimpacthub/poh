@@ -82,45 +82,117 @@ class CircularFamilyTree {
      * @param {string} [config.title] - Title of the visualization
      */
     constructor(config) {
-        // Detect browser for better debugging
-        this.browser = detectBrowser();
-        console.log('[CIRCULAR-TREE] Browser detected:', this.browser);
+        this.version = "3.1.0"; // For tracking and debugging
+        console.log(`[CIRCULAR-TREE] Initializing visualization version ${this.version}`);
         
-        console.log('[CIRCULAR-TREE] Constructor called with config:', config);
+        // Store configuration
+        this.config = config || {};
+        this.containerId = config.containerId;
         
-        // Set default container ID if not provided
-        if (typeof config === 'string') {
-            config = { containerId: config };
+        // Network growth limitations to prevent performance issues
+        this.maxNetworkSize = 300; // Maximum total nodes
+        this.maxGenerations = 3;   // Maximum number of growth cycles
+        this.currentGeneration = 0; // Track current generation
+        
+        // Get container and set dimensions
+        this.container = document.getElementById(this.containerId);
+        if (!this.container) {
+            console.error(`[CIRCULAR-TREE] Container with ID ${this.containerId} not found`);
+            return;
         }
         
-        this.containerId = config.containerId || 'visualization-container';
-        this.initialized = false;
+        // Set up dimensions with reasonable defaults for different screen sizes
+        this.container.style.position = 'relative';
+        this.width = this.container.offsetWidth || 800; // Default width if not specified
+        this.height = this.container.offsetHeight || 600; // Default height if not specified
         
-        // Set safe default dimensions first
-        this.width = config.width || 800;
-        this.height = config.height || 600;
-        this.title = config.title || 'Family Network Visualization';
+        // Ensure minimum dimensions for visibility
+        this.width = Math.max(this.width, 600);  
+        this.height = Math.max(this.height, 500);
         
-        // D3 visualization elements
-        this.svg = null;
+        // Detect if mobile screen and adjust dimensions for better display
+        this.isMobile = window.innerWidth < 768;
+        if (this.isMobile) {
+            console.log('[CIRCULAR-TREE] Mobile device detected, adjusting dimensions');
+            // Use more appropriate dimensions for mobile
+            this.width = Math.min(this.width, window.innerWidth - 40);
+            this.height = Math.min(600, window.innerHeight - 100);
+        }
         
-        // Node colors for different levels
+        // Set color scheme
         this.nodeColors = {
-            1: "#FFD700", // Gold for center/user
-            2: "#7a43ff", // Purple for parents
-            3: "#43d1ff", // Blue for grandparents
-            4: "#4CAF50"  // Green for great grandparents
+            1: '#FFD700',  // Gold - Founders
+            2: '#7a43ff',  // Purple - Parents
+            3: '#43d1ff',  // Blue - Children
+            4: '#4CAF50'   // Green - Grandchildren
         };
         
-        // Add Safari-specific handling if needed
-        if (this.browser.isSafari) {
-            console.log('[CIRCULAR-TREE] Safari detected, using Safari-specific initialization');
-            // For Safari, we'll use a longer initial delay and more aggressive retry strategy
-            setTimeout(() => this.initWithRetries(0, true), 100);
-        } else {
-            // Safe initialization with retries for other browsers
-            this.initWithRetries();
-        }
+        // Add styles to the page
+        this.addStyles();
+        
+        // Create SVG container with explicit dimensions
+        this.svg = d3.select(`#${this.containerId}`)
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", `0 0 ${this.width} ${this.height}`)
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .attr("class", "family-tree-svg");
+            
+        // Create a container group for the visualization that can be transformed
+        this.vizContainer = this.svg.append("g")
+            .attr("class", "viz-container")
+            .attr("transform", "translate(0,0)");
+            
+        // Create a group for the visualization, centered in the SVG
+        this.vizGroup = this.vizContainer.append("g")
+            .attr("class", "viz-group")
+            .attr("transform", `translate(${this.width/2}, ${this.height/2})`);
+        
+        // Log configuration
+        console.log(`[CIRCULAR-TREE] Container dimensions: ${this.width}x${this.height}`);
+        
+        // Create the visualization
+        this.createCircularTree();
+        
+        // Add legend after creating the tree
+        this.addLegend();
+        
+        // Add window resize handler for responsiveness
+        window.addEventListener('resize', this.handleResize.bind(this));
+    }
+    
+    /**
+     * Handle window resize events to update visualization
+     */
+    handleResize() {
+        // Don't update too frequently - debounce
+        if (this.resizeTimer) clearTimeout(this.resizeTimer);
+        
+        this.resizeTimer = setTimeout(() => {
+            console.log('[CIRCULAR-TREE] Window resized, updating visualization');
+            
+            // Update dimensions
+            this.width = this.container.offsetWidth || 800;
+            this.height = this.container.offsetHeight || 600;
+            
+            // Check if mobile
+            const wasMobile = this.isMobile;
+            this.isMobile = window.innerWidth < 768;
+            
+            // Only rebuild if there's a significant size change or mobile state changed
+            const widthChanged = Math.abs(this.width - this.svg.attr("width")) > 50;
+            const heightChanged = Math.abs(this.height - this.svg.attr("height")) > 50;
+            const mobileStateChanged = wasMobile !== this.isMobile;
+            
+            if (widthChanged || heightChanged || mobileStateChanged) {
+                // Update SVG viewBox
+                this.svg.attr("viewBox", `0 0 ${this.width} ${this.height}`);
+                
+                // Clear and rebuild visualization
+                this.resetVisualization();
+            }
+        }, 250);
     }
     
     /**
@@ -285,8 +357,7 @@ class CircularFamilyTree {
             this.createCircularTree();
             
             // Add buttons
-            this.addGrowNetworkButton();
-            this.addResetButton();
+            this.addLegend();
             
             // Mark as initialized
             this.initialized = true;
@@ -305,494 +376,334 @@ class CircularFamilyTree {
      * Create the circular tree visualization
      */
     createCircularTree() {
-        // Clear previous visualization
+        console.log('[DEBUG-VISUALIZATION] Beginning createCircularTree with version: 3.1.0');
+
+        // Clear any existing visualization
         this.vizGroup.selectAll("*").remove();
         
-        // Define node data
+        // Set the custom colors
+        this.nodeColors = {
+            1: '#FFD700',  // Gold - Founders
+            2: '#7a43ff',  // Purple - Parents
+            3: '#43d1ff',  // Blue - Children
+            4: '#4CAF50'   // Green - Grandchildren
+        };
+        
+        // Calculate the total nodes for each level
+        const level1Count = 8;  // Gold - Founders
+        const level2Count = 24; // Purple - Parents
+        const level3Count = 72; // Blue - Children
+        const level4Count = 216; // Green - Grandchildren
+        
+        // Create nodes data
         this.nodes = [];
+        
+        // Set visualization constraints - larger on desktop, smaller on mobile
+        const scaleFactor = this.isMobile ? 0.75 : 0.9; // Scale down to ensure it fits, more on mobile
+        
+        // Scale the max radius based on container dimensions
+        const maxRadius = Math.min(this.width, this.height) * 0.47 * scaleFactor;
+        
+        // Calculate proper node sizes based on the available space and node count
+        // Scale node sizes based on level, total count, and device type
+        const nodeRadii = {
+            1: this.isMobile ? 8 : 12,     // Gold nodes - larger
+            2: this.isMobile ? 5 : 7,      // Purple nodes
+            3: this.isMobile ? 3.5 : 5,    // Blue nodes
+            4: this.isMobile ? 2.5 : 3.5   // Green nodes - smaller
+        };
+        
+        // Calculate base radiuses for each level with proper spacing
+        const levelRadius = {
+            1: maxRadius * 0.19, // Gold nodes - inner circle
+            2: maxRadius * 0.38, // Purple nodes
+            3: maxRadius * 0.62, // Blue nodes
+            4: maxRadius * 0.85  // Green nodes - outer circle
+        };
+        
+        // Helper to create a node at a specific angle and level
+        const createNode = (angle, level, index, total) => {
+            const radius = levelRadius[level];
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            return {
+                id: `node-${level}-${index}`,
+                level: level,
+                currentLevel: level,
+                x: x,
+                y: y,
+                angle: angle,
+                radius: nodeRadii[level],
+                color: this.nodeColors[level]
+            };
+        };
+        
+        // Track gold nodes for special effects
+        let founderNodes = [];
+        
+        // Create Level 1 nodes (Founders - Gold)
+        for (let i = 0; i < level1Count; i++) {
+            const angle = (i * 2 * Math.PI / level1Count);
+            const node = createNode(angle, 1, i, level1Count);
+            this.nodes.push(node);
+            founderNodes.push(node);
+        }
+        
+        // Create Level 2 nodes (Parents - Purple)
+        for (let i = 0; i < level2Count; i++) {
+            const angle = (i * 2 * Math.PI / level2Count);
+            this.nodes.push(createNode(angle, 2, i, level2Count));
+        }
+        
+        // Create Level 3 nodes (Children - Blue)
+        for (let i = 0; i < level3Count; i++) {
+            const angle = (i * 2 * Math.PI / level3Count);
+            this.nodes.push(createNode(angle, 3, i, level3Count));
+        }
+        
+        // Create Level 4 nodes (Grandchildren - Green)
+        for (let i = 0; i < level4Count; i++) {
+            const angle = (i * 2 * Math.PI / level4Count);
+            this.nodes.push(createNode(angle, 4, i, level4Count));
+        }
+        
+        // Create links data
         this.links = [];
         
-        // Calculate a scale factor to ensure visualization fits within container
-        // Increase scale factor to make network larger and more visible
-        const scaleFactor = 0.9; // Increase from 0.8 to 0.9 for better visibility
-        
-        // Define level properties - adjust radii to ensure full network is visible
-        const levels = {
-            1: { count: 1, radius: Math.min(this.width, this.height) * 0.04 * scaleFactor, nodeRadius: 18 * scaleFactor },
-            2: { count: 8, radius: Math.min(this.width, this.height) * 0.14 * scaleFactor, nodeRadius: 14 * scaleFactor },
-            3: { count: 24, radius: Math.min(this.width, this.height) * 0.24 * scaleFactor, nodeRadius: 10 * scaleFactor },
-            4: { count: 48, radius: Math.min(this.width, this.height) * 0.34 * scaleFactor, nodeRadius: 7 * scaleFactor }
-        };
-        
-        // Create center node (level 1 - gold)
-        const centerNode = {
-            id: "center",
-            x: 0,
-            y: 0,
-            color: this.nodeColors[1],
-            level: 1,
-            currentLevel: 1,
-            radius: levels[1].nodeRadius
-        };
-        this.nodes.push(centerNode);
-        
-        // Create nodes for level 2 (purple)
-        for (let i = 0; i < levels[2].count; i++) {
-            const angle = (i / levels[2].count) * 2 * Math.PI;
-            const node = {
-                id: `level2-${i}`,
-                x: levels[2].radius * Math.cos(angle),
-                y: levels[2].radius * Math.sin(angle),
-                color: this.nodeColors[2],
-                level: 2,
-                currentLevel: 2,
-                radius: levels[2].nodeRadius,
-                angle: angle
-            };
-            this.nodes.push(node);
+        // Generate links between gold (founders) and purple (parents)
+        for (let i = 0; i < level1Count; i++) {
+            const goldNode = this.nodes[i];
             
-            // Create link to center
-            this.links.push({
-                source: centerNode,
-                target: node,
-                sourceLevel: 1,
-                targetLevel: 2
-            });
-        }
-        
-        // Create nodes for level 3 (blue)
-        const level2Nodes = this.nodes.filter(n => n.level === 2);
-        for (let i = 0; i < level2Nodes.length; i++) {
-            const parentNode = level2Nodes[i];
-            const childCount = 3; // Each level 2 node has 3 children
-            
-            for (let j = 0; j < childCount; j++) {
-                // Calculate position with offset from parent's angle
-                const angleOffset = ((j - (childCount - 1) / 2) * 0.1);
-                const angle = parentNode.angle + angleOffset;
-                
-                const node = {
-                    id: `level3-${i}-${j}`,
-                    x: levels[3].radius * Math.cos(angle),
-                    y: levels[3].radius * Math.sin(angle),
-                    color: this.nodeColors[3],
-                    level: 3,
-                    currentLevel: 3,
-                    radius: levels[3].nodeRadius,
-                    angle: angle
-                };
-                this.nodes.push(node);
-                
-                // Create link to parent
-                this.links.push({
-                    source: parentNode,
-                    target: node,
-                    sourceLevel: 2,
-                    targetLevel: 3
-                });
+            // Each gold node connects to exactly 3 purple nodes
+            const purpleStartIndex = level1Count;
+            for (let j = 0; j < 3; j++) {
+                const purpleIndex = purpleStartIndex + (i * 3) + j;
+                if (purpleIndex < purpleStartIndex + level2Count) {
+                    this.links.push({
+                        source: goldNode.id,
+                        target: this.nodes[purpleIndex].id,
+                        value: 1.5
+                    });
+                }
             }
         }
         
-        // Create nodes for level 4 (green)
-        const level3Nodes = this.nodes.filter(n => n.level === 3);
-        for (let i = 0; i < level3Nodes.length; i++) {
-            const parentNode = level3Nodes[i];
-            const childCount = 2; // Each level 3 node has 2 children
+        // Generate links between purple (parents) and blue (children)
+        for (let i = 0; i < level2Count; i++) {
+            const purpleIndex = level1Count + i;
+            const purpleNode = this.nodes[purpleIndex];
             
-            for (let j = 0; j < childCount; j++) {
-                // Calculate position with offset from parent's angle
-                const angleOffset = ((j - (childCount - 1) / 2) * 0.05);
-                const angle = parentNode.angle + angleOffset;
-                
-                const node = {
-                    id: `level4-${i}-${j}`,
-                    x: levels[4].radius * Math.cos(angle),
-                    y: levels[4].radius * Math.sin(angle),
-                    color: this.nodeColors[4],
-                    level: 4,
-                    currentLevel: 4,
-                    radius: levels[4].nodeRadius,
-                    angle: angle
-                };
-                this.nodes.push(node);
-                
-                // Create link to parent
-                this.links.push({
-                    source: parentNode,
-                    target: node,
-                    sourceLevel: 3,
-                    targetLevel: 4
-                });
+            // Each purple node connects to exactly 3 blue nodes
+            const blueStartIndex = level1Count + level2Count;
+            for (let j = 0; j < 3; j++) {
+                const blueIndex = blueStartIndex + (i * 3) + j;
+                if (blueIndex < blueStartIndex + level3Count) {
+                    this.links.push({
+                        source: purpleNode.id,
+                        target: this.nodes[blueIndex].id,
+                        value: 1
+                    });
+                }
             }
         }
         
-        // Create additional connections between nodes within the same level
-        // Connect level 2 nodes (purple)
-        for (let i = 0; i < level2Nodes.length; i++) {
-            const nextIdx = (i + 1) % level2Nodes.length;
-            this.links.push({
-                source: level2Nodes[i],
-                target: level2Nodes[nextIdx],
-                sourceLevel: 2,
-                targetLevel: 2,
-                sameLevel: true
-            });
+        // Generate links between blue (children) and green (grandchildren)
+        for (let i = 0; i < level3Count; i++) {
+            const blueIndex = level1Count + level2Count + i;
+            const blueNode = this.nodes[blueIndex];
+            
+            // Each blue node connects to exactly 3 green nodes
+            const greenStartIndex = level1Count + level2Count + level3Count;
+            for (let j = 0; j < 3; j++) {
+                const greenIndex = greenStartIndex + (i * 3) + j;
+                if (greenIndex < greenStartIndex + level4Count) {
+                    this.links.push({
+                        source: blueNode.id,
+                        target: this.nodes[greenIndex].id,
+                        value: 0.7
+                    });
+                }
+            }
         }
         
-        // Connect level 3 nodes (blue) to others with the same parent
-        const level3ByParent = {};
-        level3Nodes.forEach(node => {
-            const parentId = node.id.split('-')[1];
-            if (!level3ByParent[parentId]) level3ByParent[parentId] = [];
-            level3ByParent[parentId].push(node);
-        });
+        console.log('[DEBUG-VISUALIZATION] Created nodes and links:', this.nodes.length, 'nodes and', this.links.length, 'links');
         
-        Object.values(level3ByParent).forEach(siblings => {
-            for (let i = 0; i < siblings.length; i++) {
-                const nextIdx = (i + 1) % siblings.length;
-                this.links.push({
-                    source: siblings[i],
-                    target: siblings[nextIdx],
-                    sourceLevel: 3,
-                    targetLevel: 3,
-                    sameLevel: true
-                });
-            }
-        });
+        // Create link elements with proper source/target resolution
+        this.linkElements = this.vizGroup.selectAll(".link")
+            .data(this.links)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("x1", d => {
+                const node = this.nodes.find(n => n.id === d.source);
+                return node ? node.x : 0;
+            })
+            .attr("y1", d => {
+                const node = this.nodes.find(n => n.id === d.source);
+                return node ? node.y : 0;
+            })
+            .attr("x2", d => {
+                const node = this.nodes.find(n => n.id === d.target);
+                return node ? node.x : 0;
+            })
+            .attr("y2", d => {
+                const node = this.nodes.find(n => n.id === d.target);
+                return node ? node.y : 0;
+            })
+            .attr("stroke", "#ffffff")
+            .attr("stroke-opacity", 0.2)
+            .attr("stroke-width", d => d.value);
         
-        // Draw links
-        const linksGroup = this.vizGroup.append("g").attr("class", "links");
-        
-        this.links.forEach(link => {
-            // Create gradient for the link
-            const gradientId = `link-gradient-${link.source.id}-${link.target.id}`;
-            const gradient = this.svg.append("defs")
-                .append("linearGradient")
-                .attr("id", gradientId)
-                .attr("x1", 0)
-                .attr("y1", 0)
-                .attr("x2", 1)
-                .attr("y2", 0);
-                
-            gradient.append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", link.source.color);
-                
-            gradient.append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", link.target.color);
-            
-            // Draw the link
-            linksGroup.append("line")
-                .attr("x1", link.source.x)
-                .attr("y1", link.source.y)
-                .attr("x2", link.target.x)
-                .attr("y2", link.target.y)
-                .attr("stroke", link.sameLevel ? `url(#${gradientId})` : `url(#${gradientId})`)
-                .attr("stroke-width", link.sameLevel ? 1 : 2)
-                .attr("opacity", link.sameLevel ? 0.3 : 0.7)
-                .attr("stroke-dasharray", link.sameLevel ? "3,3" : null);
-        });
-        
-        // Draw nodes
-        const nodesGroup = this.vizGroup.append("g").attr("class", "nodes");
-        
-        this.nodeElements = nodesGroup.selectAll(".node")
+        // Create node groups
+        this.nodeElements = this.vizGroup.selectAll(".node")
             .data(this.nodes)
-            .enter()
-            .append("g")
+            .enter().append("g")
             .attr("class", "node")
-            .attr("transform", d => `translate(${d.x}, ${d.y})`)
+            .attr("transform", d => `translate(${d.x},${d.y})`)
             .attr("data-id", d => d.id)
             .attr("data-level", d => d.level);
+        
+        console.log('[DEBUG-VISUALIZATION] Created node elements:', this.nodeElements.size());
         
         // Add node circles
         this.nodeElements.append("circle")
             .attr("r", d => d.radius)
-            .attr("fill", d => d.color)
+            .attr("fill", d => {
+                if (d.level === 1) {
+                    console.log(`[DEBUG-VISUALIZATION] Drawing level 1 node with color ${d.color} at [${d.x.toFixed(2)}, ${d.y.toFixed(2)}]`);
+                }
+                return d.color;
+            })
             .attr("stroke", "white")
-            .attr("stroke-width", 1.5)
+            .attr("stroke-width", d => Math.min(1.5, d.radius * 0.15)) // Scale stroke based on radius
             .attr("opacity", 0.9);
         
-        // Add pulse animation for center node
-        if (this.nodes.length > 0) {
+        // Add pulse animation for founders/gold nodes only (level 1)
+        if (founderNodes.length > 0) {
+            console.log('[DEBUG-VISUALIZATION] Adding pulse animations for founders nodes');
             const pulseGroup = this.vizGroup.append("g").attr("class", "pulse-group");
             
-            pulseGroup.append("circle")
-                .attr("class", "pulse-circle")
-                .attr("cx", 0)
-                .attr("cy", 0)
-                .attr("r", 20)
-                .attr("fill", "none")
-                .attr("stroke", this.nodeColors[1])
-                .attr("stroke-width", 2)
-                .attr("opacity", 0.7);
-                
-            // Add CSS for pulse animation
+            // Add individual pulse animations around each founder node for emphasis
+            founderNodes.forEach((node, i) => {
+                pulseGroup.append("circle")
+                    .attr("class", `node-pulse node-pulse-${i}`)
+                    .attr("cx", node.x)
+                    .attr("cy", node.y)
+                    .attr("r", node.radius * 1.5)
+                    .attr("fill", "none")
+                    .attr("stroke", this.nodeColors[1])
+                    .attr("stroke-width", 1.5)
+                    .attr("opacity", 0.6)
+                    .style("animation-delay", `${i * 0.2}s`); // Stagger animation
+            });
+            
+            // Add CSS for pulse animations
             if (!document.querySelector('#pulse-animation')) {
                 const style = document.createElement('style');
                 style.id = 'pulse-animation';
                 style.textContent = `
-                    @keyframes pulse {
-                        0% {
+                    @keyframes nodePulse {
+                        0% { 
                             transform: scale(1);
-                            opacity: 0.7;
+                            opacity: 0.6;
                         }
-                        70% {
-                            transform: scale(2);
+                        70% { 
+                            transform: scale(1.8);
                             opacity: 0;
                         }
-                        100% {
+                        100% { 
                             transform: scale(1);
                             opacity: 0;
                         }
                     }
                     
-                    .pulse-circle {
-                        animation: pulse 2s infinite;
+                    .node-pulse {
+                        animation: nodePulse 3s infinite;
                     }
                 `;
                 document.head.appendChild(style);
             }
         }
         
-        // Add the legend
-        this.addLegend();
-    }
-    
-    /**
-     * Add a button to grow the network (level up all nodes)
-     */
-    addGrowNetworkButton() {
-        // Position the button at the bottom of the visualization where it's more visible
-        // Move from bottom right to bottom center for better visibility
-        const buttonGroup = this.svg.append("g")
-            .attr("class", "button-group")
-            .attr("transform", `translate(${this.width/2 - 60}, ${this.height - 60})`)
-            .style("cursor", "pointer")
-            .on("click", () => this.levelUpNodes());
-            
-        // Button background - make slightly larger and more visible
-        buttonGroup.append("rect")
-            .attr("width", 130)
-            .attr("height", 44)
-            .attr("rx", 22)
-            .attr("ry", 22)
-            .attr("fill", "rgba(122, 67, 255, 0.9)")
-            .attr("stroke", "white")
-            .attr("stroke-width", 1.5);
-            
-        // Button text
-        buttonGroup.append("text")
-            .attr("x", 65)
-            .attr("y", 25)
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
-            .attr("fill", "white")
-            .attr("font-size", "15px")
-            .attr("font-weight", "bold")
-            .text("Grow Network");
-            
-        // Button hover effect - enhance for better user feedback
-        buttonGroup.on("mouseover", function() {
-            d3.select(this).select("rect")
-                .transition()
-                .duration(200)
-                .attr("fill", "rgba(122, 67, 255, 1)")
-                .attr("transform", "scale(1.05)")
-                .attr("stroke-width", 2);
-        })
-        .on("mouseout", function() {
-            d3.select(this).select("rect")
-                .transition()
-                .duration(200)
-                .attr("fill", "rgba(122, 67, 255, 0.9)")
-                .attr("transform", "scale(1)")
-                .attr("stroke-width", 1.5);
-        });
-    }
-    
-    /**
-     * Add a reset button to reset the visualization
-     */
-    addResetButton() {
-        // Position the reset button to the left of the grow network button
-        const buttonGroup = this.svg.append("g")
-            .attr("class", "reset-button-group")
-            .attr("transform", `translate(${this.width/2 - 200}, ${this.height - 60})`)
-            .style("cursor", "pointer")
-            .on("click", () => this.resetNetwork());
-            
-        // Button background
-        buttonGroup.append("rect")
-            .attr("width", 100)
-            .attr("height", 44)
-            .attr("rx", 22)
-            .attr("ry", 22)
-            .attr("fill", "rgba(67, 209, 255, 0.9)")
-            .attr("stroke", "white")
-            .attr("stroke-width", 1.5);
-            
-        // Button text
-        buttonGroup.append("text")
-            .attr("x", 50)
-            .attr("y", 25)
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
-            .attr("fill", "white")
-            .attr("font-size", "15px")
-            .attr("font-weight", "bold")
-            .text("Reset");
-            
-        // Button hover effect
-        buttonGroup.on("mouseover", function() {
-            d3.select(this).select("rect")
-                .transition()
-                .duration(200)
-                .attr("fill", "rgba(67, 209, 255, 1)")
-                .attr("transform", "scale(1.05)")
-                .attr("stroke-width", 2);
-        })
-        .on("mouseout", function() {
-            d3.select(this).select("rect")
-                .transition()
-                .duration(200)
-                .attr("fill", "rgba(67, 209, 255, 0.9)")
-                .attr("transform", "scale(1)")
-                .attr("stroke-width", 1.5);
-        });
-    }
-    
-    /**
-     * Level up all nodes (change color based on level)
-     * Updated to change colors according to the specified progression:
-     * purple → gold, blue → purple, green → blue
-     */
-    levelUpNodes() {
-        // Start from outer nodes and work inward
-        const level4Nodes = this.nodes.filter(n => n.currentLevel === 4);
-        const level3Nodes = this.nodes.filter(n => n.currentLevel === 3);
-        const level2Nodes = this.nodes.filter(n => n.currentLevel === 2);
-        
-        console.log("[VISUALIZATION] Starting level up sequence");
-        console.log("[VISUALIZATION] Level 4 nodes:", level4Nodes.length);
-        console.log("[VISUALIZATION] Level 3 nodes:", level3Nodes.length);
-        console.log("[VISUALIZATION] Level 2 nodes:", level2Nodes.length);
-        
-        // Updated color progression:
-        // Level 4 (green) nodes → Level 3 color (blue)
-        this.animateLevelChange(level4Nodes, 3, () => {
-            // Level 3 (blue) nodes → Level 2 color (purple)
-            this.animateLevelChange(level3Nodes, 2, () => {
-                // Level 2 (purple) nodes → Level 1 color (gold)
-                this.animateLevelChange(level2Nodes, 1, () => {
-                    console.log("[VISUALIZATION] Level up sequence complete");
-                });
-            });
-        });
-    }
-    
-    /**
-     * Animate level change for a set of nodes
-     * @param {Array} nodes - Nodes to animate
-     * @param {number} newLevel - New level for the nodes
-     * @param {Function} callback - Callback after animation completes
-     */
-    animateLevelChange(nodes, newLevel, callback) {
-        if (!nodes || nodes.length === 0) {
-            if (callback) {
-                callback();
-            }
-            return;
-        }
-        
-        console.log(`[VISUALIZATION] Animating ${nodes.length} nodes to level ${newLevel}`);
-        
-        // Slow down the animation to make it more visible
-        const duration = 1500;
-        let completed = 0;
-        
-        // Animate each node's color change
-        nodes.forEach(node => {
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            
-            if (!nodeElement.empty()) {
-                // Add a slight delay for each node based on its position
-                // to create a wave-like effect
-                const delay = Math.random() * 500;
-            
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(duration)
-                    .attr("fill", this.nodeColors[newLevel])
-                    .on("end", () => {
-                        // Update the node's current level
-                        node.currentLevel = newLevel;
-                        
-                        // Call callback when all animations are complete
-                        completed++;
-                        if (completed === nodes.length && callback) {
-                            callback();
-                        }
-                    });
-            } else {
-                console.warn(`[VISUALIZATION] Node element not found for ID: ${node.id}`);
-                completed++;
-                if (completed === nodes.length && callback) {
-                    callback();
-                }
-            }
-        });
+        // Add legend and buttons
+        this.addEnhancedLegendAndButtons();
+
+        console.log('[DEBUG-VISUALIZATION] Visualization setup complete');
     }
     
     /**
      * Add a legend to explain node colors
      */
     addLegend() {
-        // Position the legend where it won't overlap with the buttons
-        const legendGroup = this.svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(20, ${this.height - 150})`);
-            
-        const legendBackground = legendGroup.append("rect")
-            .attr("width", 180)
-            .attr("height", 110)
-            .attr("fill", "rgba(15, 15, 35, 0.8)")
-            .attr("rx", 8)
-            .attr("ry", 8)
-            .attr("stroke", "rgba(255, 255, 255, 0.2)")
-            .attr("stroke-width", 1);
-            
-        const legendTitle = legendGroup.append("text")
-            .attr("x", 10)
-            .attr("y", 20)
-            .attr("fill", "white")
-            .attr("font-size", "14px")
-            .attr("font-weight", "bold")
-            .text("Legend");
-            
-        const legendItems = [
-            { color: this.nodeColors[1], label: "Founding Members" },
-            { color: this.nodeColors[2], label: "First Generation" },
-            { color: this.nodeColors[3], label: "Second Generation" },
-            { color: this.nodeColors[4], label: "Third Generation" }
+        // Add a legend to the visualization
+        const legendContainer = document.createElement('div');
+        legendContainer.className = 'legend-container';
+        
+        // Define legend data
+        const legendData = [
+            { color: this.nodeColors[1], text: 'Full Network Access' },
+            { color: this.nodeColors[2], text: 'Parents' },
+            { color: this.nodeColors[3], text: 'Children' },
+            { color: this.nodeColors[4], text: 'Grandchildren' },
+            { 
+                special: 'founder-connection', 
+                text: 'Founder Direct Connection', 
+                color: this.nodeColors[1] 
+            }
         ];
         
-        legendItems.forEach((item, i) => {
-            const itemGroup = legendGroup.append("g")
-                .attr("transform", `translate(10, ${40 + i * 20})`);
-                
-            itemGroup.append("circle")
-                .attr("r", 6)
-                .attr("fill", item.color);
-                
-            itemGroup.append("text")
-                .attr("x", 15)
-                .attr("y", 4)
-                .attr("fill", "white")
-                .attr("font-size", "12px")
-                .text(item.label);
+        // Create legend items
+        legendData.forEach(item => {
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            
+            if (item.special === 'founder-connection') {
+                // Special case for founder connection line
+                const lineElement = document.createElement('div');
+                lineElement.className = 'legend-line legend-founder-connection';
+                legendItem.appendChild(lineElement);
+            } else {
+                // Standard color circle
+                const colorElement = document.createElement('div');
+                colorElement.className = 'legend-color';
+                colorElement.style.backgroundColor = item.color;
+                legendItem.appendChild(colorElement);
+            }
+            
+            const textElement = document.createElement('div');
+            textElement.className = 'legend-text';
+            textElement.textContent = item.text;
+            legendItem.appendChild(textElement);
+            
+            legendContainer.appendChild(legendItem);
         });
+        
+        // Add buttons for interaction
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'legend-buttons';
+        
+        // Reset button
+        const resetButton = document.createElement('button');
+        resetButton.className = 'legend-button';
+        resetButton.textContent = 'Reset';
+        resetButton.addEventListener('click', () => {
+            this.resetVisualization();
+        });
+        buttonsContainer.appendChild(resetButton);
+        
+        // Grow Network button
+        const growButton = document.createElement('button');
+        growButton.className = 'legend-button';
+        growButton.textContent = 'Grow Network';
+        growButton.addEventListener('click', () => {
+            this.levelUpNodes();
+        });
+        buttonsContainer.appendChild(growButton);
+        
+        legendContainer.appendChild(buttonsContainer);
+        
+        // Add the legend to the container
+        this.container.appendChild(legendContainer);
     }
     
     /**
@@ -809,6 +720,15 @@ class CircularFamilyTree {
             .transition()
             .duration(800)
             .attr("fill", d => this.nodeColors[d.currentLevel]);
+    }
+    
+    /**
+     * Reset the visualization
+     */
+    resetVisualization() {
+        // Clear the visualization and recreate it
+        this.vizGroup.selectAll("*").remove();
+        this.createCircularTree();
     }
     
     /**
@@ -874,6 +794,355 @@ class CircularFamilyTree {
             console.error('[CIRCULAR-TREE] Error showing error message:', error);
         }
     }
+
+    /**
+     * Level up all nodes (change color based on level) in a single animation
+     */
+    levelUpNodes() {
+        console.log("[VISUALIZATION] Starting level up sequence");
+        
+        // Get nodes at each level
+        const level4Nodes = this.nodes.filter(n => n.currentLevel === 4);
+        const level3Nodes = this.nodes.filter(n => n.currentLevel === 3);
+        const level2Nodes = this.nodes.filter(n => n.currentLevel === 2);
+        
+        console.log(`Level 4 nodes: ${level4Nodes.length}, Level 3: ${level3Nodes.length}, Level 2: ${level2Nodes.length}`);
+        
+        // Promote green nodes to blue (level 4 to 3)
+        level4Nodes.forEach(node => {
+            // Select the node using the data-id attribute
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            console.log(`Looking for node ${node.id}, found: ${!nodeElement.empty()}`);
+            
+            if (!nodeElement.empty()) {
+                const delay = Math.random() * 300; // Staggered animation
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[3]);
+                node.currentLevel = 3;
+            }
+        });
+        
+        // Promote blue nodes to purple (level 3 to 2)
+        level3Nodes.forEach(node => {
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            if (!nodeElement.empty()) {
+                const delay = 300 + Math.random() * 300;
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[2]);
+                node.currentLevel = 2;
+            }
+        });
+        
+        // Promote purple nodes to gold (level 2 to 1)
+        level2Nodes.forEach(node => {
+            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
+            if (!nodeElement.empty()) {
+                const delay = 600 + Math.random() * 300;
+                nodeElement.transition()
+                    .delay(delay)
+                    .duration(800)
+                    .attr("fill", this.nodeColors[1]);
+                node.currentLevel = 1;
+            }
+        });
+        
+        console.log("[VISUALIZATION] Level up sequence complete");
+    }
+
+    /**
+     * Add an enhanced legend and control buttons in better positions
+     */
+    addEnhancedLegendAndButtons() {
+        console.log('[DEBUG-VISUALIZATION] Adding enhanced legend and buttons');
+        
+        // Create simplified legend with position adjusted for mobile/desktop
+        let legendX, legendY;
+        
+        if (this.isMobile) {
+            // For mobile, position the legend at the bottom
+            legendX = this.width/2 - 90;
+            legendY = this.height - 180;
+        } else {
+            // For desktop, position on the right side
+            legendX = this.width - 210;
+            legendY = this.height/2 - 100;
+        }
+        
+        const legendGroup = this.svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${legendX}, ${legendY})`);
+        
+        // Add semi-transparent background for better readability
+        legendGroup.append("rect")
+            .attr("width", 180)
+            .attr("height", 150)
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .attr("fill", "rgba(0, 0, 0, 0.7)");
+        
+        // Add legend title
+        legendGroup.append("text")
+            .attr("class", "legend-title")
+            .attr("x", 15)
+            .attr("y", 25)
+            .text("Legend")
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .attr("fill", "#fff");
+        
+        // Add legend items
+        const legendData = [
+            { color: this.nodeColors[1], text: "Full Network Access" },
+            { color: this.nodeColors[2], text: "Parents" },
+            { color: this.nodeColors[3], text: "Children" },
+            { color: this.nodeColors[4], text: "Grandchildren" }
+        ];
+        
+        const legendItems = legendGroup.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(15, ${i * 26 + 50})`);
+        
+        // Add colored circles
+        legendItems.append("circle")
+            .attr("cx", 8)
+            .attr("cy", 0)
+            .attr("r", 8)
+            .attr("fill", d => d.color)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1);
+        
+        // Add text
+        legendItems.append("text")
+            .attr("x", 25)
+            .attr("y", 4)
+            .text(d => d.text)
+            .attr("font-size", this.isMobile ? "12px" : "14px")
+            .attr("fill", "white");
+        
+        // Add buttons group with position adjusted for mobile/desktop
+        let buttonY = this.height - 50;
+        // For very small heights on mobile, move buttons up more
+        if (this.isMobile && this.height < 500) {
+            buttonY = this.height - 40;
+        }
+        
+        const buttonGroup = this.svg.append("g")
+            .attr("class", "button-group")
+            .attr("transform", `translate(${this.width/2 - 110}, ${buttonY})`);
+        
+        // Button sizes adjusted for mobile
+        const resetBtnWidth = this.isMobile ? 70 : 80;
+        const growBtnWidth = this.isMobile ? 120 : 140;
+        const btnHeight = this.isMobile ? 32 : 36;
+        const fontSize = this.isMobile ? "12px" : "14px";
+        
+        // Add Reset button
+        const resetButton = buttonGroup.append("g")
+            .attr("class", "viz-button reset-button")
+            .style("cursor", "pointer")
+            .on("click", () => this.resetVisualization());
+        
+        resetButton.append("rect")
+            .attr("width", resetBtnWidth)
+            .attr("height", btnHeight)
+            .attr("rx", 6)
+            .attr("ry", 6)
+            .attr("fill", "rgba(50, 50, 70, 0.8)")
+            .attr("stroke", "rgba(255, 255, 255, 0.3)")
+            .attr("stroke-width", 1);
+        
+        resetButton.append("text")
+            .attr("x", resetBtnWidth/2)
+            .attr("y", btnHeight/2)
+            .text("Reset")
+            .attr("font-size", fontSize)
+            .attr("fill", "white")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle");
+        
+        // Add Grow Network button
+        const growButtonOffset = this.isMobile ? 85 : 100;
+        
+        const growButton = buttonGroup.append("g")
+            .attr("class", "viz-button grow-button")
+            .attr("transform", `translate(${growButtonOffset}, 0)`)
+            .style("cursor", "pointer")
+            .on("click", () => this.levelUpNodes());
+        
+        growButton.append("rect")
+            .attr("width", growBtnWidth)
+            .attr("height", btnHeight)
+            .attr("rx", 6)
+            .attr("ry", 6)
+            .attr("fill", "#7a43ff")
+            .attr("stroke", "rgba(255, 255, 255, 0.5)")
+            .attr("stroke-width", 1);
+        
+        growButton.append("text")
+            .attr("x", growBtnWidth/2)
+            .attr("y", btnHeight/2)
+            .text("Grow Network")
+            .attr("font-size", fontSize)
+            .attr("fill", "white")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle");
+    }
+
+    addStyles() {
+        // Add custom CSS styles to the page
+        const styleId = 'circular-family-tree-styles';
+        
+        // Don't add styles if they already exist
+        if (document.getElementById(styleId)) {
+            return;
+        }
+        
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .family-tree-svg {
+                background-color: transparent;
+            }
+            
+            .nodes circle {
+                transition: fill 1s ease, r 0.5s ease, stroke-width 0.5s ease;
+            }
+            
+            .founder-connection {
+                stroke-linecap: round;
+                animation: pulse-founder-link 2s infinite alternate;
+            }
+            
+            @keyframes pulse-founder-link {
+                0% { 
+                    stroke-opacity: 0.5;
+                    stroke-width: 1.5px;
+                }
+                100% { 
+                    stroke-opacity: 0.8;
+                    stroke-width: 2px;
+                }
+            }
+            
+            .node-pulse {
+                animation: pulse-node 3s infinite;
+            }
+            
+            @keyframes pulse-node {
+                0% { 
+                    r: 12px;
+                    stroke-opacity: 0.6;
+                }
+                50% { 
+                    r: 18px;
+                    stroke-opacity: 0.3;
+                }
+                100% { 
+                    r: 12px;
+                    stroke-opacity: 0.6;
+                }
+            }
+            
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .legend-color {
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+            
+            .legend-text {
+                font-size: 14px;
+            }
+            
+            .legend-buttons {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .legend-button {
+                background-color: rgba(122, 67, 255, 0.8);
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                transition: background-color 0.3s;
+            }
+            
+            .legend-button:hover {
+                background-color: rgba(122, 67, 255, 1);
+            }
+            
+            /* Special style for founder direct connection line in legend */
+            .legend-line {
+                width: 20px;
+                height: 2px;
+                margin-right: 10px;
+            }
+            
+            .legend-founder-connection {
+                border-top: 2px dashed #FFC857;
+            }
+            
+            /* Mobile-specific styles */
+            @media (max-width: 768px) {
+                .node-pulse {
+                    animation: pulse-node-mobile 3s infinite;
+                }
+                
+                @keyframes pulse-node-mobile {
+                    0% { 
+                        r: 8px;
+                        stroke-opacity: 0.6;
+                    }
+                    50% { 
+                        r: 12px;
+                        stroke-opacity: 0.3;
+                    }
+                    100% { 
+                        r: 8px;
+                        stroke-opacity: 0.6;
+                    }
+                }
+                
+                .legend-text {
+                    font-size: 12px;
+                }
+                
+                .legend-color {
+                    width: 12px;
+                    height: 12px;
+                    margin-right: 8px;
+                }
+                
+                .viz-button {
+                    touch-action: manipulation;
+                }
+                
+                /* Improve touch target size for mobile */
+                .viz-button rect {
+                    touch-action: manipulation;
+                }
+            }
+        `;
+        
+        document.head.appendChild(style);
+    }
 }
 
 // Initialize the visualization when the DOM is loaded
@@ -900,7 +1169,8 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             new CircularFamilyTree({
                 containerId: "hero-visualization",
-                title: "Proof of Humanity Network"
+                title: "Proof of Humanity Network",
+                version: "3.0.0" // Add version number for debugging
             });
             
             // Hide loading indicator if it exists
@@ -918,4 +1188,4 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-}); 
+});

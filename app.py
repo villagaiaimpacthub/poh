@@ -1,7 +1,7 @@
 import os
 import logging
 import time
-from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, jsonify, session, send_from_directory
+from flask import Flask, render_template, g, request, redirect, url_for, flash, abort, jsonify, session, send_from_directory, send_file
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
@@ -37,8 +37,8 @@ def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     
-    # Enable CORS
-    CORS(app)
+    # Configure CORS with expanded settings for Safari compatibility
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
     
     # Ensure the instance folder exists
     try:
@@ -142,33 +142,69 @@ def create_app(test_config=None):
         """Inject common variables into all templates."""
         cache_buster = int(time.time())
         logger.info(f"Setting cache_buster: {cache_buster}")
+        
+        # Get local IP address for Safari warning
+        import socket
+        host_ip = "127.0.0.1"  # Default fallback
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # Connect to an external server to determine the local IP address
+            s.connect(("8.8.8.8", 80))
+            host_ip = s.getsockname()[0]
+            s.close()
+            logger.info(f"Detected host IP: {host_ip}")
+        except Exception as e:
+            logger.error(f"Error detecting host IP: {e}")
+        
         return {
             'app_name': 'Proof of Humanity',
             'current_year': datetime.now().year,
             'version': '1.0.1',
             'now': datetime.now,
-            'cache_buster': cache_buster  # Add cache buster for CSS/JS
+            'cache_buster': cache_buster,  # Add cache buster for CSS/JS
+            'host_ip': host_ip  # Add host IP for Safari warning
         }
     
-    # Add context processor for current user
+    # Add debug context processor
     @app.context_processor
-    def inject_user():
-        # Create a mock user object for templates
-        class MockUser:
-            is_authenticated = False
-            username = None
-            avatar = None
+    def inject_debug_info():
+        """Inject debug info into templates"""
+        def get_debug_info():
+            return {
+                'app_name': 'Proof of Humanity',
+                'version': '0.1.0',
+                'environment': os.environ.get('FLASK_ENV', 'development'),
+                'user_agent': request.headers.get('User-Agent', 'Unknown'),
+                'remote_addr': request.remote_addr or 'Unknown',
+                'server_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'path': request.path,
+                'endpoint': request.endpoint
+            }
         
-        # Check if user is in session
-        if 'user_id' in session:
-            mock_user = MockUser()
-            mock_user.is_authenticated = True
-            mock_user.username = session.get('username', 'User')
-            mock_user.avatar = None
-            return {'current_user': mock_user}
-        return {'current_user': MockUser()}
+        # Add host IP for Safari users
+        def get_host_ip():
+            try:
+                import socket
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.connect(("8.8.8.8", 80))
+                host_ip = s.getsockname()[0]
+                s.close()
+                return host_ip
+            except Exception as e:
+                app.logger.error(f"Error getting host IP: {e}")
+                return "192.168.68.50"  # Default fallback IP
+        
+        # Return values for templates
+        return {
+            'debug_info': get_debug_info,
+            'is_debug': os.environ.get('FLASK_ENV') == 'development',
+            'host_ip': get_host_ip(),
+            'debug': app.debug  # Add the debug variable directly
+        }
     
-    # Routes
+    # Define routes
+    
+    # Index route
     @app.route('/')
     def index():
         return render_template('index.html')
@@ -216,7 +252,8 @@ def create_app(test_config=None):
                 'verification.html',
                 user_verification_level=user_verification_level,
                 verification_stage=verification_stage,
-                verification_progress=verification_progress
+                verification_progress=verification_progress,
+                debug=app.debug
             )
         except Exception as e:
             logger.error(f"Error in verification_manage route: {e}")
@@ -224,7 +261,8 @@ def create_app(test_config=None):
             return render_template('verification.html', 
                                   user_verification_level='none',
                                   verification_stage='none',
-                                  verification_progress={'percent': 0})
+                                  verification_progress={'percent': 0},
+                                  debug=app.debug)
     
     @app.route('/family-tree')
     def family_tree():
@@ -233,30 +271,30 @@ def create_app(test_config=None):
     
     @app.route('/terms')
     def terms():
-        return render_template('terms.html')
+        return render_template('terms.html', debug=app.debug)
     
     @app.route('/privacy')
     def privacy():
-        return render_template('privacy.html')
+        return render_template('privacy.html', debug=app.debug)
     
     @app.route('/about')
     def about():
         """Page displaying information about the Proof of Humanity project"""
-        return render_template('about.html')
+        return render_template('about.html', debug=app.debug)
     
     @app.route('/did_manage')
     def did_manage():
-        return render_template('did_manage.html')
+        return render_template('did_manage.html', debug=app.debug)
     
     @app.route('/benefits')
     def benefits():
         """Page displaying benefits and services available after completing PoH verification"""
         try:
-            return render_template('benefits.html')
+            return render_template('benefits.html', debug=app.debug)
         except Exception as e:
             logger.error(f"Error in benefits route: {e}", exc_info=True)
             flash('An error occurred while loading the page.', 'error')
-            return render_template('errors/500.html'), 500
+            return render_template('errors/500.html', debug=app.debug), 500
     
     @app.route('/access_services')
     def access_services():
@@ -301,7 +339,7 @@ def create_app(test_config=None):
         if request.method == 'POST':
             # Mock successful registration
             return redirect(url_for('verification_manage'))
-        return render_template('register.html')
+        return render_template('register.html', debug=app.debug)
     
     @app.route('/logout')
     def logout():
@@ -310,11 +348,11 @@ def create_app(test_config=None):
     
     @app.route('/settings')
     def settings():
-        return render_template('settings.html')
+        return render_template('settings.html', debug=app.debug)
     
     @app.route('/forgot-password')
     def forgot_password():
-        return render_template('login.html', reset_message="Please check your email for password reset instructions.")
+        return render_template('login.html', reset_message="Please check your email for password reset instructions.", debug=app.debug)
     
     @app.route('/schedule-call')
     def schedule_call():
@@ -323,7 +361,7 @@ def create_app(test_config=None):
         Displays an interactive calendar with color-coded availability.
         """
         try:
-            return render_template('schedule_call.html')
+            return render_template('schedule_call.html', debug=app.debug)
         except Exception as e:
             logger.error(f"Error in schedule_call route: {e}")
             flash('An error occurred while loading the scheduling page.', 'error')
@@ -405,11 +443,51 @@ def create_app(test_config=None):
         except Exception as e:
             return str(e), 500
     
+    @app.route('/network/viz/logs/<timestamp>', methods=['GET'])
+    def get_network_viz_logs(timestamp):
+        try:
+            log_file = os.path.join(app.config['LOG_DIR'], f'network_viz_{timestamp}.log')
+            if os.path.exists(log_file):
+                return send_file(log_file, as_attachment=True)
+            else:
+                return jsonify({'error': 'Log file not found'}), 404
+        except Exception as e:
+            app.logger.error(f"Error retrieving logs: {e}")
+            return jsonify({'error': 'Error retrieving logs'}), 500
+    
+    @app.route('/diagnostics')
+    def diagnostics():
+        """Diagnostic page for network visualization testing"""
+        app.logger.info("Loading diagnostics page")
+        return render_template('diagnostics.html')
+    
     @app.before_request
     def log_template_info():
         """Log information about templates being rendered"""
         if request.endpoint:
-            logger.info(f"Request for endpoint: {request.endpoint}, path: {request.path}")
+            logger.info(f"Request for endpoint: {request.endpoint}, path: {request.path}, method: {request.method}")
+            # Additional debugging information
+            logger.info(f"Request headers: {dict(request.headers)}")
+            logger.info(f"User agent: {request.user_agent}")
+            logger.info(f"Session data: {dict(session)}")
+    
+    # Enhanced logging for rendering templates
+    @app.template_filter()
+    def debug_filter(value):
+        """Debug filter to log template variables"""
+        logger.info(f"Template variable: {value}")
+        return value
+    
+    # Add utility route for checking browser console logs
+    @app.route('/api/log', methods=['POST'])
+    def log_browser_error():
+        """Endpoint to log browser console errors"""
+        data = request.get_json() or {}
+        error_msg = data.get('error', 'Unknown error')
+        error_source = data.get('source', 'browser')
+        error_line = data.get('line', 'unknown')
+        logger.error(f"Browser error: {error_msg} at {error_source}:{error_line}")
+        return jsonify({"status": "logged"})
     
     # Add error handlers
     @app.errorhandler(404)
@@ -420,12 +498,12 @@ def create_app(test_config=None):
     @app.errorhandler(500)
     def internal_error(error):
         app.logger.error(f'Server Error: {error}')
-        return render_template('errors/500.html'), 500
+        return render_template('errors/500.html', debug=app.debug), 500
     
     @app.errorhandler(Exception)
     def handle_exception(e):
         logger.error(f"Unhandled exception: {e}", exc_info=True)
-        return render_template('errors/500.html'), 500
+        return render_template('errors/500.html', debug=app.debug), 500
     
     return app
 
@@ -461,7 +539,7 @@ if __name__ == '__main__':
         print(f"And then: kill -9 <PID>  to terminate it")
         sys.exit(1)
     
-    print(f"Server listening at: http://127.0.0.1:{port}")
+    print(f"Server listening at: http://0.0.0.0:{port}")
     
     # Store the server instance for clean shutdown
     from werkzeug.serving import make_server
