@@ -1055,12 +1055,29 @@ function fixLoginPage() {
         console.log('[DEBUG] Fixing login form');
         
         // Find parent container
-        const formContainer = loginForm.closest('.auth-form-container, .auth-container');
+        const formContainer = loginForm.closest('.auth-form-container');
         if (formContainer) {
-            formContainer.style.paddingTop = '80px';
+            formContainer.style.marginTop = '2rem';
+            
+            // Fix login form header
+            const pageTitle = document.querySelector('.page-title.login-gradient');
+            if (pageTitle) {
+                pageTitle.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
+                pageTitle.style.WebkitBackgroundClip = 'text';
+                pageTitle.style.WebkitTextFillColor = 'transparent';
+                pageTitle.style.backgroundClip = 'text';
+                pageTitle.style.display = 'inline-block';
+            }
         }
     }
 }
+
+// Add event listener to fix login page when loaded
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.href.includes('/login')) {
+        fixLoginPage();
+    }
+});
 
 // Fix common layout issues across all pages
 function fixCommonIssues() {
@@ -1105,4 +1122,49 @@ window.initPage = function() {
     initVerificationStageDropdowns();
     fixLayoutIssues();
     return 'Page manually initialized';
-}; 
+};
+
+// Fix any heading styles across all pages
+function fixAllHeadingStyles() {
+    console.log('[DEBUG] Fixing all heading styles');
+    
+    // Target all headings that should have gradients
+    const headingSelectors = [
+        '.page-title.about-gradient',
+        '.page-title.services-gradient',
+        '.page-title.verification-gradient',
+        '.page-title.login-gradient',
+        '.page-title.network-gradient',
+        '.section-title.about-gradient',
+        '.section-title.services-gradient',
+        '.visualization-title.network-gradient'
+    ];
+    
+    headingSelectors.forEach(selector => {
+        const headings = document.querySelectorAll(selector);
+        headings.forEach(heading => {
+            if (heading) {
+                console.log(`[DEBUG] Fixing heading: ${selector}`);
+                heading.style.display = 'inline-block';
+                
+                // Ensure proper background-clip properties
+                if (window.getComputedStyle(heading).webkitBackgroundClip !== 'text') {
+                    heading.style.WebkitBackgroundClip = 'text';
+                    heading.style.backgroundClip = 'text';
+                    heading.style.WebkitTextFillColor = 'transparent';
+                }
+            }
+        });
+    });
+}
+
+// Add event listener to fix all pages on load
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix login page if applicable
+    if (window.location.href.includes('/login')) {
+        fixLoginPage();
+    }
+    
+    // Fix headings on all pages
+    fixAllHeadingStyles();
+}); 
