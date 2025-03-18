@@ -1052,40 +1052,54 @@ function fixLoginPage() {
     // Fix login form
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        console.log('[DEBUG] Fixing login form');
+        console.log('[DEBUG] Found login form, applying styles');
         
-        // Ensure login title has proper gradient
-        const pageTitle = document.querySelector('.login-gradient');
-        if (pageTitle) {
-            console.log('[DEBUG] Found login title');
-            pageTitle.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
-            pageTitle.style.WebkitBackgroundClip = 'text';
-            pageTitle.style.WebkitTextFillColor = 'transparent';
-            pageTitle.style.backgroundClip = 'text';
-            pageTitle.style.display = 'inline-block';
-        }
+        // Ensure login title has gradient styling
+        document.querySelectorAll('.login-gradient').forEach(el => {
+            el.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
+            el.style.WebkitBackgroundClip = 'text';
+            el.style.backgroundClip = 'text';
+            el.style.WebkitTextFillColor = 'transparent';
+            el.style.display = 'inline-block';
+        });
         
-        // Ensure form container has proper styling
+        // Ensure form container is properly styled
         const formContainer = loginForm.closest('.auth-form-container');
         if (formContainer) {
-            formContainer.style.marginTop = '2rem';
             formContainer.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 15px rgba(122, 67, 255, 0.1), 0 0 30px rgba(67, 209, 255, 0.1)';
         }
         
-        // Add styling to the login button
-        const loginButton = loginForm.querySelector('.btn-auth');
-        if (loginButton) {
-            loginButton.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%)';
-            loginButton.style.color = '#fff';
+        // Fix the login button
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%)';
+            submitButton.style.color = 'white';
         }
     }
+    
+    console.log('[DEBUG] Login page fixes applied');
 }
 
-// Add event listener to fix login page when loaded
+// Main initialization function
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[DEBUG] DOM Content Loaded');
+    
+    // Check if we're on login page
     if (window.location.href.includes('/login')) {
+        console.log('[DEBUG] On login page, applying login page fixes');
         fixLoginPage();
     }
+    
+    // Apply fixes to headings with gradients
+    document.querySelectorAll('.login-gradient, .about-gradient, .services-gradient, .verification-gradient, .network-gradient').forEach(el => {
+        console.log('[DEBUG] Fixing gradient for:', el.textContent);
+        if (window.getComputedStyle(el).webkitBackgroundClip !== 'text') {
+            el.style.display = 'inline-block';
+            el.style.webkitBackgroundClip = 'text';
+            el.style.backgroundClip = 'text';
+            el.style.webkitTextFillColor = 'transparent';
+        }
+    });
 });
 
 // Fix common layout issues across all pages

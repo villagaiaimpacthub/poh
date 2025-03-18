@@ -14,59 +14,53 @@
     </div>
 </div>
 
-<div class="container auth-container">
-    <div class="auth-form-container">
-        <form id="loginForm" action="{{ url_for('login') }}" method="post" class="auth-form">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="auth-form-container">
+                <form id="loginForm" action="{{ url_for('login') }}" method="post" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Remember me</label>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-auth">Sign In</button>
+                    
+                    <div class="social-login">
+                        <p>Or sign in with</p>
+                        <button type="button" class="btn-social">
+                            <i class="fab fa-google"></i>
+                            Google
+                        </button>
+                    </div>
+                    
+                    <div class="auth-footer">
+                        <p>Need an invitation? Contact an existing community member</p>
+                    </div>
+                </form>
             </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
-            </div>
-            
-            <div class="form-options">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember me</label>
-                </div>
-                <a href="#" class="forgot-password">Forgot password?</a>
-            </div>
-            
-            <button type="submit" class="btn-auth">Sign In</button>
-            
-            <div class="social-login">
-                <p>Or sign in with</p>
-                <button type="button" class="btn-social">
-                    <i class="fab fa-google"></i>
-                    Google
-                </button>
-            </div>
-            
-            <div class="auth-footer">
-                <p>Need an invitation? Contact an existing community member</p>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
 
-{% block additional_styles %}
+{% block styles %}
 <style>
-    .auth-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem 0 4rem;
-        position: relative;
-        z-index: 1;
-    }
-    
     .auth-form-container {
         width: 100%;
-        max-width: 450px;
         padding: 40px;
         background: rgba(15, 23, 42, 0.7);
         border-radius: 16px;
@@ -75,6 +69,8 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
                     0 0 15px rgba(122, 67, 255, 0.1),
                     0 0 30px rgba(67, 209, 255, 0.1);
+        margin-top: 2rem;
+        margin-bottom: 3rem;
     }
     
     .auth-form {
@@ -206,7 +202,7 @@
     
     .btn-social i {
         margin-right: 10px;
-        color: #ea4335;
+        color: #EA4335;
     }
     
     .btn-social:hover {
@@ -224,10 +220,6 @@
     }
     
     @media (max-width: 768px) {
-        .auth-container {
-            padding: 1rem 0 2rem;
-        }
-        
         .auth-form-container {
             padding: 25px;
         }

@@ -132,14 +132,34 @@ class CircularFamilyTree {
         this.width = Math.max(this.width, 600);  
         this.height = Math.max(this.height, 500);
         
-        // Detect if mobile screen and adjust dimensions for better display
+        // Store references for event handling
+        this.activeNode = null;
+        this.selectedNode = null;
+        this.dragNode = null;
+        
+        // Network data
+        this.nodes = [];
+        this.links = [];
+        
+        // Check if we're on a mobile device for responsive adjustments
         this.isMobile = window.innerWidth < 768;
-        if (this.isMobile) {
-            console.log('[CIRCULAR-TREE] Mobile device detected, adjusting dimensions');
-            // Use more appropriate dimensions for mobile
-            this.width = Math.min(this.width, window.innerWidth - 40);
-            this.height = Math.min(600, window.innerHeight - 100);
-        }
+        
+        // Use consistent node colors for easy identification of levels
+        this.nodeColors = {
+            1: GOLD_COLOR,       // Full network - Level 1 (Gold)
+            2: '#cc5de8',        // Parent - Level 2 (Purple)
+            3: '#63e6be',        // Child - Level 3 (Mint)
+            4: '#74c0fc',        // Grandchild - Level 4 (Light Blue)
+            5: '#ff8787'         // Further relatives - Level 5 (Coral)
+        };
+        
+        // Node sizes for different levels
+        this.nodeRadii = {
+            1: 20,  // Gold nodes
+            2: 14,  // Purple nodes
+            3: 10,  // Blue nodes 
+            4: 8    // Green nodes
+        };
         
         // Detect browser for color compatibility
         const browser = detectBrowser();
