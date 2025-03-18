@@ -1054,20 +1054,29 @@ function fixLoginPage() {
     if (loginForm) {
         console.log('[DEBUG] Fixing login form');
         
-        // Find parent container
+        // Ensure login title has proper gradient
+        const pageTitle = document.querySelector('.login-gradient');
+        if (pageTitle) {
+            console.log('[DEBUG] Found login title');
+            pageTitle.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
+            pageTitle.style.WebkitBackgroundClip = 'text';
+            pageTitle.style.WebkitTextFillColor = 'transparent';
+            pageTitle.style.backgroundClip = 'text';
+            pageTitle.style.display = 'inline-block';
+        }
+        
+        // Ensure form container has proper styling
         const formContainer = loginForm.closest('.auth-form-container');
         if (formContainer) {
             formContainer.style.marginTop = '2rem';
-            
-            // Fix login form header
-            const pageTitle = document.querySelector('.page-title.login-gradient');
-            if (pageTitle) {
-                pageTitle.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
-                pageTitle.style.WebkitBackgroundClip = 'text';
-                pageTitle.style.WebkitTextFillColor = 'transparent';
-                pageTitle.style.backgroundClip = 'text';
-                pageTitle.style.display = 'inline-block';
-            }
+            formContainer.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 15px rgba(122, 67, 255, 0.1), 0 0 30px rgba(67, 209, 255, 0.1)';
+        }
+        
+        // Add styling to the login button
+        const loginButton = loginForm.querySelector('.btn-auth');
+        if (loginButton) {
+            loginButton.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%)';
+            loginButton.style.color = '#fff';
         }
     }
 }

@@ -40,7 +40,7 @@
             <div class="social-login">
                 <p>Or sign in with</p>
                 <button type="button" class="btn-social">
-                    <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
+                    <i class="fab fa-google"></i>
                     Google
                 </button>
             </div>
@@ -59,7 +59,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0 0 60px;
+        padding: 2rem 0 4rem;
         position: relative;
         z-index: 1;
     }
@@ -204,10 +204,9 @@
         transition: all 0.3s;
     }
     
-    .btn-social img {
-        width: 20px;
-        height: 20px;
+    .btn-social i {
         margin-right: 10px;
+        color: #ea4335;
     }
     
     .btn-social:hover {
@@ -224,31 +223,14 @@
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* Background orbs for visual interest */
-    .page-header::before,
-    .page-header::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(70px);
-        z-index: -1;
-        opacity: 0.5;
-    }
-    
-    .page-header::before {
-        top: -100px;
-        right: -100px;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(67, 209, 255, 0.3) 0%, rgba(67, 209, 255, 0.1) 70%);
-    }
-    
-    .page-header::after {
-        bottom: -100px;
-        left: -100px;
-        width: 350px;
-        height: 350px;
-        background: radial-gradient(circle, rgba(122, 67, 255, 0.3) 0%, rgba(122, 67, 255, 0.1) 70%);
+    @media (max-width: 768px) {
+        .auth-container {
+            padding: 1rem 0 2rem;
+        }
+        
+        .auth-form-container {
+            padding: 25px;
+        }
     }
 </style>
 {% endblock %} 
