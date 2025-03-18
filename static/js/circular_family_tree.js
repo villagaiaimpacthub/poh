@@ -129,15 +129,15 @@ class CircularFamilyTree {
         const browser = detectBrowser();
         const isSafariOrIOS = browser.isSafari || browser.isIOS;
         
-        // Set color scheme with browser-specific adjustments - using the blue color for all nodes
+        // Set color scheme with browser-specific adjustments
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for all levels
-            2: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
-            4: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff'   // Blue
+            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 1 (was gold)
+            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
+            3: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66',   // Green for level 3
+            4: isSafariOrIOS ? 'rgb(255, 128, 0)' : '#ff8000'    // Orange for level 4
         };
         
-        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser - all set to blue`);
+        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser`);
         
         // Add styles to the page
         this.addStyles();
@@ -369,10 +369,10 @@ class CircularFamilyTree {
         
         // Set the custom colors - using rgb for better cross-browser compatibility
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for all levels
-            2: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
-            4: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff'   // Blue
+            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 1 (was gold)
+            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
+            3: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66',   // Green for level 3
+            4: isSafariOrIOS ? 'rgb(255, 128, 0)' : '#ff8000'    // Orange for level 4
         };
         
         console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name}`);

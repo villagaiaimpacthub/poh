@@ -130,24 +130,29 @@
     }
     
     .forgot-password {
-        color: #8250df;
+        color: #43d1ff;
         text-decoration: none;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
     }
     
     .btn-auth {
         padding: 14px;
-        background: #8250df;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
         color: #fff;
         border: none;
         border-radius: 8px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.3s ease;
     }
     
     .btn-auth:hover {
-        background: #6f42c1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
     }
     
     .social-login {
@@ -194,9 +199,13 @@
     }
     
     .auth-footer a {
-        color: #8250df;
+        color: #43d1ff;
         text-decoration: none;
         font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %} 
