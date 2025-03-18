@@ -1084,6 +1084,9 @@ function fixLoginPage() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] DOM Content Loaded');
     
+    // Immediately apply gradients to all titles
+    fixAllHeadingStyles();
+    
     // Check if we're on login page
     if (window.location.href.includes('/login')) {
         console.log('[DEBUG] On login page, applying login page fixes');
@@ -1091,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Apply fixes to headings with gradients
-    document.querySelectorAll('.login-gradient, .about-gradient, .services-gradient, .verification-gradient, .network-gradient').forEach(el => {
+    document.querySelectorAll('.login-gradient, .about-gradient, .services-gradient, .verification-gradient, .network-gradient, .home-gradient').forEach(el => {
         console.log('[DEBUG] Fixing gradient for:', el.textContent);
         if (window.getComputedStyle(el).webkitBackgroundClip !== 'text') {
             el.style.display = 'inline-block';
@@ -1147,7 +1150,7 @@ window.initPage = function() {
     return 'Page manually initialized';
 };
 
-// Fix any heading styles across all pages
+// Fix all heading styles across all pages
 function fixAllHeadingStyles() {
     console.log('[DEBUG] Fixing all heading styles');
     
@@ -1158,8 +1161,12 @@ function fixAllHeadingStyles() {
         '.page-title.verification-gradient',
         '.page-title.login-gradient',
         '.page-title.network-gradient',
+        '.page-title.home-gradient',
         '.section-title.about-gradient',
         '.section-title.services-gradient',
+        '.section-title.verification-gradient',
+        '.section-title.network-gradient',
+        '.section-title.home-gradient',
         '.visualization-title.network-gradient'
     ];
     
@@ -1168,26 +1175,96 @@ function fixAllHeadingStyles() {
         headings.forEach(heading => {
             if (heading) {
                 console.log(`[DEBUG] Fixing heading: ${selector}`);
-                heading.style.display = 'inline-block';
                 
-                // Ensure proper background-clip properties
-                if (window.getComputedStyle(heading).webkitBackgroundClip !== 'text') {
-                    heading.style.WebkitBackgroundClip = 'text';
-                    heading.style.backgroundClip = 'text';
-                    heading.style.WebkitTextFillColor = 'transparent';
+                // Set the gradient directly with inline styles to ensure it works
+                if (selector.includes('about-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%)';
+                } else if (selector.includes('services-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%)';
+                } else if (selector.includes('verification-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 70%)';
+                } else if (selector.includes('login-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
+                } else if (selector.includes('network-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #FFD700 0%, #ff6b00 100%)';
+                } else if (selector.includes('home-gradient')) {
+                    heading.style.background = 'linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%)';
                 }
+                
+                // Apply webkit text properties
+                heading.style.display = 'inline-block';
+                heading.style.WebkitBackgroundClip = 'text';
+                heading.style.backgroundClip = 'text';
+                heading.style.WebkitTextFillColor = 'transparent';
+                heading.style.color = 'transparent'; // For browsers that don't support webkit
             }
+        });
+    });
+    
+    // Also directly target any elements with these classes regardless of parent class
+    const gradientClasses = [
+        'about-gradient',
+        'services-gradient',
+        'verification-gradient',
+        'login-gradient',
+        'network-gradient',
+        'home-gradient'
+    ];
+    
+    gradientClasses.forEach(className => {
+        const elements = document.querySelectorAll('.' + className);
+        elements.forEach(el => {
+            console.log(`[DEBUG] Fixing gradient element with class: ${className}`);
+            
+            // Set the gradient based on the class
+            if (className === 'about-gradient') {
+                el.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%)';
+            } else if (className === 'services-gradient') {
+                el.style.background = 'linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%)';
+            } else if (className === 'verification-gradient') {
+                el.style.background = 'linear-gradient(135deg, #43d1ff 0%, #7a43ff 70%)';
+            } else if (className === 'login-gradient') {
+                el.style.background = 'linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%)';
+            } else if (className === 'network-gradient') {
+                el.style.background = 'linear-gradient(135deg, #FFD700 0%, #ff6b00 100%)';
+            } else if (className === 'home-gradient') {
+                el.style.background = 'linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%)';
+            }
+            
+            // Apply webkit text properties
+            el.style.display = 'inline-block';
+            el.style.WebkitBackgroundClip = 'text';
+            el.style.backgroundClip = 'text';
+            el.style.WebkitTextFillColor = 'transparent';
+            el.style.color = 'transparent'; // For browsers that don't support webkit
         });
     });
 }
 
-// Add event listener to fix all pages on load
-document.addEventListener('DOMContentLoaded', function() {
-    // Fix login page if applicable
+// When window loads, make sure all styles are fully applied
+window.addEventListener('load', function() {
+    console.log('[DEBUG] Window fully loaded, reapplying all styles');
+    
+    // Force reapplication of all gradients
+    fixAllHeadingStyles();
+    
+    // Specifically target login page if needed
     if (window.location.href.includes('/login')) {
+        console.log('[DEBUG] On login page, reapplying login page fixes');
         fixLoginPage();
     }
     
-    // Fix headings on all pages
-    fixAllHeadingStyles();
+    // Log all gradient elements for debugging
+    document.querySelectorAll('.login-gradient, .about-gradient, .services-gradient, .verification-gradient, .network-gradient, .home-gradient').forEach(el => {
+        console.log('[DEBUG] Gradient element after full load:', {
+            element: el.tagName,
+            class: el.className,
+            text: el.textContent.substring(0, 30),
+            compStyles: {
+                background: window.getComputedStyle(el).background,
+                webkitBackgroundClip: window.getComputedStyle(el).webkitBackgroundClip,
+                webkitTextFillColor: window.getComputedStyle(el).webkitTextFillColor
+            }
+        });
+    });
 }); 

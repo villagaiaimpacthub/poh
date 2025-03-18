@@ -2077,51 +2077,57 @@ h1.mb-4,
 
 /* Gradient background classes for different pages */
 .home-gradient {
-    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 .about-gradient {
-    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 .services-gradient {
-    background: linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 .verification-gradient {
-    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 70%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 70%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 .login-gradient {
-    background: linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 .network-gradient {
-    background: linear-gradient(135deg, #FFD700 0%, #ff6b00 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    background: linear-gradient(135deg, #FFD700 0%, #ff6b00 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+    display: inline-block !important;
 }
 
 /* Header content spacing */
