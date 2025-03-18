@@ -1,405 +1,404 @@
 {% extends "base.html" %}
 
-{% block title %}About - {{ super() }}{% endblock %}
+{% block title %}About - Proof of Humanity{% endblock %}
 
 {% block styles %}
 <style>
-    .about-hero {
-        padding: 0rem 0 3rem;
-        margin-top: 0;
-        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 1)), url("{{ url_for('static', filename='images/network-bg.jpg') }}");
-        background-size: cover;
-        background-position: center;
-        text-align: center;
+    /* Dark theme for about page */
+    .about-section {
+        background-color: var(--dark-bg);
+        color: var(--dark-text);
+        padding: 3rem 0;
         position: relative;
         overflow: hidden;
     }
     
-    .btn-web5 {
-        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
-        color: white !important;
-        padding: 0.75rem 1.5rem !important;
-        border-radius: 100px !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        display: inline-block !important;
-        transition: all 0.3s ease !important;
-        border: none !important;
-        box-shadow: 0 4px 10px rgba(122, 67, 255, 0.3) !important;
-    }
-    
-    .btn-web5:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4) !important;
-    }
-    
-    .hero-orb {
+    /* Background effects */
+    .orb-bg {
         position: absolute;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(122, 67, 255, 0.4), rgba(67, 209, 255, 0.4));
-        filter: blur(60px);
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.3;
     }
     
     .orb-1 {
-        width: 400px;
-        height: 400px;
+        width: 500px;
+        height: 500px;
         top: -200px;
         right: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
     }
     
     .orb-2 {
-        width: 300px;
-        height: 300px;
-        bottom: -150px;
-        left: -50px;
+        width: 400px;
+        height: 400px;
+        bottom: -100px;
+        left: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
     }
     
-    .about-hero-content {
+    /* Main content styles */
+    .about-container {
         position: relative;
-        z-index: 2;
-        max-width: 800px;
-        margin: 0 auto;
+        z-index: 1;
     }
     
-    .about-subtitle {
-        color: var(--primary, #7a43ff);
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 600;
-        font-size: 0.875rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .about-heading {
-        font-size: 3.5rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, var(--primary, #7a43ff) 0%, var(--secondary, #43d1ff) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .about-lead {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.35rem;
-        line-height: 1.7;
-        margin-bottom: 2.5rem;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .scroll-indicator {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 2rem;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.875rem;
-    }
-    
-    .scroll-indicator i {
-        animation: bounce 2s infinite;
-        font-size: 1.5rem;
-        margin-top: 0.5rem;
-    }
-    
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
-            transform: translateY(0);
-        }
-        40% {
-            transform: translateY(-10px);
-        }
-        60% {
-            transform: translateY(-5px);
-        }
-    }
-    
-    .mission-section {
-        padding: 6rem 0;
-        background-color: #0f172a;
-    }
-    
-    .mission-container {
-        display: flex;
-        flex-direction: column;
-        gap: 4rem;
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-    
-    .section-title {
+    .page-title {
         font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, var(--primary, #7a43ff) 0%, var(--secondary, #43d1ff) 100%);
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-align: center;
+        background-clip: text;
+        display: inline-block;
     }
     
-    .mission-box {
-        background: rgba(30, 30, 40, 0.7);
-        border-radius: 16px;
-        padding: 3rem;
-        border: 1px solid rgba(80, 80, 100, 0.2);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    .page-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, 0.8);
     }
     
-    .mission-box::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary, #7a43ff), var(--secondary, #43d1ff));
-    }
-    
-    .mission-quote {
-        font-size: 1.5rem;
-        font-weight: 400;
-        line-height: 1.8;
-        color: white;
-        font-style: italic;
-        position: relative;
-    }
-    
-    .mission-quote::before,
-    .mission-quote::after {
-        content: '"';
-        font-size: 4rem;
-        color: rgba(122, 67, 255, 0.2);
-        position: absolute;
-        line-height: 1;
-    }
-    
-    .mission-quote::before {
-        top: -1.5rem;
-        left: -1rem;
-    }
-    
-    .mission-quote::after {
-        bottom: -2.5rem;
-        right: -1rem;
-    }
-    
-    .key-points {
+    /* Card container styles */
+    .about-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
     
-    .point-card {
-        background: rgba(30, 30, 40, 0.5);
+    .about-card {
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(67, 209, 255, 0.3);
         border-radius: 12px;
-        padding: 2rem;
-        border: 1px solid rgba(80, 80, 100, 0.1);
+        padding: 1.5rem;
         transition: all 0.3s ease;
     }
     
-    .point-card:hover {
+    .about-card:hover {
         transform: translateY(-5px);
-        border-color: rgba(122, 67, 255, 0.3);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border-color: rgba(67, 209, 255, 0.6);
     }
     
-    .point-icon {
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgba(67, 209, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #43d1ff;
+        font-size: 1.5rem;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    
+    .card-content {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    /* Team section */
+    .team-section {
+        margin-top: 3rem;
+    }
+    
+    .section-title {
         font-size: 2rem;
         margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, var(--primary, #7a43ff) 0%, var(--secondary, #43d1ff) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #43d1ff;
     }
     
-    .point-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: white;
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
     }
     
-    .point-text {
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.6;
-    }
-    
-    .vision-section {
+    .team-member {
         background-color: rgba(15, 23, 42, 0.8);
-        padding: 6rem 0;
-    }
-    
-    .vision-text {
-        color: rgba(255, 255, 255, 0.85);
-        font-size: 1.15rem;
-        line-height: 1.8;
-        margin-bottom: 2rem;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .vision-text strong {
-        color: white;
-        font-weight: 600;
-    }
-    
-    .call-to-action {
-        background: linear-gradient(135deg, rgba(122, 67, 255, 0.1), rgba(67, 209, 255, 0.1));
-        border-radius: 16px;
-        padding: 3rem;
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
         text-align: center;
-        margin-top: 4rem;
-        border: 1px solid rgba(122, 67, 255, 0.2);
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
+        transition: all 0.3s ease;
     }
     
-    .cta-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
+    .team-member:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border-color: rgba(67, 209, 255, 0.6);
+    }
+    
+    .member-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        overflow: hidden;
+        border: 3px solid rgba(67, 209, 255, 0.5);
+    }
+    
+    .member-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .member-name {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
         color: white;
     }
     
+    .member-role {
+        font-size: 0.9rem;
+        color: #43d1ff;
+        margin-bottom: 0.75rem;
+    }
+    
+    .member-bio {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Contact section */
+    .contact-section {
+        margin-top: 3rem;
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+    
+    .contact-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 6px;
+        color: white;
+        font-size: 1rem;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #43d1ff;
+    }
+    
+    .submit-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
+    }
+    
+    /* Responsive design */
     @media (max-width: 768px) {
-        .about-heading {
-            font-size: 2.5rem;
+        .about-cards,
+        .team-grid {
+            grid-template-columns: 1fr;
         }
         
-        .about-lead {
-            font-size: 1.2rem;
+        .contact-form {
+            grid-template-columns: 1fr;
         }
         
-        .mission-box {
-            padding: 2rem;
+        .form-group.full-width {
+            grid-column: span 1;
         }
         
-        .mission-quote {
-            font-size: 1.25rem;
-        }
-        
-        .call-to-action {
-            padding: 2rem;
+        .page-title {
+            font-size: 2rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="about-hero">
-    <div class="hero-orb orb-1"></div>
-    <div class="hero-orb orb-2"></div>
-    
-    <div class="container">
-        <div class="about-hero-content">
-            <div class="about-subtitle">Our Story</div>
-            <h1 class="about-heading">Reimagining Human Identity</h1>
-            <p class="about-lead">
-                We believe in the fundamental truth that we are all humans, and we all share one thing 
-                in common: we don't know how much more time we have on this planet. This understanding shapes our 
-                approach to human verification and collaboration.
-            </p>
+<div class="main-content">
+    <!-- About Header -->
+    <section class="about-section">
+        <div class="orb-bg orb-1"></div>
+        <div class="orb-bg orb-2"></div>
+        
+        <div class="container about-container">
+            <h1 class="page-title">About Proof of Humanity</h1>
+            <p class="page-subtitle">Learn about our mission and the technology behind our human verification network</p>
             
-            <div class="scroll-indicator">
-                <span>Learn more</span>
-                <i class="fas fa-chevron-down"></i>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Mission Section -->
-<section class="mission-section">
-    <div class="container">
-        <div class="mission-container">
-            <div class="mission-box">
-                <p class="mission-quote">
-                    "We are all humans, and we all share one thing in common, we don't know how much more time we 
-                    have on this planet. So instead of competing, let's collaborate. The unique proof of humanity 
-                    sequence allows users to form family units of their trusted peers, work on projects together 
-                    that align to a north star and masterplan of their choosing, launch and join projects, find 
-                    their tribe and realize that we are and always have been the creators of all wealth, health, 
-                    and love on this planet. We the people by the people, for the people, through the people. 
-                    We are one united consciousness, let's begin acting like it!"
-                </p>
-            </div>
-            
-            <div>
-                <h2 class="section-title">Our Core Principles</h2>
+            <!-- About Cards -->
+            <div class="about-cards">
+                <!-- Mission Card -->
+                <div class="about-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3 class="card-title">Our Mission</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Proof of Humanity is a revolutionary system designed to verify human identity in the digital world. By creating a decentralized registry of unique human identities, we aim to solve one of the most challenging problems of the digital age - proving that a digital user is indeed a unique human being.</p>
+                        <p>Our mission is to build a more trustworthy and fair digital environment where verified humans can interact with confidence.</p>
+                    </div>
+                </div>
                 
-                <div class="key-points">
-                    <div class="point-card">
-                        <div class="point-icon">
-                            <i class="fas fa-users"></i>
+                <!-- Technology Card -->
+                <div class="about-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
                         </div>
-                        <h3 class="point-title">Trust Through Relationships</h3>
-                        <p class="point-text">
-                            We build identity verification on the foundation of trusted human connections, creating 
-                            a web of trust that is both resilient and humane.
-                        </p>
+                        <h3 class="card-title">Our Technology</h3>
                     </div>
-                    
-                    <div class="point-card">
-                        <div class="point-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3 class="point-title">Privacy by Design</h3>
-                        <p class="point-text">
-                            Our system respects human dignity by minimizing data collection and keeping control in the 
-                            hands of users, not centralized authorities.
-                        </p>
+                    <div class="card-content">
+                        <p>We use decentralized identity technology to ensure users maintain control of their personal data while still providing proof of their humanity.</p>
+                        <p>Our unique verification system builds a network of trust through family trees, where each verified member can vouch for new members, creating a robust web of verified humans.</p>
+                        <p>Encrypted verification calls ensure secure and private identity confirmation while protecting personal information.</p>
                     </div>
-                    
-                    <div class="point-card">
-                        <div class="point-icon">
-                            <i class="fas fa-project-diagram"></i>
+                </div>
+                
+                <!-- How It Works Card -->
+                <div class="about-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-cogs"></i>
                         </div>
-                        <h3 class="point-title">Collaborative Network</h3>
-                        <p class="point-text">
-                            By verifying unique human identity, we create the foundation for meaningful collaboration 
-                            and community building in digital spaces.
-                        </p>
+                        <h3 class="card-title">How It Works</h3>
+                    </div>
+                    <div class="card-content">
+                        <ol>
+                            <li><strong>Join the Network</strong> - Create an account and connect with existing members who can vouch for your humanity.</li>
+                            <li><strong>Complete Verification</strong> - Participate in verification calls with existing members who will confirm your unique identity.</li>
+                            <li><strong>Grow the Network</strong> - Once verified, help verify new members and build your family tree.</li>
+                            <li><strong>Access Benefits</strong> - Enjoy the benefits of a verified identity, including exclusive access to services.</li>
+                        </ol>
                     </div>
                 </div>
             </div>
+            
+            <!-- Team Section -->
+            <div class="team-section">
+                <h2 class="section-title">Our Team</h2>
+                
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="{{ url_for('static', filename='images/team-placeholder-1.jpg') }}" alt="Team Member">
+                        </div>
+                        <h3 class="member-name">Sarah Johnson</h3>
+                        <p class="member-role">Founder & CEO</p>
+                        <p class="member-bio">Former cryptography researcher with a passion for decentralized identity solutions.</p>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="{{ url_for('static', filename='images/team-placeholder-2.jpg') }}" alt="Team Member">
+                        </div>
+                        <h3 class="member-name">Michael Chen</h3>
+                        <p class="member-role">CTO</p>
+                        <p class="member-bio">Blockchain expert with 10+ years experience in decentralized systems.</p>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="{{ url_for('static', filename='images/team-placeholder-3.jpg') }}" alt="Team Member">
+                        </div>
+                        <h3 class="member-name">Elena Rodriguez</h3>
+                        <p class="member-role">Head of Research</p>
+                        <p class="member-bio">PhD in Computer Science with expertise in network theory and social graphs.</p>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="{{ url_for('static', filename='images/team-placeholder-4.jpg') }}" alt="Team Member">
+                        </div>
+                        <h3 class="member-name">David Okafor</h3>
+                        <p class="member-role">Head of Security</p>
+                        <p class="member-bio">Cybersecurity expert focused on privacy-preserving verification systems.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Section -->
+            <div class="contact-section">
+                <h2 class="section-title">Get In Touch</h2>
+                
+                <form id="contactForm" action="{{ url_for('contact') }}" method="post" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="submit-button">Send Message</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-</section>
-
-<!-- Vision Section -->
-<section class="vision-section">
-    <div class="container">
-        <h2 class="section-title">Our Vision</h2>
-        
-        <p class="vision-text">
-            <strong>Our mission</strong> is to transform how humans interact and collaborate in digital spaces. 
-            Through our unique verification process, we create a trusted network of connections that enables 
-            authentic human interaction without the noise of bots, duplicate accounts, or fraudulent identities.
-        </p>
-        
-        <p class="vision-text">
-            The <strong>Proof of Humanity verification sequence</strong> is designed to be both robust and 
-            accessible. It builds on the strength of human relationships, creating family units of trust that 
-            grow organically, establishing a global network of verified humans.
-        </p>
-        
-        <p class="vision-text">
-            Once verified, members can access a growing ecosystem of services and platforms that honor human 
-            uniqueness, creativity, and collaboration. Our approach emphasizes that we are the creators of all 
-            wealth, health, and love on this planet—and by working together, we can create systems that reflect 
-            and amplify our shared humanity.
-        </p>
-        
-        <div class="call-to-action">
-            <h3 class="cta-title">Ready to join our human-centered ecosystem?</h3>
-            <a href="{{ url_for('register') }}" class="btn-web5">Start Your Verification</a>
-        </div>
-    </div>
-</section>
+    </section>
+</div>
 {% endblock %} 

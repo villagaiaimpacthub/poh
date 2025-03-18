@@ -4,365 +4,856 @@
 
 {% block styles %}
 <style>
-    /* Force dark mode styles for the verification page */
+    /* Dark theme for verification page */
     .verification-section {
-        background-color: var(--color-bg-dark) !important;
-        color: var(--text-inverted) !important;
+        background-color: var(--dark-bg);
+        color: var(--dark-text);
         padding: 3rem 0;
         position: relative;
         overflow: hidden;
     }
     
-    /* Add orb background elements */
-    .verification-orb {
+    /* Background effects */
+    .orb-bg {
         position: absolute;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(122, 67, 255, 0.2), rgba(67, 209, 255, 0.2));
         filter: blur(80px);
         z-index: 0;
+        opacity: 0.3;
     }
     
     .orb-1 {
         width: 500px;
         height: 500px;
-        top: -250px;
-        right: -200px;
+        top: -200px;
+        right: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
     }
     
     .orb-2 {
         width: 400px;
         height: 400px;
-        bottom: -200px;
+        bottom: -100px;
         left: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
     }
     
-    .section-title {
-        font-size: 2.6rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    /* Main content styles */
+    .verification-container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         display: inline-block;
     }
     
-    .verification-stage-card,
-    .verification-level,
-    .progress-bar-container,
-    .verification-actions {
-        background-color: rgba(30, 41, 59, 0.7) !important;
-        border: 1px solid rgba(122, 67, 255, 0.3) !important;
-        color: var(--text-inverted) !important;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .level-info h4,
-    .verification-stage-title,
-    .section-subtitle {
-        color: var(--text-inverted) !important;
-    }
-    
-    .section-subtitle {
+    .page-subtitle {
         font-size: 1.2rem;
         margin-bottom: 2rem;
-        opacity: 0.9;
-    }
-
-    .progress-info {
-        background: linear-gradient(135deg, rgba(122, 67, 255, 0.15), rgba(67, 209, 255, 0.15));
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, 0.8);
     }
     
-    .progress-info h3 {
-        color: #7a43ff !important;
-        margin-top: 0;
-    }
-    
-    .btn-start-verification {
-        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
-        color: white !important;
-        padding: 0.75rem 1.5rem !important;
-        border-radius: 100px !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        display: inline-block !important;
-        transition: all 0.3s ease !important;
-        border: none !important;
-        box-shadow: 0 4px 10px rgba(122, 67, 255, 0.3) !important;
-    }
-    
-    .btn-start-verification:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4) !important;
-    }
-
-    .verification-level {
+    /* Progress indicator */
+    .progress-indicator {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding: 1.5rem;
-        border-radius: 12px;
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(122, 67, 255, 0.3);
-        transition: all 0.3s ease;
+        margin-bottom: 3rem;
+        position: relative;
     }
     
-    .verification-level:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        border-color: rgba(122, 67, 255, 0.5);
+    .progress-bar {
+        position: absolute;
+        height: 4px;
+        background-color: rgba(255, 255, 255, 0.2);
+        width: 100%;
+        z-index: 0;
     }
     
-    .verification-level.completed {
-        border-color: rgba(122, 67, 255, 0.6);
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.6));
+    .progress-fill {
+        position: absolute;
+        height: 4px;
+        background: linear-gradient(to right, #43d1ff, #43d1ff);
+        transition: width 0.5s ease;
+        z-index: 1;
     }
     
-    .level-icon {
-        width: 60px;
-        height: 60px;
+    .progress-step {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: rgba(122, 67, 255, 0.2);
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 2px solid rgba(255, 255, 255, 0.2);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 1.5rem;
-        font-size: 1.5rem;
-        color: #7a43ff;
+        position: relative;
+        z-index: 2;
         transition: all 0.3s ease;
     }
     
-    .verification-level.completed .level-icon {
-        background: linear-gradient(135deg, #7a43ff, #43d1ff);
+    .progress-step.active {
+        border-color: #43d1ff;
+        box-shadow: 0 0 15px rgba(67, 209, 255, 0.5);
+    }
+    
+    .progress-step.completed {
+        background-color: #43d1ff;
+        border-color: #43d1ff;
+    }
+    
+    .progress-step-icon {
+        font-size: 1.2rem;
         color: white;
-        box-shadow: 0 0 15px rgba(122, 67, 255, 0.5);
     }
     
-    .level-info {
-        flex: 1;
+    .progress-step-label {
+        position: absolute;
+        top: 45px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        white-space: nowrap;
     }
     
-    .level-info h4 {
+    /* Verification cards */
+    .verification-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .verification-card {
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .verification-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border-color: rgba(67, 209, 255, 0.6);
+    }
+    
+    .verification-card.active {
+        border-color: #43d1ff;
+        box-shadow: 0 0 20px rgba(67, 209, 255, 0.2);
+    }
+    
+    .verification-card.completed {
+        border-color: #43d1ff;
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgba(67, 209, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #43d1ff;
+        font-size: 1.5rem;
+    }
+    
+    .card-icon.completed {
+        background-color: #43d1ff;
+        color: white;
+    }
+    
+    .card-title {
+        margin: 0;
         font-size: 1.3rem;
-        margin-bottom: 0.5rem;
         font-weight: 600;
     }
     
-    .level-info p {
-        opacity: 0.8;
-        margin-bottom: 0;
+    .card-status {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        margin-left: auto;
+    }
+    
+    .card-status.pending {
+        background-color: rgba(255, 187, 0, 0.2);
+        color: #FFBB00;
+    }
+    
+    .card-status.active {
+        background-color: rgba(67, 209, 255, 0.2);
+        color: #43d1ff;
+    }
+    
+    .card-status.completed {
+        background-color: rgba(0, 255, 102, 0.2);
+        color: #00FF66;
+    }
+    
+    .card-content {
+        margin-bottom: 1rem;
+    }
+    
+    .card-description {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .card-progress {
+        margin-top: 1rem;
+    }
+    
+    .card-progress-bar {
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-progress-fill {
+        height: 100%;
+        background: linear-gradient(to right, #43d1ff, #43d1ff);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .card-progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .card-footer {
+        margin-top: 1.5rem;
+    }
+    
+    .card-button {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .card-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
+    }
+    
+    /* Card details */
+    .verification-details {
+        background-color: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        display: none;
+    }
+    
+    .verification-details.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .details-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .details-title {
+        font-size: 1.5rem;
+        margin: 0;
+        color: #43d1ff;
+    }
+    
+    .details-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .details-close:hover {
+        color: #43d1ff;
+    }
+    
+    .details-content {
+        margin-bottom: 1.5rem;
+    }
+    
+    .details-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .details-section-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .details-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .details-list-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .details-list-icon {
+        color: #43d1ff;
+        margin-right: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    
+    .details-list-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .details-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .verification-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .progress-step {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .progress-step-label {
+            font-size: 0.7rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <section class="section verification-section">
-        <!-- Background orbs -->
-        <div class="verification-orb orb-1"></div>
-        <div class="verification-orb orb-2"></div>
+<div class="main-content">
+    <!-- Verification Header -->
+    <section class="verification-section">
+        <div class="orb-bg orb-1"></div>
+        <div class="orb-bg orb-2"></div>
         
-        <div class="section-header text-center">
-            <h1 class="section-title">Identity Verification</h1>
-            <p class="section-subtitle">Complete the verification process to increase your trust level and unlock more features in the Proof of Humanity network</p>
-        </div>
-        
-        <!-- Verification Progress -->
-        <div class="verification-progress-container">
-            <div class="progress-info">
-                <h3>Your Verification Progress</h3>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 28%"></div>
-                    <span class="progress-percentage">28%</span>
+        <div class="container verification-container">
+            <h1 class="page-title">Verification Journey</h1>
+            <p class="page-subtitle">Track your progress through the verification process and unlock new capabilities</p>
+            
+            <!-- Progress Indicator -->
+            <div class="progress-indicator">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 
+                        {% if user_verification_level == 'none' %}0%
+                        {% elif user_verification_level == 'child' %}25%
+                        {% elif user_verification_level == 'parent' %}50%
+                        {% elif user_verification_level == 'grandparent' %}75%
+                        {% else %}100%{% endif %}">
+                    </div>
                 </div>
-                <p class="progress-message">You're on your way to becoming fully verified!</p>
+                
+                <!-- Child Step -->
+                <div class="progress-step {% if user_verification_level == 'child' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                    <span class="progress-step-icon">
+                        {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                            <i class="fas fa-check"></i>
+                        {% else %}
+                            1
+                        {% endif %}
+                    </span>
+                    <span class="progress-step-label">Child Node</span>
+                </div>
+                
+                <!-- Parent Step -->
+                <div class="progress-step {% if user_verification_level == 'parent' %}active{% elif user_verification_level == 'grandparent' %}completed{% endif %}">
+                    <span class="progress-step-icon">
+                        {% if user_verification_level == 'grandparent' %}
+                            <i class="fas fa-check"></i>
+                        {% else %}
+                            2
+                        {% endif %}
+                    </span>
+                    <span class="progress-step-label">Parent Node</span>
+                </div>
+                
+                <!-- Grandparent Step -->
+                <div class="progress-step {% if user_verification_level == 'grandparent' %}active{% endif %}">
+                    <span class="progress-step-icon">3</span>
+                    <span class="progress-step-label">Grandparent</span>
+                </div>
+                
+                <!-- Full Network Step -->
+                <div class="progress-step">
+                    <span class="progress-step-icon">4</span>
+                    <span class="progress-step-label">Full Network</span>
+                </div>
             </div>
             
-            <!-- Verification Levels -->
-            <div class="verification-levels">
-                <div class="verification-level {% if user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                    <div class="level-icon">
-                        <i class="fas fa-child"></i>
+            <!-- Verification Cards -->
+            <div class="verification-cards">
+                <!-- Child Node Card -->
+                <div class="verification-card {% if user_verification_level == 'child' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}" data-card="child">
+                    <div class="card-header">
+                        <div class="card-icon {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' %}completed{% endif %}">
+                            {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' %}
+                                <i class="fas fa-check"></i>
+                            {% else %}
+                                <i class="fas fa-child"></i>
+                            {% endif %}
+                        </div>
+                        <h3 class="card-title">Child Node</h3>
+                        <div class="card-status {% if user_verification_level == 'none' %}pending{% elif user_verification_level == 'child' %}active{% else %}completed{% endif %}">
+                            {% if user_verification_level == 'none' %}
+                                Pending
+                            {% elif user_verification_level == 'child' %}
+                                Active
+                            {% else %}
+                                Completed
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="level-info">
-                        <h4>Child</h4>
-                        <p>Become Verified</p>
+                    <div class="card-content">
+                        <p class="card-description">The first stage of verification. Get verified by two existing members of the network through video calls.</p>
+                        
+                        <div class="card-progress">
+                            <div class="card-progress-bar">
+                                <div class="card-progress-fill" style="width: 
+                                    {% if verification_progress.child.completed %}100%
+                                    {% else %}{{ (verification_progress.child.calls_made / verification_progress.child.calls_required) * 100 }}%
+                                    {% endif %}">
+                                </div>
+                            </div>
+                            <div class="card-progress-text">
+                                <span>{{ verification_progress.child.calls_made }}/{{ verification_progress.child.calls_required }} calls completed</span>
+                                <span>
+                                    {% if verification_progress.child.completed %}
+                                        Complete
+                                    {% else %}
+                                        {{ ((verification_progress.child.calls_made / verification_progress.child.calls_required) * 100) | round }}% complete
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="card-button" onclick="showDetails('child')">View Details</button>
                     </div>
                 </div>
-                <div class="progress-connector {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}active{% endif %}"></div>
-                <div class="verification-level {% if user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                    <div class="level-icon">
-                        <i class="fas fa-user"></i>
+                
+                <!-- Parent Node Card -->
+                <div class="verification-card {% if user_verification_level == 'parent' %}active{% elif user_verification_level == 'grandparent' %}completed{% endif %}" data-card="parent">
+                    <div class="card-header">
+                        <div class="card-icon {% if user_verification_level == 'grandparent' %}completed{% endif %}">
+                            {% if user_verification_level == 'grandparent' %}
+                                <i class="fas fa-check"></i>
+                            {% else %}
+                                <i class="fas fa-user-friends"></i>
+                            {% endif %}
+                        </div>
+                        <h3 class="card-title">Parent Node</h3>
+                        <div class="card-status {% if user_verification_level == 'none' or user_verification_level == 'child' %}pending{% elif user_verification_level == 'parent' %}active{% else %}completed{% endif %}">
+                            {% if user_verification_level == 'none' or user_verification_level == 'child' %}
+                                Pending
+                            {% elif user_verification_level == 'parent' %}
+                                Active
+                            {% else %}
+                                Completed
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="level-info">
-                        <h4>Parent</h4>
-                        <p>Invite 3 Others</p>
+                    <div class="card-content">
+                        <p class="card-description">Become a verifier and help bring new members into the network. Conduct verification calls with new users.</p>
+                        
+                        <div class="card-progress">
+                            <div class="card-progress-bar">
+                                <div class="card-progress-fill" style="width: 
+                                    {% if verification_progress.parent.completed %}100%
+                                    {% else %}{{ (verification_progress.parent.calls_made / verification_progress.parent.calls_required) * 100 }}%
+                                    {% endif %}">
+                                </div>
+                            </div>
+                            <div class="card-progress-text">
+                                <span>{{ verification_progress.parent.calls_made }}/{{ verification_progress.parent.calls_required }} calls completed</span>
+                                <span>
+                                    {% if verification_progress.parent.completed %}
+                                        Complete
+                                    {% else %}
+                                        {{ ((verification_progress.parent.calls_made / verification_progress.parent.calls_required) * 100) | round }}% complete
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="card-button" onclick="showDetails('parent')">View Details</button>
                     </div>
                 </div>
-                <div class="progress-connector {% if user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}active{% endif %}"></div>
-                <div class="verification-level {% if user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                    <div class="level-icon">
-                        <i class="fas fa-user-tie"></i>
+                
+                <!-- Grandparent Node Card -->
+                <div class="verification-card {% if user_verification_level == 'grandparent' %}active{% endif %}" data-card="grandparent">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="card-title">Grandparent Node</h3>
+                        <div class="card-status {% if user_verification_level == 'none' or user_verification_level == 'child' or user_verification_level == 'parent' %}pending{% else %}active{% endif %}">
+                            {% if user_verification_level == 'none' or user_verification_level == 'child' or user_verification_level == 'parent' %}
+                                Pending
+                            {% else %}
+                                Active
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="level-info">
-                        <h4>Grandparent</h4>
-                        <p>Verify Your Families</p>
+                    <div class="card-content">
+                        <p class="card-description">Verify parent-level members and help grow the network exponentially. Access advanced features and benefits.</p>
+                        
+                        <div class="card-progress">
+                            <div class="card-progress-bar">
+                                <div class="card-progress-fill" style="width: 
+                                    {% if verification_progress.grandparent.completed %}100%
+                                    {% else %}{{ (verification_progress.grandparent.calls_made / verification_progress.grandparent.calls_required) * 100 }}%
+                                    {% endif %}">
+                                </div>
+                            </div>
+                            <div class="card-progress-text">
+                                <span>{{ verification_progress.grandparent.calls_made }}/{{ verification_progress.grandparent.calls_required }} calls completed</span>
+                                <span>
+                                    {% if verification_progress.grandparent.completed %}
+                                        Complete
+                                    {% else %}
+                                        {{ ((verification_progress.grandparent.calls_made / verification_progress.grandparent.calls_required) * 100) | round }}% complete
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="card-button" onclick="showDetails('grandparent')">View Details</button>
                     </div>
                 </div>
-                <div class="progress-connector {% if user_verification_level == 'full_access' %}active{% endif %}"></div>
-                <div class="verification-level {% if user_verification_level == 'full_access' %}completed{% endif %}">
-                    <div class="level-icon">
-                        <i class="fas fa-crown"></i>
+                
+                <!-- Full Network Node Card -->
+                <div class="verification-card" data-card="full-network">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="card-title">Full Network Node</h3>
+                        <div class="card-status pending">Locked</div>
                     </div>
-                    <div class="level-info">
-                        <h4>Full Access</h4>
-                        <p>Graduation!</p>
+                    <div class="card-content">
+                        <p class="card-description">The highest level of verification. Gain governance rights, voting power, and help shape the future of the network.</p>
+                        
+                        <div class="card-progress">
+                            <div class="card-progress-bar">
+                                <div class="card-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="card-progress-text">
+                                <span>0/3 requirements completed</span>
+                                <span>0% complete</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="card-button" onclick="showDetails('full-network')">View Details</button>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Current Verification Stage -->
-        <div class="verification-current-stage">
-            <h3>Your Current Stage: <span class="highlight">{{ verification_stage|title }}</span></h3>
-            <div class="stage-cards">
-                <div class="verification-card">
-                    <div class="card-icon child">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <h3 class="card-title">Child Verification</h3>
-                    <p class="card-description">Complete a short video call with your first family unit to confirm your identity.</p>
-                    <div class="card-status {% if user_verification_level == 'none' %}active{% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                        {% if user_verification_level == 'none' %}
-                            <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                            <span class="status-badge completed">Completed</span>
-                        {% else %}
-                            <span class="status-badge">Not Started</span>
-                        {% endif %}
-                    </div>
-                    {% if user_verification_level == 'none' %}
-                        <a href="{{ url_for('schedule_call') }}" class="card-button">Schedule Call</a>
-                    {% elif user_verification_level == 'child' or user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                        <button class="card-button disabled">Completed</button>
-                    {% else %}
-                        <button class="card-button disabled">Locked</button>
-                    {% endif %}
+            
+            <!-- Detailed information sections that appear when a card is clicked -->
+            <div id="childDetails" class="verification-details">
+                <div class="details-header">
+                    <h2 class="details-title">Child Node Verification</h2>
+                    <button class="details-close" onclick="hideDetails('child')"><i class="fas fa-times"></i></button>
                 </div>
-                
-                <div class="verification-card">
-                    <div class="card-icon parent">
-                        <i class="fas fa-users"></i>
+                <div class="details-content">
+                    <div class="details-section">
+                        <h3 class="details-section-title">Requirements</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Complete 2 verification calls with existing network members</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Provide basic identity information</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Create and secure your decentralized identifier (DID)</span>
+                            </li>
+                        </ul>
                     </div>
-                    <h3 class="card-title">Parent Verification</h3>
-                    <p class="card-description">Invite 3 new users and validate their humanity by participating in a verification call with them.</p>
-                    <div class="card-status {% if user_verification_level == 'child' and verification_stage == 'parent' %}active{% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                        {% if user_verification_level == 'child' and verification_stage == 'parent' %}
-                            <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                            <span class="status-badge completed">Completed</span>
-                        {% else %}
-                            <span class="status-badge">Locked</span>
-                        {% endif %}
+                    
+                    <div class="details-section">
+                        <h3 class="details-section-title">Benefits</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Basic access to the Proof of Humanity network</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Ability to interact with verified humans</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Participation in beginner-level community events</span>
+                            </li>
+                        </ul>
                     </div>
-                    {% if user_verification_level == 'child' and verification_stage == 'parent' %}
-                        <a href="{{ url_for('family_tree') }}" class="card-button">Invite Users</a>
-                    {% elif user_verification_level == 'parent' or user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                        <button class="card-button disabled">Completed</button>
-                    {% else %}
-                        <button class="card-button disabled">Locked</button>
-                    {% endif %}
                 </div>
-                
-                <div class="verification-card">
-                    <div class="card-icon grandparent">
-                        <i class="fas fa-crown"></i>
-                    </div>
-                    <h3 class="card-title">Grandparent Verification</h3>
-                    <p class="card-description">Guide and verify your family members as they advance through their own verification journeys.</p>
-                    <div class="card-status {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}active{% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}completed{% endif %}">
-                        {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
-                            <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                            <span class="status-badge completed">Completed</span>
-                        {% else %}
-                            <span class="status-badge">Locked</span>
-                        {% endif %}
-                    </div>
-                    {% if user_verification_level == 'parent' and verification_stage == 'grandparent' %}
-                        <a href="{{ url_for('family_tree') }}" class="card-button">View Family Tree</a>
-                    {% elif user_verification_level == 'grandparent' or user_verification_level == 'full_access' %}
-                        <button class="card-button disabled">Completed</button>
-                    {% else %}
-                        <button class="card-button disabled">Locked</button>
-                    {% endif %}
-                </div>
-                
-                <div class="verification-card">
-                    <div class="card-icon full-access">
-                        <i class="fas fa-award"></i>
-                    </div>
-                    <h3 class="card-title">Full Access Node</h3>
-                    <p class="card-description">Congratulations! You've completed all verification steps and have full access to the Proof of Humanity system.</p>
-                    <div class="card-status {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}active{% elif user_verification_level == 'full_access' %}completed{% endif %}">
-                        {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}
-                            <span class="status-badge">In Progress</span>
-                        {% elif user_verification_level == 'full_access' %}
-                            <span class="status-badge completed">Completed</span>
-                        {% else %}
-                            <span class="status-badge">Locked</span>
-                        {% endif %}
-                    </div>
-                    {% if user_verification_level == 'grandparent' and verification_stage == 'full_access' %}
-                        <a href="{{ url_for('access_services') }}" class="card-button">Explore Benefits</a>
-                    {% elif user_verification_level == 'full_access' %}
-                        <a href="{{ url_for('access_services') }}" class="card-button">View Benefits</a>
-                    {% else %}
-                        <button class="card-button disabled">Locked</button>
-                    {% endif %}
+                <div class="details-actions">
+                    <a href="{{ url_for('schedule_call') }}" class="card-button">Schedule Verification Call</a>
                 </div>
             </div>
-        </div>
-        
-        <!-- Verification Benefits -->
-        <div class="verification-benefits">
-            <h3>Benefits of Verification</h3>
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4>Increased Security</h4>
-                    <p>Verified accounts have enhanced security protections and recovery options.</p>
+            
+            <div id="parentDetails" class="verification-details">
+                <div class="details-header">
+                    <h2 class="details-title">Parent Node Verification</h2>
+                    <button class="details-close" onclick="hideDetails('parent')"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-handshake"></i>
+                <div class="details-content">
+                    <div class="details-section">
+                        <h3 class="details-section-title">Requirements</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Complete Child Node verification</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Verify 3 new users through verification calls</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Be an active member for at least 30 days</span>
+                            </li>
+                        </ul>
                     </div>
-                    <h4>Trust Network</h4>
-                    <p>Join a trusted network of verified humans for safer interactions.</p>
+                    
+                    <div class="details-section">
+                        <h3 class="details-section-title">Benefits</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Ability to verify new members</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Access to intermediate services and features</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Earn verification rewards</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-award"></i>
-                    </div>
-                    <h4>Exclusive Features</h4>
-                    <p>Access special features only available to verified members.</p>
+                <div class="details-actions">
+                    <a href="{{ url_for('network_viz_redirect') }}" class="card-button">View Available Users to Verify</a>
                 </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <i class="fas fa-coins"></i>
+            </div>
+            
+            <div id="grandparentDetails" class="verification-details">
+                <div class="details-header">
+                    <h2 class="details-title">Grandparent Node Verification</h2>
+                    <button class="details-close" onclick="hideDetails('grandparent')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="details-content">
+                    <div class="details-section">
+                        <h3 class="details-section-title">Requirements</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Complete Parent Node verification</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Verify 2 Parent-level members</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Be an active member for at least 90 days</span>
+                            </li>
+                        </ul>
                     </div>
-                    <h4>Reputation Tokens</h4>
-                    <p>Earn reputation tokens as you progress through verification levels.</p>
+                    
+                    <div class="details-section">
+                        <h3 class="details-section-title">Benefits</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Advanced verification capabilities</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Access to advanced services and partner benefits</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Higher verification rewards</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="details-actions">
+                    <a href="{{ url_for('family_tree') }}" class="card-button">View Your Family Tree</a>
+                </div>
+            </div>
+            
+            <div id="fullNetworkDetails" class="verification-details">
+                <div class="details-header">
+                    <h2 class="details-title">Full Network Node</h2>
+                    <button class="details-close" onclick="hideDetails('full-network')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="details-content">
+                    <div class="details-section">
+                        <h3 class="details-section-title">Requirements</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Complete Grandparent Node verification</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Have a complete family tree with at least 20 verified members</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-check-circle"></i></span>
+                                <span class="details-list-text">Be an active member for at least 180 days</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="details-section">
+                        <h3 class="details-section-title">Benefits</h3>
+                        <ul class="details-list">
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Full governance rights in the network</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Ability to propose and vote on network changes</span>
+                            </li>
+                            <li class="details-list-item">
+                                <span class="details-list-icon"><i class="fas fa-star"></i></span>
+                                <span class="details-list-text">Premium services and maximum verification rewards</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="details-actions">
+                    <a href="{{ url_for('network_viz_redirect') }}" class="card-button">View Network Governance</a>
                 </div>
             </div>
         </div>
     </section>
+    
+    <!-- JavaScript for card interactivity -->
+    <script>
+        function showDetails(cardType) {
+            // Hide all detail sections first
+            document.querySelectorAll('.verification-details').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show the selected detail section
+            let detailsId = '';
+            switch(cardType) {
+                case 'child':
+                    detailsId = 'childDetails';
+                    break;
+                case 'parent':
+                    detailsId = 'parentDetails';
+                    break;
+                case 'grandparent':
+                    detailsId = 'grandparentDetails';
+                    break;
+                case 'full-network':
+                    detailsId = 'fullNetworkDetails';
+                    break;
+            }
+            
+            if (detailsId) {
+                document.getElementById(detailsId).classList.add('active');
+                // Scroll to the details section
+                document.getElementById(detailsId).scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            }
+        }
+        
+        function hideDetails(cardType) {
+            let detailsId = '';
+            switch(cardType) {
+                case 'child':
+                    detailsId = 'childDetails';
+                    break;
+                case 'parent':
+                    detailsId = 'parentDetails';
+                    break;
+                case 'grandparent':
+                    detailsId = 'grandparentDetails';
+                    break;
+                case 'full-network':
+                    detailsId = 'fullNetworkDetails';
+                    break;
+            }
+            
+            if (detailsId) {
+                document.getElementById(detailsId).classList.remove('active');
+            }
+        }
+    </script>
 </div>
 {% endblock %} 

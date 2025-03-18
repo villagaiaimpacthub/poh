@@ -307,7 +307,7 @@
               // Check iframe content
               const iframeLoaded = iframe.contentWindow && iframe.contentDocument;
               addDebugInfo("Iframe access: " + (iframeLoaded ? "Yes" : "No"));
-            } catch (e) {
+          } catch (e) {
               addDebugInfo("Cannot access iframe content due to security restrictions", "warning");
             }
           } else {
@@ -455,7 +455,7 @@ function showFallbackVisualization() {
                 <circle cx="450" cy="120" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
                 <circle cx="350" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
                 <circle cx="450" cy="480" r="15" fill="#43d1ff" opacity="0.7" class="pulse-circle" />
-            </g>
+              </g>
             </svg>
     `;
     
@@ -669,7 +669,7 @@ window.vizDiagnostics = {
                 entry.innerHTML = `<span style="color:${type === 'error' ? 'red' : type === 'warning' ? 'orange' : 'green'}">[${type.toUpperCase()}]</span> ${message}`;
                 diagLog.appendChild(entry);
             }
-        } catch (e) {
+              } catch (e) {
             console.error("Error updating DOM log:", e);
         }
     },
@@ -718,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Wait a bit to let other scripts initialize
     setTimeout(function() {
         window.vizDiagnostics.checkResources();
-    }, 500);
+      }, 500);
 });
 
 window.addEventListener('load', function() {
@@ -777,6 +777,7 @@ window.addEventListener('error', function(e) {
 <script src="{{ url_for('static', filename='js/network-visualization.js') }}"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="{{ url_for('static', filename='js/circular_family_tree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/simple_viz.js') }}"></script>
 <script>
     // Init FAQ accordions
     document.addEventListener('DOMContentLoaded', function() {
@@ -831,53 +832,86 @@ window.addEventListener('error', function(e) {
             setTimeout(() => {
                 try {
                     console.log('[LANDING] Attempting to initialize visualization after delay');
-                    // Initialize visualization
-                    const circularTree = new CircularFamilyTree({
-                        containerId: 'hero-visualization',
-                        title: 'Proof of Humanity Network'
-                    });
                     
-                    // Hide loading indicator once visualization is ready
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
+                    // Try the complex visualization first
+                    if (typeof CircularFamilyTree === 'function') {
+                        console.log('[LANDING] CircularFamilyTree class found, initializing...');
+                        // Initialize visualization
+                        const circularTree = new CircularFamilyTree({
+                            containerId: 'hero-visualization',
+                            title: 'Proof of Humanity Network'
+                        });
+                        
+                        // Hide loading indicator once visualization is ready
+                        if (loadingIndicator) {
+                            loadingIndicator.style.display = 'none';
+                        }
+                        
+                        console.log('[LANDING] CircularFamilyTree visualization initialized successfully');
+                    } else {
+                        // Fall back to simple visualization if CircularFamilyTree isn't available
+                        console.log('[LANDING] CircularFamilyTree class not found, using simple visualization');
+                        throw new Error('CircularFamilyTree not found');
                     }
-                    
-                    console.log('[LANDING] Visualization initialized successfully');
                 } catch (error) {
                     console.error('[LANDING] Error initializing visualization:', error);
                     
-                    // Provide a more detailed error message
-                    if (loadingIndicator) {
-                        loadingIndicator.innerHTML = `
-                            <div style="text-align: center; color: white;">
-                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
-                                <p>Error loading visualization: ${error.message}</p>
-                                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
-                                    Try refreshing the page or check browser console for details.
-                                </p>
-                                <button class="btn-web5" style="margin-top: 1rem;" onclick="location.reload()">Retry</button>
+                    // Try the simple visualization as fallback
+                    try {
+                        console.log('[LANDING] Trying simple visualization as fallback');
+                        if (typeof createSimpleVisualization === 'function') {
+                            const simpleViz = createSimpleVisualization('hero-visualization', {
+                                title: 'Proof of Humanity Network',
+                                nodeCount: 20
+                            });
+                            
+                            // Hide loading indicator
+                            if (loadingIndicator) {
+                                loadingIndicator.style.display = 'none';
+                            }
+                            
+                            console.log('[LANDING] Simple visualization initialized successfully');
+        } else {
+                            throw new Error('Simple visualization not available');
+                        }
+                    } catch (fallbackError) {
+                        console.error('[LANDING] Fallback visualization also failed:', fallbackError);
+                        
+                        // Provide a more detailed error message
+                        if (loadingIndicator) {
+                            loadingIndicator.innerHTML = `
+                                <div style="text-align: center; color: white;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff5757; margin-bottom: 1rem;"></i>
+                                    <p>Visualization could not be loaded</p>
+                                    <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.7;">
+                                        Please check your browser console for details.
+                                    </p>
+                                    <button class="btn-web5" style="margin-top: 1rem;" onclick="location.reload()">Retry</button>
+                                </div>
+                            `;
+                        }
+                        
+                        // Display static fallback visualization
+                        visualizationContainer.innerHTML += `
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="300" height="300" viewBox="0 0 300 300">
+                                    <circle cx="150" cy="150" r="50" fill="#7a43ff" opacity="0.7" />
+                                    <circle cx="150" cy="80" r="30" fill="#43d1ff" opacity="0.7" />
+                                    <circle cx="90" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
+                                    <circle cx="210" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
+                                    <line x1="150" y1="150" x2="150" y2="80" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                    <line x1="150" y1="150" x2="90" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                    <line x1="150" y1="150" x2="210" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+                                    <text x="150" y="155" text-anchor="middle" fill="white" font-size="12">You</text>
+                                    <text x="150" y="75" text-anchor="middle" fill="white" font-size="10">Parent</text>
+                                    <text x="90" y="185" text-anchor="middle" fill="white" font-size="10">Friend 1</text>
+                                    <text x="210" y="185" text-anchor="middle" fill="white" font-size="10">Friend 2</text>
+                                </svg>
                             </div>
                         `;
+                        
+                        console.log('[LANDING] Static fallback displayed');
                     }
-                    
-                    // Add fallback visualization as a static image or simple SVG
-                    visualizationContainer.innerHTML += `
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                            <svg width="300" height="300" viewBox="0 0 300 300">
-                                <circle cx="150" cy="150" r="50" fill="#7a43ff" opacity="0.7" />
-                                <circle cx="150" cy="80" r="30" fill="#43d1ff" opacity="0.7" />
-                                <circle cx="90" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
-                                <circle cx="210" cy="180" r="30" fill="#43d1ff" opacity="0.7" />
-                                <line x1="150" y1="150" x2="150" y2="80" stroke="#ffffff" stroke-width="2" opacity="0.5" />
-                                <line x1="150" y1="150" x2="90" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
-                                <line x1="150" y1="150" x2="210" y2="180" stroke="#ffffff" stroke-width="2" opacity="0.5" />
-                                <text x="150" y="155" text-anchor="middle" fill="white" font-size="12">You</text>
-                                <text x="150" y="75" text-anchor="middle" fill="white" font-size="10">Parent</text>
-                                <text x="90" y="185" text-anchor="middle" fill="white" font-size="10">Friend 1</text>
-                                <text x="210" y="185" text-anchor="middle" fill="white" font-size="10">Friend 2</text>
-                            </svg>
-                        </div>
-                    `;
                 }
             }, 500); // 500ms delay
         } else {

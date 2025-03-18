@@ -194,4 +194,100 @@
     width: 36px;
     height: 36px;
   }
+}
+
+/* Network Visualization Styles */
+.network-visualization {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    background: rgba(15, 15, 35, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .network-visualization {
+        height: 450px;
+    }
+}
+
+#family-tree-container, 
+#hero-visualization {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Button styles */
+.button-group, 
+.reset-button-group {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    transition: filter 0.2s ease;
+}
+
+.button-group:hover, 
+.reset-button-group:hover {
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    70% {
+        transform: scale(2);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.pulse-circle {
+    animation: pulse 2s infinite;
+}
+
+/* Node hover effect */
+.node circle {
+    transition: r 0.2s ease, stroke-width 0.2s ease;
+}
+
+.node:hover circle {
+    stroke-width: 2px;
+    filter: brightness(1.2);
+}
+
+/* Legend styles */
+.legend rect {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Loading indicator */
+.loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-indicator div {
+    border: 3px solid rgba(122, 67, 255, 0.3);
+    border-top: 3px solid #7a43ff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    animation: spin 2s linear infinite;
 } 

@@ -207,11 +207,11 @@ def create_app(test_config=None):
     # Index route
     @app.route('/')
     def index():
-        return render_template('index.html')
+        return render_template('index.html', debug=app.debug)
     
     @app.route('/profile')
     def profile():
-        return render_template('profile.html')
+        return render_template('profile.html', debug=app.debug)
     
     @app.route('/verification')
     def verification_manage():
@@ -326,13 +326,13 @@ def create_app(test_config=None):
                 logger.error(f"benefits.html template not found")
                 # Fallback to a generic template if benefits.html doesn't exist
                 flash('The requested page is not available.', 'warning')
-                return render_template('index.html')
+                return render_template('index.html', debug=app.debug)
             
-            return render_template('benefits.html')
+            return render_template('benefits.html', debug=app.debug)
         except Exception as e:
             logger.error(f"Error in access_services route: {e}", exc_info=True)
             flash('An error occurred while loading the page.', 'error')
-            return render_template('errors/500.html'), 500
+            return render_template('errors/500.html', debug=app.debug), 500
     
     @app.route('/login', methods=['GET', 'POST'])
     def login():
@@ -342,7 +342,7 @@ def create_app(test_config=None):
             session['username'] = request.form.get('email', 'User')
             logger.info(f"User logged in: {session['username']}")
             return redirect(url_for('dashboard'))
-        return render_template('login.html')
+        return render_template('login.html', debug=app.debug)
     
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -405,7 +405,8 @@ def create_app(test_config=None):
         
         return render_template('dashboard.html', 
                               current_user=user,
-                              now=datetime.datetime.now)
+                              now=datetime.datetime.now,
+                              debug=app.debug)
     
     # Simplify static file serving
     @app.route('/static/<path:filename>')
@@ -469,7 +470,7 @@ def create_app(test_config=None):
     def diagnostics():
         """Diagnostic page for network visualization testing"""
         app.logger.info("Loading diagnostics page")
-        return render_template('diagnostics.html')
+        return render_template('diagnostics.html', debug=app.debug)
     
     @app.before_request
     def log_template_info():
@@ -503,7 +504,7 @@ def create_app(test_config=None):
     @app.errorhandler(404)
     def not_found_error(error):
         app.logger.error(f'Page not found: {request.url}')
-        return render_template('errors/404.html'), 404
+        return render_template('errors/404.html', debug=app.debug), 404
     
     @app.errorhandler(500)
     def internal_error(error):

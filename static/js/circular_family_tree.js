@@ -129,15 +129,15 @@ class CircularFamilyTree {
         const browser = detectBrowser();
         const isSafariOrIOS = browser.isSafari || browser.isIOS;
         
-        // Set color scheme with browser-specific adjustments
+        // Set color scheme with browser-specific adjustments - using the blue color for all nodes
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#FFD700',  // Gold - Founders
-            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple - Parents
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue - Children
-            4: isSafariOrIOS ? 'rgb(76, 175, 80)' : '#4CAF50'   // Green - Grandchildren
+            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for all levels
+            2: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
+            4: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff'   // Blue
         };
         
-        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser`);
+        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser - all set to blue`);
         
         // Add styles to the page
         this.addStyles();
@@ -399,10 +399,10 @@ class CircularFamilyTree {
         
         // Set the custom colors - using rgb for better cross-browser compatibility
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#FFD700',  // Gold - Founders
-            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple - Parents
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue - Children
-            4: isSafariOrIOS ? 'rgb(76, 175, 80)' : '#4CAF50'   // Green - Grandchildren
+            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for all levels
+            2: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue
+            4: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff'   // Blue
         };
         
         console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name}`);
@@ -659,10 +659,10 @@ class CircularFamilyTree {
         
         // Define legend data
         const legendData = [
-            { color: this.nodeColors[1], text: 'Full Network Access' },
-            { color: this.nodeColors[2], text: 'Parents' },
-            { color: this.nodeColors[3], text: 'Children' },
-            { color: this.nodeColors[4], text: 'Grandchildren' },
+            { color: this.nodeColors[1], text: 'Full Network Nodes' },
+            { color: this.nodeColors[2], text: 'Parent Nodes' },
+            { color: this.nodeColors[3], text: 'Child Nodes' },
+            { color: this.nodeColors[4], text: 'Grandchild Nodes' },
             { 
                 special: 'founder-connection', 
                 text: 'Founder Direct Connection', 
@@ -914,10 +914,10 @@ class CircularFamilyTree {
         
         // Add legend items
         const legendData = [
-            { color: this.nodeColors[1], text: "Full Network Access" },
-            { color: this.nodeColors[2], text: "Parents" },
-            { color: this.nodeColors[3], text: "Children" },
-            { color: this.nodeColors[4], text: "Grandchildren" }
+            { color: this.nodeColors[1], text: 'Full Network Nodes' },
+            { color: this.nodeColors[2], text: 'Parent Nodes' },
+            { color: this.nodeColors[3], text: 'Child Nodes' },
+            { color: this.nodeColors[4], text: 'Grandchild Nodes' },
         ];
         
         const legendItems = legendGroup.selectAll(".legend-item")

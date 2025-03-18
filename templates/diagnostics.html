@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Visualization Diagnostics</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .visualization-container {
+            height: 500px;
+            position: relative;
+            margin: 20px 0;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        .spinner {
+            border: 3px solid rgba(122, 67, 255, 0.3);
+            border-top: 3px solid #7a43ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 20px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .logs {
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            background-color: #0a0a0a;
+            color: #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .error { color: #ff5757; }
+        .warning { color: #ffbb00; }
+        .success { color: #4eff91; }
+        .info { color: #43d1ff; }
+        .btn {
+            background: #7a43ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #6a33ef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Network Visualization Diagnostics</h1>
+        
+        <div class="card">
+            <h2>Browser Information</h2>
+            <div id="browser-info">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h2>Test Visualization</h2>
+            <div class="visualization-container" id="viz-container">
+                <div id="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>Loading visualization...</p>
+                </div>
+            </div>
+            <div>
+                <button class="btn" id="reload-btn">Reload Visualization</button>
+                <button class="btn" id="fallback-btn">Show Fallback</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Diagnostic Logs</h2>
+            <div class="logs" id="diagnostic-logs"></div>
+            <div>
+                <button class="btn" id="clear-logs">Clear Logs</button>
+                <button class="btn" id="test-d3">Test D3.js</button>
+                <button class="btn" id="test-dom">Test DOM</button>
+                <button class="btn" id="test-simple-viz">Test Simple Viz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/static/js/circular_family_tree.js"></script>
+    <script src="/static/js/simple_viz.js"></script>
+    
+    <script>
+        // Diagnostic logging
+        const logs = document.getElementById('diagnostic-logs');
+        
+        function logMessage(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toISOString().split('T')[1].split('.')[0]}] ${message}`;
+            entry.classList.add(type);
+            logs.appendChild(entry);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Browser detection
+        function updateBrowserInfo() {
+            const browserInfo = document.getElementById('browser-info');
+            const result = detectBrowser ? detectBrowser() : {
+                browserName: "Detection function not found",
+                browserVersion: "N/A",
+                isSafari: false,
+                isIOS: false
+            };
+            
+            browserInfo.innerHTML = `
+                <p><strong>Browser:</strong> ${result.browserName} ${result.browserVersion}</p>
+                <p><strong>Is Safari:</strong> ${result.isSafari}</p>
+                <p><strong>Is iOS:</strong> ${result.isIOS}</p>
+                <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                <p><strong>Window Size:</strong> ${window.innerWidth}x${window.innerHeight}</p>
+            `;
+            
+            logMessage(`Detected browser: ${result.browserName} ${result.browserVersion}`, 'info');
+        }
+
+        // Test D3.js
+        function testD3() {
+            if (typeof d3 !== 'undefined') {
+                logMessage(`D3.js is loaded (version ${d3.version})`, 'success');
+                
+                // Create a simple D3 visualization to test
+                try {
+                    const svg = d3.select('#viz-container')
+                        .append('svg')
+                        .attr('width', 100)
+                        .attr('height', 100)
+                        .style('position', 'absolute')
+                        .style('top', '10px')
+                        .style('right', '10px');
+                    
+                    svg.append('circle')
+                        .attr('cx', 50)
+                        .attr('cy', 50)
+                        .attr('r', 40)
+                        .style('fill', '#7a43ff');
+                    
+                    logMessage('Successfully created test D3 visualization', 'success');
+                } catch (error) {
+                    logMessage(`Error creating D3 test: ${error.message}`, 'error');
+                }
+            } else {
+                logMessage('D3.js is not loaded!', 'error');
+            }
+        }
+
+        // Test DOM
+        function testDOM() {
+            try {
+                const container = document.getElementById('viz-container');
+                const rect = container.getBoundingClientRect();
+                
+                logMessage(`Container dimensions: ${rect.width}x${rect.height}`, 'info');
+                logMessage(`Container position: (${rect.left}, ${rect.top})`, 'info');
+                
+                const computedStyle = window.getComputedStyle(container);
+                logMessage(`Container display: ${computedStyle.display}`, 'info');
+                logMessage(`Container visibility: ${computedStyle.visibility}`, 'info');
+                logMessage(`Container z-index: ${computedStyle.zIndex}`, 'info');
+                
+                logMessage('DOM tests completed successfully', 'success');
+            } catch (error) {
+                logMessage(`DOM test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Load visualization
+        function loadVisualization() {
+            document.getElementById('loading-indicator').style.display = 'block';
+            logMessage('Attempting to initialize visualization', 'info');
+            
+            try {
+                // Check if CircularFamilyTree class exists
+                if (typeof CircularFamilyTree === 'undefined') {
+                    throw new Error('CircularFamilyTree class not found');
+                }
+                
+                // Create visualization
+                const vizContainer = document.getElementById('viz-container');
+                vizContainer.innerHTML = '';
+                vizContainer.appendChild(document.getElementById('loading-indicator'));
+                
+                const circularTree = new CircularFamilyTree({
+                    containerId: 'viz-container',
+                    title: 'Diagnostic Test Network'
+                });
+                
+                logMessage('Visualization initialized successfully', 'success');
+            } catch (error) {
+                logMessage(`Error initializing visualization: ${error.message}`, 'error');
+                document.getElementById('loading-indicator').innerHTML = `
+                    <div style="color: #ff5757;">
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Show fallback visualization
+        function showFallback() {
+            logMessage('Showing fallback visualization', 'warning');
+            
+            const container = document.getElementById('viz-container');
+            container.innerHTML = '';
+            
+            // Create SVG element
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 500 500');
+            
+            // Add gradient definition
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            gradient.setAttribute('id', 'gradient');
+            gradient.setAttribute('x1', '0%');
+            gradient.setAttribute('y1', '0%');
+            gradient.setAttribute('x2', '100%');
+            gradient.setAttribute('y2', '100%');
+            
+            const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('stop-color', '#7a43ff');
+            
+            const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '100%');
+            stop2.setAttribute('stop-color', '#43d1ff');
+            
+            gradient.appendChild(stop1);
+            gradient.appendChild(stop2);
+            defs.appendChild(gradient);
+            svg.appendChild(defs);
+            
+            // Create center circle
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '250');
+            circle.setAttribute('cy', '250');
+            circle.setAttribute('r', '50');
+            circle.setAttribute('fill', 'url(#gradient)');
+            svg.appendChild(circle);
+            
+            // Create surrounding circles
+            const positions = [
+                {x: 150, y: 150}, {x: 350, y: 150},
+                {x: 150, y: 350}, {x: 350, y: 350}
+            ];
+            
+            positions.forEach((pos) => {
+                // Create line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', '250');
+                line.setAttribute('y1', '250');
+                line.setAttribute('x2', pos.x.toString());
+                line.setAttribute('y2', pos.y.toString());
+                line.setAttribute('stroke', '#7a43ff');
+                line.setAttribute('stroke-width', '2');
+                svg.appendChild(line);
+                
+                // Create circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', pos.x.toString());
+                circle.setAttribute('cy', pos.y.toString());
+                circle.setAttribute('r', '30');
+                circle.setAttribute('fill', '#43d1ff');
+                circle.setAttribute('opacity', '0.7');
+                svg.appendChild(circle);
+            });
+            
+            // Add text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', '250');
+            text.setAttribute('y', '250');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('fill', 'white');
+            text.textContent = 'Fallback Visualization';
+            svg.appendChild(text);
+            
+            container.appendChild(svg);
+            logMessage('Fallback visualization loaded', 'success');
+        }
+
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            logMessage('Page loaded', 'info');
+            updateBrowserInfo();
+            
+            document.getElementById('reload-btn').addEventListener('click', loadVisualization);
+            document.getElementById('fallback-btn').addEventListener('click', showFallback);
+            document.getElementById('clear-logs').addEventListener('click', () => {
+                logs.innerHTML = '';
+                logMessage('Logs cleared', 'info');
+            });
+            document.getElementById('test-d3').addEventListener('click', testD3);
+            document.getElementById('test-dom').addEventListener('click', testDOM);
+            document.getElementById('test-simple-viz').addEventListener('click', function() {
+                logMessage('Testing simple visualization', 'info');
+                const container = document.getElementById('viz-container');
+                container.innerHTML = '';
+                
+                // Add loading indicator
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.id = 'loading-indicator';
+                loadingIndicator.innerHTML = `
+                    <div class="spinner"></div>
+                    <p>Loading simple visualization...</p>
+                `;
+                container.appendChild(loadingIndicator);
+                
+                // Try to create simple visualization
+                try {
+                    const simpleViz = createSimpleVisualization('viz-container', {
+                        title: 'Simple Test Visualization',
+                        nodeCount: 15
+                    });
+                    logMessage('Simple visualization created successfully', 'success');
+                } catch (error) {
+                    logMessage(`Error creating simple visualization: ${error.message}`, 'error');
+                }
+            });
+            
+            // Initial load
+            loadVisualization();
+        });
+
+        // Error handling
+        window.addEventListener('error', (event) => {
+            logMessage(`Global error: ${event.message} at ${event.filename}:${event.lineno}`, 'error');
+        });
+    </script>
+</body>
+</html> 

@@ -118,6 +118,75 @@
         align-items: center;
         justify-content: center;
     }
+
+    .network-visualization {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(17, 25, 40, 0.8);
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        height: 600px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .control-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .control-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .network-controls {
+        display: flex;
+        align-items: center;
+    }
+
+    .legend-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: rgba(17, 25, 40, 0.75);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: white;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
@@ -133,193 +202,81 @@
     </div>
 </section>
     
-<section class="network-container">
-    <div class="visualization-container">
-        <div class="visualization-header">
-            <h2 class="visualization-title">Your Trust Network</h2>
-            <div>
-                <button class="control-btn zoom-in">
-                    <i class="fas fa-search-plus"></i> Zoom In
-                </button>
-                <button class="control-btn zoom-out">
-                    <i class="fas fa-search-minus"></i> Zoom Out
-                </button>
-                <button class="control-btn reset">
-                    <i class="fas fa-sync"></i> Reset
-                </button>
-            </div>
-        </div>
-        
-        <!-- Direct SVG Visualization instead of iframe -->
-        <div class="static-visualization" id="network-viz">
-            <svg width="100%" height="100%" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="founder-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#ff7a43" stop-opacity="0.9" />
-                        <stop offset="100%" stop-color="#ffcb43" stop-opacity="0.9" />
-                    </linearGradient>
-                    <linearGradient id="grandparent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.9" />
-                        <stop offset="100%" stop-color="#9b43ff" stop-opacity="0.9" />
-                    </linearGradient>
-                    <linearGradient id="parent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#7a43ff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#43a1ff" stop-opacity="0.7" />
-                    </linearGradient>
-                    <linearGradient id="child-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#43d1ff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#43ffd1" stop-opacity="0.7" />
-                    </linearGradient>
-                </defs>
-                
-                <!-- Links between nodes -->
-                <g class="links" stroke-width="2" stroke-opacity="0.6">
-                    <!-- Founder to Grandparents -->
-                    <line x1="500" y1="200" x2="300" y2="300" stroke="#7a43ff" />
-                    <line x1="500" y1="200" x2="700" y2="300" stroke="#7a43ff" />
-                    
-                    <!-- Grandparents to Parents -->
-                    <line x1="300" y1="300" x2="200" y2="400" stroke="#43a1ff" />
-                    <line x1="300" y1="300" x2="350" y2="400" stroke="#43a1ff" />
-                    <line x1="700" y1="300" x2="650" y2="400" stroke="#43a1ff" />
-                    <line x1="700" y1="300" x2="800" y2="400" stroke="#43a1ff" />
-                    
-                    <!-- Parents to Children -->
-                    <line x1="200" y1="400" x2="150" y2="500" stroke="#43d1ff" />
-                    <line x1="200" y1="400" x2="250" y2="500" stroke="#43d1ff" />
-                    <line x1="350" y1="400" x2="300" y2="500" stroke="#43d1ff" />
-                    <line x1="350" y1="400" x2="400" y2="500" stroke="#43d1ff" />
-                    <line x1="650" y1="400" x2="600" y2="500" stroke="#43d1ff" />
-                    <line x1="650" y1="400" x2="700" y2="500" stroke="#43d1ff" />
-                    <line x1="800" y1="400" x2="750" y2="500" stroke="#43d1ff" />
-                    <line x1="800" y1="400" x2="850" y2="500" stroke="#43d1ff" />
-                    
-                    <!-- Additional connections -->
-                    <line x1="500" y1="200" x2="500" y2="400" stroke="#7a43ff" stroke-dasharray="5,5" />
-                    <line x1="500" y1="400" x2="450" y2="500" stroke="#43d1ff" />
-                    <line x1="500" y1="400" x2="550" y2="500" stroke="#43d1ff" />
-                </g>
-                
-                <!-- Nodes for different levels in the tree -->
-                <g class="nodes">
-                    <!-- Founder (You) -->
-                    <circle cx="500" cy="200" r="40" fill="url(#founder-gradient)" class="pulse-circle" data-level="founder" />
-                    <text x="500" y="205" text-anchor="middle" fill="white" font-size="14" font-weight="bold">You</text>
-                    
-                    <!-- Grandparents -->
-                    <circle cx="300" cy="300" r="30" fill="url(#grandparent-gradient)" class="pulse-circle" data-level="grandparent" />
-                    <circle cx="700" cy="300" r="30" fill="url(#grandparent-gradient)" class="pulse-circle" data-level="grandparent" />
-                    
-                    <!-- Parents -->
-                    <circle cx="200" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
-                    <circle cx="350" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
-                    <circle cx="500" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
-                    <circle cx="650" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
-                    <circle cx="800" cy="400" r="25" fill="url(#parent-gradient)" class="pulse-circle" data-level="parent" />
-                    
-                    <!-- Children -->
-                    <circle cx="150" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="250" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="300" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="400" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="450" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="550" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="600" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="700" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="750" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                    <circle cx="850" cy="500" r="20" fill="url(#child-gradient)" class="pulse-circle" data-level="child" />
-                </g>
-            </svg>
-        </div>
-        
-        <div class="legend-container">
-            <h4 style="margin-bottom: 1rem; font-size: 1rem;">Network Legend</h4>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ff7a43, #ffcb43);"></div>
-                <span>Founders</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #7a43ff, #9b43ff);"></div>
-                <span>Grandparents</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #7a43ff, #43a1ff);"></div>
-                <span>Parents</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #43d1ff, #43ffd1);"></div>
-                <span>Children</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h3>About Your Trust Network</h3>
-                    <p>This visualization represents your position in the Proof of Humanity trust network. Each node represents a verified human with connections to other members.</p>
-                    <ul>
-                        <li><strong>You</strong> are positioned at the top of your network as the center of your trust relationships.</li>
-                        <li><strong>Grandparents</strong> are the initial verifiers who helped establish your network.</li>
-                        <li><strong>Parents</strong> are directly verified by you or have verified others with you.</li>
-                        <li><strong>Children</strong> are newer members who have been verified with your participation.</li>
-                    </ul>
-                    <p>As more humans join through your trust connections, your network grows and strengthens the entire proof of humanity ecosystem.</p>
+<section class="network-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="visualization-header">
+                    <h2 class="visualization-title">Your Trust Network</h2>
+                    <div class="network-controls">
+                        <button id="zoom-in" class="control-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        </button>
+                        <button id="zoom-out" class="control-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        </button>
+                        <button id="zoom-reset" class="control-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                        </button>
+                    </div>
                 </div>
+                
+                <!-- Network visualization container -->
+                <div class="network-visualization" id="family-network">
+                    <!-- Loading indicator for visualization -->
+                    <div class="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; z-index: 1;">
+                        <div style="border: 3px solid rgba(122, 67, 255, 0.3); border-top: 3px solid #7a43ff; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 2s linear infinite;"></div>
+                        <p>Loading network visualization...</p>
+                    </div>
+                    <!-- Network visualization will be rendered here -->
+                    <div id="family-tree-container" style="width: 100%; height: 100%;"></div>
+                </div>
+
+                <!-- Legend is now generated by the JS and doesn't need to be here -->
             </div>
         </div>
     </div>
 </section>
 
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="{{ url_for('static', filename='js/circular_family_tree.js') }}?v=1742252610"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add animation to nodes
-        const circles = document.querySelectorAll('.pulse-circle');
-        circles.forEach((circle, index) => {
-            const originalR = parseFloat(circle.getAttribute('r'));
-            const level = circle.getAttribute('data-level');
-            let phaseOffset = index * 0.5; // Different starting phase for each circle
-            
-            // Different animation speeds based on network level
-            let speed = 1;
-            if (level === 'founder') speed = 0.7;
-            else if (level === 'grandparent') speed = 0.8;
-            else if (level === 'parent') speed = 0.9;
-            else if (level === 'child') speed = 1.1;
-            
-            setInterval(() => {
-                // Create a subtle pulsing effect
-                const time = Date.now() / 1000;
-                const factor = 1 + 0.1 * Math.sin(time * speed + phaseOffset);
-                circle.setAttribute('r', originalR * factor);
-            }, 50);
+        // Initialize the circular family tree visualization
+        const familyTree = new CircularFamilyTree({
+            containerId: 'family-tree-container',
+            width: '100%',
+            height: '100%',
+            title: 'Your Proof of Humanity Network'
         });
         
-        // Simple zoom controls
-        const svg = document.querySelector('svg');
+        // Define zoom variable
         let currentZoom = 1;
-        const zoomStep = 0.2;
         
-        document.querySelector('.zoom-in').addEventListener('click', function() {
-            currentZoom += zoomStep;
+        // Add zoom controls event listeners
+        document.getElementById('zoom-in').addEventListener('click', function() {
+            currentZoom += 0.1;
+            if (currentZoom > 2) currentZoom = 2;
             updateZoom();
         });
         
-        document.querySelector('.zoom-out').addEventListener('click', function() {
-            currentZoom = Math.max(0.5, currentZoom - zoomStep);
+        document.getElementById('zoom-out').addEventListener('click', function() {
+            currentZoom -= 0.1;
+            if (currentZoom < 0.5) currentZoom = 0.5;
             updateZoom();
         });
         
-        document.querySelector('.reset').addEventListener('click', function() {
+        document.getElementById('zoom-reset').addEventListener('click', function() {
             currentZoom = 1;
             updateZoom();
         });
         
         function updateZoom() {
-            // Apply zoom by scaling the SVG
-            svg.style.transform = `scale(${currentZoom})`;
-            svg.style.transformOrigin = 'center center';
+            const svg = document.querySelector('#family-tree-container svg');
+            if (svg) {
+                svg.style.transform = `scale(${currentZoom})`;
+                svg.style.transformOrigin = 'center center';
+            }
         }
     });
 </script>

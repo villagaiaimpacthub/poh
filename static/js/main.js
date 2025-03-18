@@ -4,51 +4,354 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
+    console.log('[DEBUG] DOM Content Loaded - Starting page initialization');
+    
+    // Log page information
+    logPageInfo();
+    
+    // Initialize verification stage dropdowns with enhanced logging
+    console.time('initVerificationStageDropdowns');
+    initVerificationStageDropdowns();
+    console.timeEnd('initVerificationStageDropdowns');
+    
+    // Initialize login functionality
+    console.time('initLoginFunctionality');
+    initLoginFunctionality();
+    console.timeEnd('initLoginFunctionality');
+    
+    // Initialize mobile menu
+    console.time('initMobileMenu');
     initMobileMenu();
+    console.timeEnd('initMobileMenu');
     
-    // Flash message handling
-    initFlashMessages();
+    // Fix layout issues for specific pages
+    console.time('fixLayoutIssues');
+    fixLayoutIssues();
+    console.timeEnd('fixLayoutIssues');
     
-    // Header scroll effects
-    initHeaderScroll();
+    // Add document-level click listener to log events for debugging
+    document.addEventListener('click', function(event) {
+        console.log('[DEBUG] Element clicked:', event.target);
+        console.log('[DEBUG] Element classes:', event.target.className);
+        console.log('[DEBUG] Element parent:', event.target.parentElement);
+    });
     
-    // Initialize tooltips
-    initTooltips();
-    
-    // Initialize dropdowns
-    initDropdowns();
-    
-    // Initialize theme toggle if present
-    initThemeToggle();
+    console.log('[DEBUG] Page initialization complete');
 });
 
 /**
- * Initialize mobile menu functionality
+ * Initialize verification stage dropdowns
+ */
+function initVerificationStageDropdowns() {
+    console.log('Initializing verification stage dropdowns');
+    const stageCards = document.querySelectorAll('.verification-stage-card');
+    console.log(`Found ${stageCards.length} verification stage cards`);
+    
+    stageCards.forEach(card => {
+        const header = card.querySelector('.stage-header');
+        const details = card.querySelector('.stage-details');
+        
+        if (header && details) {
+            header.addEventListener('click', function() {
+                console.log(`Toggle details for ${card.dataset.stage} stage`);
+                const expanded = details.style.display !== 'none';
+                
+                if (expanded) {
+                    details.style.display = 'none';
+                    header.querySelector('.toggle-icon i').classList.remove('fa-chevron-up');
+                    header.querySelector('.toggle-icon i').classList.add('fa-chevron-down');
+                } else {
+                    details.style.display = 'block';
+                    header.querySelector('.toggle-icon i').classList.remove('fa-chevron-down');
+                    header.querySelector('.toggle-icon i').classList.add('fa-chevron-up');
+                }
+            });
+        } else {
+            console.warn(`Missing header or details for stage card: ${card.dataset.stage}`);
+        }
+    });
+}
+
+/**
+ * Initialize login functionality
+ */
+function initLoginFunctionality() {
+    console.log('Initializing login functionality');
+    const loginForm = document.getElementById('loginForm');
+    
+    if (loginForm) {
+        console.log('Login form found, setting up event listeners');
+        
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const emailInput = loginForm.querySelector('input[type="email"]');
+            const passwordInput = loginForm.querySelector('input[type="password"]');
+            
+            if (!emailInput || !passwordInput) {
+                console.error('Login form missing email or password inputs');
+                return;
+            }
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                console.log('Email or password missing');
+                // Show validation error
+                return;
+            }
+            
+            console.log('Login form submitted with email:', email);
+            
+            // For demo purposes, hard-code a successful login
+            // In a real app, this would be an AJAX call to the backend
+            window.location.href = '/dashboard';
+        });
+    } else {
+        console.log('Login form not found on this page');
+    }
+}
+
+/**
+ * Initialize mobile menu functionality (enhanced version)
  */
 function initMobileMenu() {
+    console.log('Initializing mobile menu');
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mainNav = document.querySelector('.main-nav');
+    const mobileMenu = document.querySelector('.mobile-menu');
     
-    if (mobileMenuToggle && mainNav) {
+    if (mobileMenuToggle && mobileMenu) {
         mobileMenuToggle.addEventListener('click', function() {
-            mobileMenuToggle.classList.toggle('active');
-            mainNav.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
+            console.log('Mobile menu toggle clicked');
+            mobileMenu.classList.toggle('open');
         });
+    } else {
+        console.log('Mobile menu elements not found on this page');
+    }
+}
+
+/**
+ * Fix layout issues on specific pages
+ */
+function fixLayoutIssues() {
+    console.log('Fixing layout issues for current page');
+    
+    // Determine the current page
+    const currentPath = window.location.pathname;
+    console.log(`Current path: ${currentPath}`);
+    
+    // Fix about page layout
+    if (currentPath.includes('/about')) {
+        console.log('Fixing about page layout');
+        const aboutSections = document.querySelectorAll('.section-web5');
         
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (mainNav.classList.contains('active') && 
-                !mainNav.contains(event.target) && 
-                !mobileMenuToggle.contains(event.target)) {
-                mainNav.classList.remove('active');
-                mobileMenuToggle.classList.remove('active');
-                document.body.classList.remove('menu-open');
+        aboutSections.forEach((section, index) => {
+            section.style.marginBottom = '60px';
+            
+            // Ensure section container has proper width
+            const container = section.querySelector('.container');
+            if (container) {
+                container.style.width = '100%';
+                container.style.maxWidth = '1200px';
+                container.style.padding = '0 20px';
             }
         });
     }
+    
+    // Fix verification page layout
+    if (currentPath.includes('/verification')) {
+        console.log('Fixing verification page layout');
+        
+        // Ensure verification stage cards have consistent styling
+        const cards = document.querySelectorAll('.verification-stage-card');
+        cards.forEach(card => {
+            card.style.marginBottom = '20px';
+            card.style.cursor = 'pointer';
+            
+            // Add hover effect
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.05)';
+            });
+        });
+    }
+    
+    // Fix dashboard page layout
+    if (currentPath.includes('/dashboard')) {
+        console.log('Fixing dashboard page layout');
+        
+        // Ensure dashboard sections have proper spacing
+        const dashboardSections = document.querySelectorAll('.dashboard-section');
+        dashboardSections.forEach(section => {
+            section.style.marginBottom = '40px';
+        });
+        
+        // Fix visualization container sizing
+        const visualizationContainer = document.querySelector('.visualization-container');
+        if (visualizationContainer) {
+            visualizationContainer.style.height = '500px';
+            visualizationContainer.style.minHeight = '400px';
+        }
+        
+        // Ensure dashboard cards have consistent styling
+        const cards = document.querySelectorAll('.dashboard-card');
+        cards.forEach(card => {
+            card.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
+            card.style.borderRadius = '12px';
+            card.style.overflow = 'hidden';
+        });
+    }
 }
+
+// Add CSS styles dynamically to fix common issues
+function addFixStyles() {
+    console.log('Adding fix styles');
+    
+    // Create a style element
+    const style = document.createElement('style');
+    
+    // Add CSS rules
+    style.innerHTML = `
+        /* Fix blank spaces */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        
+        /* General container fixes */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Section spacing */
+        .section-web5 {
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        
+        /* Card styling */
+        .verification-stage-card {
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            background-color: #fff;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .verification-stage-card .stage-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .verification-stage-card .stage-details {
+            padding: 20px;
+        }
+        
+        /* Badge styling */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .badge-success {
+            background-color: #e6f7ed;
+            color: #0f9d58;
+        }
+        
+        .badge-warning {
+            background-color: #fef7e0;
+            color: #f4b400;
+        }
+        
+        .badge-disabled {
+            background-color: #f1f3f4;
+            color: #80868b;
+        }
+        
+        /* Button styling */
+        .btn-web5 {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #8250df;
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-web5:hover {
+            background-color: #6f42c1;
+        }
+        
+        .btn-outlined {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: transparent;
+            color: #8250df;
+            border: 2px solid #8250df;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outlined:hover {
+            background-color: #8250df10;
+        }
+        
+        .btn-outlined.disabled {
+            border-color: #ccc;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            height: 10px;
+            background-color: #f1f3f4;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #8250df;
+            border-radius: 5px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #5f6368;
+        }
+    `;
+    
+    // Append the style element to the head
+    document.head.appendChild(style);
+}
+
+// Call this function immediately
+addFixStyles();
 
 /**
  * Initialize flash message functionality
@@ -316,4 +619,490 @@ function debounce(func, wait = 300) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
-} 
+}
+
+// Log detailed page information
+function logPageInfo() {
+    console.log('[DEBUG] Page Info:');
+    console.log('- URL:', window.location.href);
+    console.log('- Path:', window.location.pathname);
+    console.log('- Window Size:', window.innerWidth, 'x', window.innerHeight);
+    console.log('- User Agent:', navigator.userAgent);
+    
+    // Check for key page elements
+    const verificationStages = document.querySelectorAll('.verification-stage-card');
+    if (verificationStages.length > 0) {
+        console.log(`[DEBUG] Found ${verificationStages.length} verification stage cards`);
+        verificationStages.forEach((card, index) => {
+            console.log(`[DEBUG] Stage card ${index}:`, card.dataset.stage);
+            console.log(`[DEBUG] - Has header:`, !!card.querySelector('.stage-header'));
+            console.log(`[DEBUG] - Has details:`, !!card.querySelector('.stage-details'));
+        });
+    } else {
+        console.log('[DEBUG] No verification stage cards found');
+    }
+    
+    // Check if stylesheet has loaded
+    const styleSheets = Array.from(document.styleSheets);
+    console.log(`[DEBUG] ${styleSheets.length} stylesheets loaded`);
+}
+
+// Function to initialize verification stage dropdowns with enhanced logging
+function initVerificationStageDropdowns() {
+    console.log('[DEBUG] Initializing verification stage dropdowns');
+    const stageCards = document.querySelectorAll('.verification-stage-card');
+    console.log(`[DEBUG] Found ${stageCards.length} verification stage cards`);
+    
+    if (stageCards.length === 0) {
+        // Try again after a delay if no cards found (possible DOM timing issue)
+        console.log('[DEBUG] No stage cards found initially, retrying after 500ms delay');
+        setTimeout(() => {
+            const retryStageCards = document.querySelectorAll('.verification-stage-card');
+            console.log(`[DEBUG] Retry found ${retryStageCards.length} verification stage cards`);
+            
+            if (retryStageCards.length > 0) {
+                setupStageCards(retryStageCards);
+            } else {
+                console.error('[DEBUG] Failed to find verification stage cards even after delay');
+            }
+        }, 500);
+        return;
+    }
+    
+    setupStageCards(stageCards);
+}
+
+// Helper function to set up stage cards
+function setupStageCards(stageCards) {
+    stageCards.forEach(card => {
+        console.log(`[DEBUG] Setting up card:`, card.dataset.stage);
+        
+        // Check for existing header/details or create them if missing
+        let header = card.querySelector('.stage-header');
+        let details = card.querySelector('.stage-details');
+        
+        if (!header) {
+            console.log(`[DEBUG] Creating missing header for card:`, card.dataset.stage);
+            header = document.createElement('div');
+            header.className = 'stage-header';
+            
+            // Get stage title and status
+            const title = card.querySelector('h3, h4');
+            const statusBadge = card.querySelector('.badge, .status-badge');
+            
+            if (title) {
+                header.appendChild(title.cloneNode(true));
+                title.remove();
+            } else {
+                const newTitle = document.createElement('h3');
+                newTitle.className = 'stage-title';
+                newTitle.textContent = capitalizeFirst(card.dataset.stage || 'Verification Stage');
+                header.appendChild(newTitle);
+            }
+            
+            if (statusBadge) {
+                header.appendChild(statusBadge.cloneNode(true));
+                statusBadge.remove();
+            }
+            
+            // Add toggle icon
+            const toggleIcon = document.createElement('span');
+            toggleIcon.className = 'toggle-icon';
+            toggleIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            header.appendChild(toggleIcon);
+            
+            // Add header to card
+            card.insertBefore(header, card.firstChild);
+        }
+        
+        if (!details) {
+            console.log(`[DEBUG] Creating missing details for card:`, card.dataset.stage);
+            details = document.createElement('div');
+            details.className = 'stage-details';
+            
+            // Move all child elements except header into details
+            const children = Array.from(card.children);
+            children.forEach(child => {
+                if (child !== header && !child.classList.contains('stage-details')) {
+                    details.appendChild(child);
+                }
+            });
+            
+            // If details is empty, add placeholder content
+            if (details.children.length === 0) {
+                const placeholder = document.createElement('p');
+                placeholder.textContent = `Details for ${card.dataset.stage || 'this verification stage'} will be shown here.`;
+                details.appendChild(placeholder);
+            }
+            
+            card.appendChild(details);
+            details.style.display = 'none';
+        }
+        
+        // Add click event to header
+        if (header && details) {
+            // Remove existing listeners to avoid duplicates
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+            header = newHeader;
+            
+            header.addEventListener('click', function(event) {
+                console.log(`[DEBUG] Header clicked for ${card.dataset.stage}`);
+                
+                // Toggle details visibility
+                const isVisible = details.style.display !== 'none';
+                console.log(`[DEBUG] Current visibility: ${isVisible ? 'visible' : 'hidden'}, toggling to ${isVisible ? 'hidden' : 'visible'}`);
+                
+                // Apply toggle
+                details.style.display = isVisible ? 'none' : 'block';
+                
+                // Update icon
+                const icon = header.querySelector('.toggle-icon i');
+                if (icon) {
+                    icon.className = isVisible ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+                }
+                
+                // Add active class to card
+                card.classList.toggle('active', !isVisible);
+                
+                // Prevent event bubbling
+                event.stopPropagation();
+            });
+        } else {
+            console.error(`[DEBUG] Failed to setup card: missing header or details`);
+        }
+    });
+}
+
+// Helper function to capitalize first letter
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Function to initialize login functionality with enhanced logging
+function initLoginFunctionality() {
+    console.log('[DEBUG] Initializing login functionality');
+    const loginForm = document.getElementById('loginForm');
+    
+    if (loginForm) {
+        console.log('[DEBUG] Login form found');
+        
+        // Log form structure for debugging
+        console.log('[DEBUG] Form action:', loginForm.action);
+        console.log('[DEBUG] Form method:', loginForm.method);
+        console.log('[DEBUG] Form fields:', Array.from(loginForm.elements).map(el => el.name || el.type));
+        
+        // Remove existing listeners to avoid duplicates
+        const newForm = loginForm.cloneNode(true);
+        loginForm.parentNode.replaceChild(newForm, loginForm);
+        
+        // Add submit event listener
+        newForm.addEventListener('submit', function(event) {
+            console.log('[DEBUG] Login form submitted');
+            
+            const emailInput = newForm.querySelector('input[type="email"], input[name="email"]');
+            const passwordInput = newForm.querySelector('input[type="password"], input[name="password"]');
+            
+            if (!emailInput || !passwordInput) {
+                console.error('[DEBUG] Login form missing email or password inputs');
+                console.log('[DEBUG] Available inputs:', Array.from(newForm.querySelectorAll('input')).map(i => i.name || i.type));
+                return;
+            }
+            
+            console.log('[DEBUG] Login attempted with email:', emailInput.value);
+            
+            // For demo purposes, we'll let the form submit normally to the server
+            // Don't prevent default here, let Flask handle it
+        });
+    } else {
+        console.log('[DEBUG] Login form not found on this page');
+    }
+    
+    // Fix any login buttons
+    const loginButtons = document.querySelectorAll('.btn-login, a[href*="login"]');
+    loginButtons.forEach(button => {
+        console.log('[DEBUG] Found login button:', button);
+        
+        // Add click event listener
+        button.addEventListener('click', function(event) {
+            console.log('[DEBUG] Login button clicked');
+        });
+    });
+}
+
+// Function to initialize mobile menu with enhanced logging
+function initMobileMenu() {
+    console.log('[DEBUG] Initializing mobile menu');
+    
+    // Try both menu selector patterns
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle, #mobileMenuToggle');
+    const mobileMenu = document.querySelector('.mobile-menu, #mobileMenu');
+    
+    console.log('[DEBUG] Mobile menu toggle found:', !!mobileMenuToggle);
+    console.log('[DEBUG] Mobile menu found:', !!mobileMenu);
+    
+    if (mobileMenuToggle && mobileMenu) {
+        // Remove existing listeners to avoid duplicates
+        const newToggle = mobileMenuToggle.cloneNode(true);
+        mobileMenuToggle.parentNode.replaceChild(newToggle, mobileMenuToggle);
+        
+        newToggle.addEventListener('click', function(event) {
+            console.log('[DEBUG] Mobile menu toggle clicked');
+            const isActive = mobileMenu.classList.contains('active') || mobileMenu.classList.contains('open');
+            
+            if (isActive) {
+                mobileMenu.classList.remove('active', 'open');
+                document.body.style.overflow = '';
+            } else {
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // Force menu visibility
+                mobileMenu.style.display = 'block';
+                mobileMenu.style.visibility = 'visible';
+                mobileMenu.style.opacity = '1';
+            }
+            
+            // Prevent default behavior
+            event.preventDefault();
+        });
+        
+        // Add listeners to menu links
+        const menuLinks = mobileMenu.querySelectorAll('a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('active', 'open');
+                document.body.style.overflow = '';
+            });
+        });
+    } else {
+        console.log('[DEBUG] Mobile menu elements not found on this page');
+    }
+}
+
+// Function to fix layout issues for specific pages with enhanced logging
+function fixLayoutIssues() {
+    console.log('[DEBUG] Fixing layout issues');
+    
+    // Get current page path
+    const currentPath = window.location.pathname;
+    console.log('[DEBUG] Current path:', currentPath);
+    
+    // Apply fixes based on page
+    if (currentPath.includes('/about')) {
+        console.log('[DEBUG] Applying About page fixes');
+        fixAboutPage();
+    } else if (currentPath.includes('/verification')) {
+        console.log('[DEBUG] Applying Verification page fixes');
+        fixVerificationPage();
+    } else if (currentPath.includes('/dashboard')) {
+        console.log('[DEBUG] Applying Dashboard page fixes');
+        fixDashboardPage();
+    } else if (currentPath.includes('/login')) {
+        console.log('[DEBUG] Applying Login page fixes');
+        fixLoginPage();
+    }
+    
+    // Apply common fixes to all pages
+    fixCommonIssues();
+}
+
+// Fix About page layout issues
+function fixAboutPage() {
+    console.log('[DEBUG] Fixing About page layout');
+    
+    // Fix header spacing
+    const header = document.querySelector('header');
+    if (header) {
+        console.log('[DEBUG] Adjusting header spacing');
+        header.style.marginBottom = '0';
+    }
+    
+    // Fix main content area
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        console.log('[DEBUG] Adjusting main content spacing');
+        mainContent.style.paddingTop = '80px';
+    }
+    
+    // Fix sections spacing
+    const sections = document.querySelectorAll('.section-web5, .about-section');
+    console.log(`[DEBUG] Found ${sections.length} sections to fix`);
+    
+    sections.forEach((section, index) => {
+        console.log(`[DEBUG] Fixing section ${index}`);
+        section.style.marginTop = index === 0 ? '0' : '60px';
+        section.style.marginBottom = '60px';
+        section.style.padding = '40px 0';
+        
+        // Fix container width
+        const container = section.querySelector('.container');
+        if (container) {
+            container.style.maxWidth = '1200px';
+            container.style.margin = '0 auto';
+            container.style.padding = '0 20px';
+        }
+    });
+}
+
+// Fix Verification page layout issues
+function fixVerificationPage() {
+    console.log('[DEBUG] Fixing Verification page layout');
+    
+    // Fix header spacing
+    const header = document.querySelector('header');
+    if (header) {
+        console.log('[DEBUG] Adjusting header spacing');
+        header.style.marginBottom = '0';
+    }
+    
+    // Fix main content area
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        console.log('[DEBUG] Adjusting main content spacing');
+        mainContent.style.paddingTop = '80px';
+    }
+    
+    // Ensure all verification stage cards have proper structure
+    const stageCards = document.querySelectorAll('.verification-stage-card');
+    console.log(`[DEBUG] Found ${stageCards.length} verification stage cards`);
+    
+    stageCards.forEach((card, index) => {
+        console.log(`[DEBUG] Styling verification stage card ${index}`);
+        
+        // Ensure proper layout and styling
+        card.style.backgroundColor = 'rgba(15, 23, 42, 0.5)';
+        card.style.borderRadius = '12px';
+        card.style.marginBottom = '20px';
+        card.style.overflow = 'hidden';
+        card.style.border = '1px solid rgba(122, 67, 255, 0.2)';
+        card.style.transition = 'all 0.3s ease';
+        card.style.cursor = 'pointer';
+        
+        // Fix stage header if it exists
+        const header = card.querySelector('.stage-header');
+        if (header) {
+            header.style.padding = '20px';
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+            header.style.borderBottom = '1px solid rgba(122, 67, 255, 0.1)';
+        }
+        
+        // Fix stage details if it exists
+        const details = card.querySelector('.stage-details');
+        if (details) {
+            details.style.padding = '20px';
+        }
+    });
+}
+
+// Fix Dashboard page layout issues
+function fixDashboardPage() {
+    console.log('[DEBUG] Fixing Dashboard page layout');
+    
+    // Fix sections
+    const sections = document.querySelectorAll('.dashboard-section');
+    console.log(`[DEBUG] Found ${sections.length} dashboard sections`);
+    
+    sections.forEach((section, index) => {
+        console.log(`[DEBUG] Fixing dashboard section ${index}`);
+        section.style.marginBottom = '40px';
+    });
+    
+    // Fix cards
+    const cards = document.querySelectorAll('.dashboard-card');
+    console.log(`[DEBUG] Found ${cards.length} dashboard cards`);
+    
+    cards.forEach((card, index) => {
+        console.log(`[DEBUG] Fixing dashboard card ${index}`);
+        card.style.backgroundColor = 'rgba(15, 23, 42, 0.5)';
+        card.style.borderRadius = '12px';
+        card.style.padding = '20px';
+        card.style.marginBottom = '20px';
+        card.style.border = '1px solid rgba(122, 67, 255, 0.2)';
+    });
+    
+    // Fix verification status section if it exists
+    const verificationStatus = document.querySelector('.verification-status');
+    if (verificationStatus) {
+        console.log('[DEBUG] Fixing verification status section');
+        
+        // Find and fix verification stage cards
+        const stageCards = verificationStatus.querySelectorAll('.verification-stage-card');
+        stageCards.forEach((card, index) => {
+            console.log(`[DEBUG] Styling verification stage card ${index} in dashboard`);
+            
+            // Ensure proper layout and styling
+            card.style.backgroundColor = 'rgba(15, 23, 42, 0.5)';
+            card.style.borderRadius = '12px';
+            card.style.marginBottom = '15px';
+            card.style.overflow = 'hidden';
+            card.style.border = '1px solid rgba(122, 67, 255, 0.2)';
+            card.style.transition = 'all 0.3s ease';
+            card.style.cursor = 'pointer';
+        });
+    }
+}
+
+// Fix Login page layout issues
+function fixLoginPage() {
+    console.log('[DEBUG] Fixing Login page layout');
+    
+    // Fix login form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        console.log('[DEBUG] Fixing login form');
+        
+        // Find parent container
+        const formContainer = loginForm.closest('.auth-form-container, .auth-container');
+        if (formContainer) {
+            formContainer.style.paddingTop = '80px';
+        }
+    }
+}
+
+// Fix common layout issues across all pages
+function fixCommonIssues() {
+    console.log('[DEBUG] Fixing common layout issues');
+    
+    // Fix main container
+    const mainContainer = document.querySelector('main');
+    if (mainContainer) {
+        mainContainer.style.minHeight = 'calc(100vh - 200px)';
+    }
+    
+    // Ensure proper header spacing
+    const header = document.querySelector('header');
+    if (header) {
+        header.style.position = 'relative';
+        header.style.zIndex = '100';
+    }
+    
+    // Add fixed styles
+    addFixStyles();
+}
+
+// Debug helper function to log element info
+window.logElement = function(selector) {
+    const element = document.querySelector(selector);
+    if (element) {
+        console.log('[DEBUG] Element found:', selector);
+        console.log('- tagName:', element.tagName);
+        console.log('- innerHTML:', element.innerHTML);
+        console.log('- classList:', element.classList);
+        console.log('- style:', element.style);
+        console.log('- dimensions:', element.getBoundingClientRect());
+    } else {
+        console.log('[DEBUG] Element not found:', selector);
+    }
+    return 'Element logged to console';
+};
+
+// Manual initialization function for debugging
+window.initPage = function() {
+    console.log('[DEBUG] Manual initialization requested');
+    initVerificationStageDropdowns();
+    fixLayoutIssues();
+    return 'Page manually initialized';
+}; 

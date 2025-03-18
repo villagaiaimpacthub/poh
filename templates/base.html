@@ -716,6 +716,9 @@
     </script>
 </head>
 <body class="dark-theme">
+    <!-- Include Safari warning for connection issues -->
+    {% include 'includes/safari_warning.html' %}
+    
     <!-- Debug Button (available on all pages) -->
     <button class="debug-toggle" id="globalDebugToggle">Debug</button>
     <div class="debug-box" id="globalDebugBox"></div>
@@ -1228,5 +1231,148 @@
             }
         });
     </script>
+
+    <!-- Add enhanced error tracking -->
+    <script>
+        // Enhanced error tracking and diagnostics
+        (function() {
+            // Setup error tracking
+            window.onerror = function(msg, source, lineno, colno, error) {
+                console.error('Caught error:', msg, 'at', source, 'line', lineno);
+                
+                // Log to server if available
+                try {
+                    fetch('/api/log', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            error: msg,
+                            source: source,
+                            line: lineno,
+                            column: colno,
+                            stack: error && error.stack
+                        })
+                    }).catch(e => console.error('Failed to log error to server:', e));
+                } catch (e) {
+                    console.error('Error sending log to server:', e);
+                }
+                
+                // Show error on page for debugging
+                if ({{ debug|tojson }}) {
+                    const errorBox = document.createElement('div');
+                    errorBox.style.position = 'fixed';
+                    errorBox.style.bottom = '10px';
+                    errorBox.style.right = '10px';
+                    errorBox.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+                    errorBox.style.color = 'white';
+                    errorBox.style.padding = '10px';
+                    errorBox.style.borderRadius = '5px';
+                    errorBox.style.zIndex = '10000';
+                    errorBox.style.fontFamily = 'monospace';
+                    errorBox.style.fontSize = '12px';
+                    errorBox.style.maxWidth = '80%';
+                    errorBox.innerHTML = `<strong>Error:</strong> ${msg}<br><strong>Source:</strong> ${source}:${lineno}`;
+                    document.body.appendChild(errorBox);
+                    
+                    // Auto-remove after 10 seconds
+                    setTimeout(() => errorBox.remove(), 10000);
+                }
+                
+                return false; // Let other error handlers run
+            };
+            
+            // Track resource loading errors
+            window.addEventListener('error', function(e) {
+                if (e.target.tagName === 'LINK' || e.target.tagName === 'SCRIPT' || e.target.tagName === 'IMG') {
+                    console.error('Resource failed to load:', e.target.src || e.target.href);
+                    
+                    // Log to server
+                    try {
+                        fetch('/api/log', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                error: 'Resource failed to load',
+                                source: e.target.src || e.target.href,
+                                resourceType: e.target.tagName.toLowerCase()
+                            })
+                        }).catch(e => console.error('Failed to log resource error to server:', e));
+                    } catch (e) {
+                        console.error('Error sending resource log to server:', e);
+                    }
+                }
+            }, true);
+            
+            // Track AJAX errors
+            const originalFetch = window.fetch;
+            window.fetch = function() {
+                return originalFetch.apply(this, arguments)
+                    .catch(error => {
+                        console.error('Fetch error:', error.message, 'for', arguments[0]);
+                        
+                        // Log to server
+                        try {
+                            fetch('/api/log', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    error: `Fetch error: ${error.message}`,
+                                    source: typeof arguments[0] === 'string' ? arguments[0] : 'fetch request'
+                                })
+                            }).catch(e => console.error('Failed to log fetch error to server:', e));
+                        } catch (e) {
+                            console.error('Error sending fetch log to server:', e);
+                        }
+                        
+                        throw error;
+                    });
+            };
+            
+            // Page visibility tracking
+            document.addEventListener('visibilitychange', function() {
+                console.log('Page visibility changed to:', document.visibilityState);
+            });
+            
+            // Log page load timing
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    const timing = window.performance.timing;
+                    const pageLoadTime = timing.loadEventEnd - timing.navigationStart;
+                    const domReadyTime = timing.domComplete - timing.domLoading;
+                    console.log(`Page load time: ${pageLoadTime}ms`);
+                    console.log(`DOM ready time: ${domReadyTime}ms`);
+                    
+                    // Check if D3.js is loaded
+                    if (typeof d3 !== 'undefined') {
+                        console.log('D3.js loaded successfully, version:', d3.version);
+                    } else {
+                        console.error('D3.js not loaded!');
+                    }
+                    
+                    // Check if specific visualization scripts are loaded
+                    if (typeof CircularFamilyTree !== 'undefined') {
+                        console.log('CircularFamilyTree script loaded');
+                    } else {
+                        console.warn('CircularFamilyTree script not loaded');
+                    }
+                    
+                    if (typeof createSimpleVisualization !== 'undefined') {
+                        console.log('Simple visualization script loaded');
+                    } else {
+                        console.warn('Simple visualization script not loaded');
+                    }
+                }, 0);
+            });
+        })();
+    </script>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/load_checker.js') }}?v={{ cache_buster }}"></script>
 </body>
 </html> 

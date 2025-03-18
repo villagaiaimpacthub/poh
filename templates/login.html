@@ -3,390 +3,200 @@
 {% block title %}Login - Proof of Humanity{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1 class="auth-title">Welcome Back</h1>
-            <p class="auth-subtitle">Login to access your human verification account</p>
-        </div>
+<div class="container auth-container">
+    <div class="auth-form-container">
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to access your dashboard</p>
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        <div class="alert-icon">
-                            {% if category == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% elif category == 'danger' or category == 'error' %}
-                                <i class="fas fa-exclamation-circle"></i>
-                            {% elif category == 'warning' %}
-                                <i class="fas fa-exclamation-triangle"></i>
-                            {% else %}
-                                <i class="fas fa-info-circle"></i>
-                            {% endif %}
-                        </div>
-                        <div class="alert-content">{{ message }}</div>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <form id="loginForm" action="{{ url_for('login') }}" method="post" class="auth-form">
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <div class="input-container">
-                    <i class="input-icon fas fa-envelope"></i>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
-                </div>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <div class="input-container">
-                    <i class="input-icon fas fa-lock"></i>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
-                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
             </div>
             
             <div class="form-options">
-                <div class="form-check">
+                <div class="remember-me">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">Remember me</label>
                 </div>
-                <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot password?</a>
+                <a href="#" class="forgot-password">Forgot password?</a>
             </div>
             
-            <button type="submit" class="btn btn-primary btn-block">
-                <i class="fas fa-sign-in-alt"></i>
-                Login
-            </button>
+            <button type="submit" class="btn-auth">Sign In</button>
+            
+            <div class="social-login">
+                <p>Or sign in with</p>
+                <button type="button" class="btn-social">
+                    <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
+                    Google
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p>
+            </div>
         </form>
-        
-        <div class="auth-separator">
-            <span>OR</span>
-        </div>
-        
-        <div class="social-login">
-            <button class="btn btn-ghost btn-social">
-                <i class="fab fa-google"></i>
-                Continue with Google
-            </button>
-        </div>
-        
-        <div class="auth-footer">
-            <p>Don't have an account? <a href="{{ url_for('register') }}" class="auth-link">Create account</a></p>
-        </div>
     </div>
 </div>
 {% endblock %}
 
-{% block styles %}
+{% block additional_styles %}
 <style>
-    /* Force dark mode for login page */
-    .auth-container {
-        background-color: var(--color-bg-dark) !important;
-        color: var(--text-inverted) !important;
-    }
-    
-    .auth-card {
-        background-color: rgba(15, 23, 42, 0.5) !important;
-        border: 1px solid rgba(122, 67, 255, 0.2) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .auth-title, .auth-subtitle {
-        color: var(--text-inverted) !important;
-    }
-    
-    .form-group label {
-        color: var(--text-inverted) !important;
-    }
-    
-    .input-container {
-        background-color: rgba(30, 41, 59, 0.6) !important;
-        border: 1px solid rgba(122, 67, 255, 0.3) !important;
-    }
-    
-    input, select, textarea {
-        background-color: transparent !important;
-        color: var(--text-inverted) !important;
-    }
-    
-    .auth-button, .btn-primary {
-        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%) !important;
-        color: white !important;
-    }
-    
-    .auth-footer a {
-        color: var(--primary) !important;
-    }
-    
     .auth-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 160px);
-        padding: 2rem;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        min-height: calc(100vh - 200px);
+        padding: 40px 0;
     }
     
-    .auth-card {
-        background: var(--color-surface);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        padding: 2.5rem;
+    .auth-form-container {
         width: 100%;
-        max-width: 420px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .auth-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--gradient-primary);
-    }
-    
-    .auth-header {
-        text-align: center;
-        margin-bottom: 2rem;
+        max-width: 450px;
+        padding: 40px;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 16px;
+        border: 1px solid rgba(122, 67, 255, 0.2);
+        backdrop-filter: blur(10px);
     }
     
     .auth-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        background: var(--gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-fill-color: transparent;
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-align: center;
+        color: #fff;
     }
     
     .auth-subtitle {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
+        font-size: 16px;
+        margin-bottom: 30px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
     }
     
-    .auth-form .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .auth-form label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        font-size: 0.95rem;
-        color: var(--text);
-    }
-    
-    .input-container {
-        position: relative;
+    .auth-form {
         display: flex;
-        align-items: center;
+        flex-direction: column;
     }
     
-    .input-icon {
-        position: absolute;
-        left: 1rem;
-        color: var(--text-secondary);
+    .form-group {
+        margin-bottom: 20px;
     }
     
-    .auth-form input[type="email"],
-    .auth-form input[type="password"] {
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .form-input {
         width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
-        background: var(--color-surface);
-        transition: all 0.3s;
-        font-size: 1rem;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        transition: all 0.2s;
     }
     
-    .auth-form input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    .form-input:focus {
         outline: none;
-    }
-    
-    .password-toggle {
-        position: absolute;
-        right: 1rem;
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: color 0.3s;
-    }
-    
-    .password-toggle:hover {
-        color: var(--primary);
+        border-color: rgba(122, 67, 255, 0.5);
+        box-shadow: 0 0 0 2px rgba(122, 67, 255, 0.1);
     }
     
     .form-options {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 24px;
+        font-size: 14px;
     }
     
-    .form-check {
+    .remember-me {
         display: flex;
         align-items: center;
     }
     
-    .form-check input {
-        margin-right: 0.5rem;
-        accent-color: var(--primary);
+    .remember-me input {
+        margin-right: 8px;
     }
     
-    .forgot-link {
-        color: var(--primary);
-        font-size: 0.9rem;
+    .forgot-password {
+        color: #8250df;
         text-decoration: none;
-        transition: color 0.2s;
     }
     
-    .forgot-link:hover {
-        color: var(--primary-dark);
-        text-decoration: underline;
+    .btn-auth {
+        padding: 14px;
+        background: #8250df;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
     }
     
-    .btn-block {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    .auth-separator {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        margin: 1.5rem 0;
-    }
-    
-    .auth-separator::before,
-    .auth-separator::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--color-border);
-    }
-    
-    .auth-separator span {
-        padding: 0 0.75rem;
-        color: var(--text-secondary);
-        font-size: 0.85rem;
+    .btn-auth:hover {
+        background: #6f42c1;
     }
     
     .social-login {
-        margin-bottom: 1.5rem;
-    }
-    
-    .btn-social {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        border: 1px solid var(--color-border);
-        transition: all 0.3s;
-    }
-    
-    .btn-social:hover {
-        background-color: var(--color-bg-subtle);
-        transform: translateY(-2px);
-    }
-    
-    .auth-footer {
-        margin-top: 1.5rem;
+        margin-top: 24px;
         text-align: center;
     }
     
-    .auth-footer p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
+    .social-login p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 12px;
     }
     
-    .auth-link {
-        color: var(--primary);
-        font-weight: 500;
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    
-    .auth-link:hover {
-        color: var(--primary-dark);
-        text-decoration: underline;
-    }
-    
-    .alert {
+    .btn-social {
         display: flex;
+        justify-content: center;
         align-items: center;
-        padding: 1rem;
-        border-radius: var(--radius-md);
-        margin-bottom: 1.5rem;
-        background-color: var(--color-bg-subtle);
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
     }
     
-    .alert-success {
-        background-color: rgba(16, 185, 129, 0.1);
-        color: var(--success);
+    .btn-social img {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
     }
     
-    .alert-danger, .alert-error {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: var(--error);
+    .btn-social:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
     
-    .alert-warning {
-        background-color: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
+    .auth-footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
     }
     
-    .alert-info {
-        background-color: rgba(59, 130, 246, 0.1);
-        color: var(--info);
-    }
-    
-    .alert-icon {
-        margin-right: 0.75rem;
-        font-size: 1.25rem;
+    .auth-footer a {
+        color: #8250df;
+        text-decoration: none;
+        font-weight: 600;
     }
 </style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Password visibility toggle
-        const passwordToggle = document.querySelector('.password-toggle');
-        const passwordInput = document.getElementById('password');
-        
-        if (passwordToggle && passwordInput) {
-            passwordToggle.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                
-                // Toggle icon
-                const icon = this.querySelector('i');
-                icon.classList.toggle('fa-eye');
-                icon.classList.toggle('fa-eye-slash');
-            });
-        }
-    });
-</script>
 {% endblock %} 

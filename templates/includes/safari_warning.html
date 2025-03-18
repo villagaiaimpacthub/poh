@@ -1,0 +1,16 @@
+<!-- Safari connection warning -->
+<div id="safari-warning" style="display: none; background-color: #fff3cd; color: #856404; padding: 12px; margin: 10px; border: 1px solid #ffeeba; border-radius: 5px; text-align: center; position: relative; z-index: 2000;">
+    <strong>Safari Users:</strong> If you're having connection issues, please try accessing the site at 
+    <a href="http://{{ host_ip }}:5003" style="color: #856404; font-weight: bold; text-decoration: underline;">http://{{ host_ip }}:5003</a> instead of localhost.
+    <button onclick="this.parentNode.style.display='none'" style="float: right; background: none; border: none; cursor: pointer; font-weight: bold;">×</button>
+</div>
+
+<script>
+    // Show warning only for Safari users
+    document.addEventListener('DOMContentLoaded', function() {
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (isSafari && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            document.getElementById('safari-warning').style.display = 'block';
+        }
+    });
+</script> 
