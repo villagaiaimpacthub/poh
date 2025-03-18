@@ -15,7 +15,7 @@ function detectBrowser() {
     let isSafari = false;
     let isIOS = false;
     
-    // Safari detection
+    // Improved Safari detection - first check for Safari but not Chrome
     if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
         browserName = "Safari";
         isSafari = true;
@@ -63,12 +63,25 @@ function detectBrowser() {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     ) {
         isIOS = true;
+        // iOS browsers should also be treated as Safari for color handling
+        if (!isSafari) {
+            console.log('[BROWSER-DETECT] iOS device detected, treating as Safari for color handling');
+        }
+    }
+    
+    // Additional check for WebKit engine (used by Safari)
+    if (window.WebKitCSSMatrix) {
+        console.log('[BROWSER-DETECT] WebKit CSS Matrix detected, browser likely Safari or Safari-based');
+        if (!isSafari) {
+            console.log('[BROWSER-DETECT] Setting isSafari=true based on WebKit detection');
+            isSafari = true;
+        }
     }
     
     return {
         name: browserName,
         version: browserVersion,
-        isSafari: isSafari,
+        isSafari: isSafari || isIOS, // Treat iOS browsers as Safari for color handling
         isIOS: isIOS,
         userAgent: userAgent
     };
@@ -127,17 +140,33 @@ class CircularFamilyTree {
         
         // Detect browser for color compatibility
         const browser = detectBrowser();
-        const isSafariOrIOS = browser.isSafari || browser.isIOS;
+        this.isSafariOrIOS = browser.isSafari || browser.isIOS;
         
-        // Set color scheme with browser-specific adjustments
+        // Enhanced browser logging for debugging
+        console.log('[CIRCULAR-TREE] Browser detection:', {
+            name: browser.name,
+            version: browser.version,
+            isSafari: browser.isSafari,
+            isIOS: browser.isIOS,
+            isSafariOrIOS: this.isSafariOrIOS,
+            userAgent: browser.userAgent
+        });
+        
+        // Set color scheme with browser-specific adjustments - store as class property
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
-            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
-            4: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
+            1: this.isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
+            2: this.isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
+            3: this.isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
+            4: this.isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
         };
         
-        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser`);
+        // Log the actual colors being used
+        console.log('[CIRCULAR-TREE-CREATE] Node colors:', {
+            'level1 (gold)': this.nodeColors[1],
+            'level2 (purple)': this.nodeColors[2],
+            'level3 (blue)': this.nodeColors[3],
+            'level4 (green)': this.nodeColors[4]
+        });
         
         // Add styles to the page
         this.addStyles();
@@ -166,9 +195,6 @@ class CircularFamilyTree {
         
         // Create the visualization
         this.createCircularTree();
-        
-        // Add legend after creating the tree
-        this.addLegend();
         
         // Add window resize handler for responsiveness
         window.addEventListener('resize', this.handleResize.bind(this));
@@ -335,9 +361,6 @@ class CircularFamilyTree {
             // Create the main visualization
             this.createCircularTree();
             
-            // Add legend
-            this.addLegend();
-            
             // Add pulsing animation to gold nodes
             this.addPulsingToGoldNodes();
             
@@ -363,19 +386,13 @@ class CircularFamilyTree {
         // Clear any existing visualization
         this.vizGroup.selectAll("*").remove();
         
-        // Detect browser for color compatibility
-        const browser = detectBrowser();
-        const isSafariOrIOS = browser.isSafari || browser.isIOS;
-        
-        // Set the custom colors - using rgb for better cross-browser compatibility
-        this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
-            2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
-            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
-            4: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
-        };
-        
-        console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name}`);
+        // Log the actual colors being used without re-creating them
+        console.log('[CIRCULAR-TREE-CREATE] Using node colors:', {
+            'level1 (gold)': this.nodeColors[1],
+            'level2 (purple)': this.nodeColors[2],
+            'level3 (blue)': this.nodeColors[3],
+            'level4 (green)': this.nodeColors[4]
+        });
         
         // Calculate the total nodes for each level
         const level1Count = 8;  // Gold - Founders
@@ -1053,6 +1070,10 @@ class CircularFamilyTree {
         if (document.getElementById(styleId)) {
             return;
         }
+        
+        // Detect browser for color compatibility
+        const browser = detectBrowser();
+        const isSafariOrIOS = browser.isSafari || browser.isIOS;
         
         const style = document.createElement('style');
         style.id = styleId;
