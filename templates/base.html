@@ -755,8 +755,7 @@
                     {% if 'user_id' in session %}
                     <a href="{{ url_for('logout') }}" class="btn-outlined">Log Out</a>
                     {% else %}
-                    <a href="{{ url_for('login') }}" class="nav-link">Log In</a>
-                    <a href="{{ url_for('register') }}" class="btn-web5">Sign Up</a>
+                    <a href="{{ url_for('login') }}" class="btn-web5">Log In</a>
                     {% endif %}
                 </div>
                 
@@ -784,8 +783,7 @@
                     {% if 'user_id' in session %}
                     <a href="{{ url_for('logout') }}" class="mobile-auth-button logout">Log Out</a>
                     {% else %}
-                    <a href="{{ url_for('login') }}" class="mobile-auth-button">Log In</a>
-                    <a href="{{ url_for('register') }}" class="mobile-auth-button signup">Sign Up</a>
+                    <a href="{{ url_for('login') }}" class="mobile-auth-button login">Log In</a>
                     {% endif %}
                 </div>
             </div>

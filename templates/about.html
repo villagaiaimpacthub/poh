@@ -19,8 +19,7 @@
         border-radius: 50%;
         filter: blur(80px);
         z-index: -1;
-        opacity: 0;
-        transition: opacity 0.5s ease-in;
+        opacity: 1;
     }
     
     .orb-1 {
@@ -269,8 +268,9 @@
 <div class="main-content">
     <!-- About Header -->
     <section class="about-section">
-        <div class="orb-bg orb-1"></div>
-        <div class="orb-bg orb-2"></div>
+        <!-- Background orbs -->
+        <div class="orb-bg orb-1" id="orb1"></div>
+        <div class="orb-bg orb-2" id="orb2"></div>
         
         <div class="container about-container">
             <h1 class="page-title">About Proof of Humanity</h1>
@@ -404,15 +404,14 @@
 </div>
 
 <script>
-    // Function to load background orbs after content
     document.addEventListener('DOMContentLoaded', function() {
-        // Give a small delay to ensure content is rendered first
-        setTimeout(function() {
-            // Fade in orbs
-            document.querySelectorAll('.orb-bg').forEach(orb => {
-                orb.style.opacity = '0.3';
-            });
-        }, 300);
+        // Ensure orbs are visible
+        const orbs = document.querySelectorAll('.orb-bg');
+        orbs.forEach(orb => {
+            orb.style.opacity = '1';
+        });
+        
+        console.log('About page loaded, background orbs activated');
     });
 </script>
 {% endblock %} 

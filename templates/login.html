@@ -6,7 +6,7 @@
 <div class="container auth-container">
     <div class="auth-form-container">
         <h2 class="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle">Sign in to access your dashboard</p>
+        <p class="auth-subtitle">Sign in to access the invite-only platform</p>
         
         <form id="loginForm" action="{{ url_for('login') }}" method="post" class="auth-form">
             <div class="form-group">
@@ -38,7 +38,7 @@
             </div>
             
             <div class="auth-footer">
-                <p>Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p>
+                <p>Need an invitation? Contact an existing community member</p>
             </div>
         </form>
     </div>
@@ -53,30 +53,36 @@
         align-items: center;
         min-height: calc(100vh - 200px);
         padding: 40px 0;
+        position: relative;
+        z-index: 1;
     }
     
     .auth-form-container {
         width: 100%;
         max-width: 450px;
         padding: 40px;
-        background: rgba(15, 23, 42, 0.5);
+        background: rgba(15, 23, 42, 0.7);
         border-radius: 16px;
-        border: 1px solid rgba(122, 67, 255, 0.2);
-        backdrop-filter: blur(10px);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
+                    0 0 15px rgba(122, 67, 255, 0.1),
+                    0 0 30px rgba(67, 209, 255, 0.1);
     }
     
     .auth-title {
-        font-size: 28px;
+        font-size: 32px;
         margin-bottom: 10px;
         text-align: center;
         color: #fff;
+        text-shadow: 0 0 10px rgba(67, 209, 255, 0.5);
     }
     
     .auth-subtitle {
         font-size: 16px;
         margin-bottom: 30px;
         text-align: center;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.7);
     }
     
     .auth-form {
@@ -92,24 +98,25 @@
         display: block;
         margin-bottom: 8px;
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
     }
     
     .form-input {
         width: 100%;
-        padding: 12px 16px;
-        background: rgba(255, 255, 255, 0.05);
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.07);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         color: #fff;
         font-size: 16px;
-        transition: all 0.2s;
+        transition: all 0.3s;
     }
     
     .form-input:focus {
         outline: none;
-        border-color: rgba(122, 67, 255, 0.5);
-        box-shadow: 0 0 0 2px rgba(122, 67, 255, 0.1);
+        border-color: rgba(67, 209, 255, 0.6);
+        box-shadow: 0 0 0 3px rgba(67, 209, 255, 0.2);
     }
     
     .form-options {
@@ -132,15 +139,17 @@
     .forgot-password {
         color: #43d1ff;
         text-decoration: none;
+        transition: all 0.2s;
     }
     
     .forgot-password:hover {
         text-decoration: underline;
+        color: #7af2ff;
     }
     
     .btn-auth {
-        padding: 14px;
-        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
+        padding: 16px;
+        background: linear-gradient(135deg, #43d1ff 0%, #38b8e0 100%);
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -148,22 +157,44 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .btn-auth:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
+        box-shadow: 0 8px 15px rgba(67, 209, 255, 0.5);
     }
     
     .social-login {
-        margin-top: 24px;
+        margin-top: 30px;
         text-align: center;
     }
     
     .social-login p {
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .social-login p:before,
+    .social-login p:after {
+        content: "";
+        display: block;
+        width: 30%;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+        position: absolute;
+        top: 50%;
+    }
+    
+    .social-login p:before {
+        left: 0;
+    }
+    
+    .social-login p:after {
+        right: 0;
     }
     
     .btn-social {
@@ -171,41 +202,34 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.05);
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.07);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         color: #fff;
         font-size: 16px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
     }
     
     .btn-social img {
         width: 20px;
         height: 20px;
-        margin-right: 8px;
+        margin-right: 10px;
     }
     
     .btn-social:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
     }
     
     .auth-footer {
         margin-top: 30px;
         text-align: center;
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-    }
-    
-    .auth-footer a {
-        color: #43d1ff;
-        text-decoration: none;
-        font-weight: 600;
-    }
-    
-    .auth-footer a:hover {
-        text-decoration: underline;
+        color: rgba(255, 255, 255, 0.7);
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 </style>
 {% endblock %} 
