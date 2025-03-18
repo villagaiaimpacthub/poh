@@ -6,12 +6,25 @@
 {{ super() }}
 <style>
     .page-header {
-        background: linear-gradient(rgba(10, 15, 30, 0.85), rgba(10, 15, 30, 0.95)), 
-                    url('{{ url_for('static', filename='images/network-bg.jpg') }}');
-        background-size: cover;
-        padding: 4rem 0;
-        margin-bottom: 3rem;
+        background: linear-gradient(135deg, rgba(10, 15, 30, 0.95), rgba(30, 40, 70, 0.9));
         position: relative;
+        overflow: hidden;
+        padding-bottom: 2rem;
+    }
+    
+    /* Simplified background elements */
+    .page-header::before {
+        content: "";
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 220, 173, 0.2) 0%, rgba(0, 220, 173, 0.05) 70%);
+        top: -200px;
+        right: -100px;
+        border-radius: 50%;
+        filter: blur(60px);
+        z-index: 0;
+        opacity: 0.7;
     }
     
     .services-section {
@@ -31,12 +44,10 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
     
     .service-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         border-color: rgba(122, 67, 255, 0.3);
     }
     
@@ -49,10 +60,6 @@
         height: 3px;
         background: linear-gradient(90deg, var(--web5-primary), var(--web5-accent));
         opacity: 0.5;
-    }
-    
-    .service-card:hover::before {
-        opacity: 1;
     }
     
     .service-icon {
@@ -68,7 +75,11 @@
         font-size: 1.5rem;
         font-weight: 600;
         margin-bottom: 1rem;
-        color: white;
+        background: linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
     }
     
     .service-description {
@@ -76,46 +87,8 @@
         flex-grow: 1;
     }
     
-    .btn-sm.btn-web5 {
-        background: linear-gradient(135deg, var(--web5-primary) 0%, var(--web5-accent) 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 100px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 4px 10px rgba(122, 67, 255, 0.3);
-    }
-    
-    .btn-sm.btn-web5:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4);
-    }
-    
-    .cta-section {
-        background: linear-gradient(rgba(10, 15, 30, 0.9), rgba(10, 15, 30, 0.95)), 
-                    url('{{ url_for('static', filename='images/cta-bg.jpg') }}');
-        background-size: cover;
-        padding: 5rem 0;
-        margin-top: 3rem;
-        text-align: center;
-    }
-    
-    .cta-title {
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
-        color: white;
-    }
-    
-    .cta-description {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 2rem;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
+    .bg-darker {
+        background-color: rgba(10, 15, 30, 0.7);
     }
 </style>
 {% endblock %}
@@ -124,35 +97,19 @@
 <section class="page-header">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1 class="mb-4">Access Services</h1>
-                <p class="lead mb-5">Discover our suite of services designed to support your digital identity journey and enhance your Proof of Humanity experience.</p>
+            <div class="col-lg-8">
+                <h1 class="page-title services-gradient">Access Services</h1>
+                <p class="page-subtitle">Discover our suite of services designed to support your digital identity journey.</p>
             </div>
         </div>
     </div>
 </section>
 
-<script>
-    console.log('[ACCESS-SERVICES] Page loaded, core services section about to render');
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('[ACCESS-SERVICES] DOM loaded, checking service cards');
-        const serviceCards = document.querySelectorAll('.service-card');
-        console.log('[ACCESS-SERVICES] Found ' + serviceCards.length + ' service cards');
-        
-        // Log all service titles
-        const serviceTitles = document.querySelectorAll('.service-title');
-        console.log('[ACCESS-SERVICES] Service titles: ');
-        serviceTitles.forEach((title, index) => {
-            console.log(`[ACCESS-SERVICES] ${index + 1}: ${title.textContent.trim()}`);
-        });
-    });
-</script>
-
 <section class="services-section">
     <div class="container">
         <div class="row mb-5">
-            <div class="col-md-12 text-center">
-                <h2 class="mb-4">Core Services</h2>
+            <div class="col-lg-12 text-center">
+                <h2 class="mb-4 services-gradient">Core Services</h2>
                 <p class="lead">Powerful tools to verify, manage, and leverage your digital identity.</p>
             </div>
         </div>
@@ -164,7 +121,7 @@
                         <i class="fas fa-id-card"></i>
                     </div>
                     <h3 class="service-title">Verified Digital Identity</h3>
-                    <p class="service-description">Our flagship service uses a web of trust approach to verify your humanity without government ID. Your Proof of Humanity verification works across multiple platforms while maintaining control over your personal information. <strong>Our DID service is free forever.</strong></p>
+                    <p class="service-description">Our flagship service uses a web of trust approach to verify your humanity without government ID. <strong>Our DID service is free forever.</strong></p>
                 </div>
             </div>
             
@@ -174,7 +131,7 @@
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <h3 class="service-title">Trust Network Protection</h3>
-                    <p class="service-description">Build connections with verified humans in our invitation-only network that provides advanced protection against fake accounts and impersonation through our multi-layered verification system.</p>
+                    <p class="service-description">Build connections with verified humans in our invitation-only network that provides advanced protection against fake accounts.</p>
                 </div>
             </div>
             
@@ -187,39 +144,6 @@
                     <p class="service-description">Verify once and use your digital identity across multiple platforms without repeated verification processes.</p>
                 </div>
             </div>
-            
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="service-title">HIVE Mind</h3>
-                    <p class="service-description">Access our collective intelligence network for verified humans, providing enhanced knowledge sharing and community insights.</p>
-                    <div class="mt-3">
-                        <a href="https://vox-v2.replit.app" target="_blank" class="btn btn-sm btn-web5">Explore HIVE</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3 class="service-title">Personal AI Proxy Agent</h3>
-                    <p class="service-description">Deploy your own AI proxy agent that represents your interests while preserving your privacy and security.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <h3 class="service-title">Earn Presence Tokens</h3>
-                    <p class="service-description">Receive rewards for your active participation and contributions within the Proof of Humanity ecosystem.</p>
-                </div>
-            </div>
         </div>
     </div>
 </section>
@@ -227,8 +151,8 @@
 <section class="services-section bg-darker">
     <div class="container">
         <div class="row mb-5">
-            <div class="col-md-12 text-center">
-                <h2 class="mb-4">Enterprise Solutions</h2>
+            <div class="col-lg-12 text-center">
+                <h2 class="mb-4 services-gradient">Enterprise Solutions</h2>
                 <p class="lead">Powerful integration options for organizations seeking to leverage our verification system.</p>
             </div>
         </div>
@@ -262,19 +186,6 @@
                     <h3 class="service-title">Trust as a Service</h3>
                     <p class="service-description">Build trusted communities and protect against fraud with our verified human network.</p>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="cta-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <h2 class="cta-title">Ready to Explore Our Services?</h2>
-                <p class="cta-description">Join our growing community of verified humans and discover the benefits of blockchain-based identity verification.</p>
-                <a href="{{ url_for('index') }}#signup" class="btn btn-web5 btn-lg">Get Started</a>
-                <a href="{{ url_for('verification_manage') }}" class="btn btn-ghost btn-lg ms-3">Learn About Verification</a>
             </div>
         </div>
     </div>

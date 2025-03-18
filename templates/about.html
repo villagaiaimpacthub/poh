@@ -4,135 +4,107 @@
 
 {% block styles %}
 <style>
-    /* Dark theme for about page */
+    /* About page specific styles */
     .about-section {
-        background-color: var(--dark-bg);
-        color: var(--dark-text);
-        padding: 3rem 0;
         position: relative;
-        overflow: hidden;
+        padding: 2rem 0;
     }
     
-    /* Background effects */
-    .orb-bg {
+    /* Background orbs - with better positioning */
+    .page-header::before, 
+    .page-header::after {
+        content: "";
         position: absolute;
         border-radius: 50%;
-        filter: blur(80px);
+        filter: blur(60px);
         z-index: -1;
-        opacity: 1;
+        opacity: 0.4;
     }
     
-    .orb-1 {
-        width: 500px;
-        height: 500px;
+    .page-header::before {
+        width: 400px;
+        height: 400px;
         top: -200px;
         right: -100px;
         background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
     }
     
-    .orb-2 {
-        width: 400px;
-        height: 400px;
-        bottom: -100px;
+    .page-header::after {
+        width: 350px;
+        height: 350px;
+        bottom: -150px;
         left: -100px;
-        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
+        background: radial-gradient(circle, rgba(122, 67, 255, 0.4) 0%, rgba(122, 67, 255, 0.1) 70%);
     }
     
-    /* Main content styles */
+    /* Main content styles with proper positioning */
     .about-container {
-        position: relative;
-        z-index: 1;
-    }
-    
-    .page-title {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        display: inline-block;
-    }
-    
-    .page-subtitle {
-        font-size: 1.2rem;
+        background-color: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        padding: 2rem;
         margin-bottom: 2rem;
-        color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
     
-    /* Card container styles */
-    .about-cards {
+    .about-content p {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 3rem;
+        margin: 2rem 0;
     }
     
-    .about-card {
-        background-color: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(67, 209, 255, 0.3);
+    .feature-card {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(67, 209, 255, 0.2);
         border-radius: 12px;
         padding: 1.5rem;
         transition: all 0.3s ease;
     }
     
-    .about-card:hover {
+    .feature-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        border-color: rgba(67, 209, 255, 0.6);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(67, 209, 255, 0.4);
     }
     
-    .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    
-    .card-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: rgba(67, 209, 255, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1rem;
-        color: #43d1ff;
-        font-size: 1.5rem;
-    }
-    
-    .card-title {
-        margin: 0;
-        font-size: 1.3rem;
+    .feature-title {
+        font-size: 1.25rem;
         font-weight: 600;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
-    .card-content {
+    .feature-description {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.95rem;
-        line-height: 1.5;
+        line-height: 1.6;
     }
     
-    /* Team section */
     .team-section {
         margin-top: 3rem;
     }
     
-    .section-title {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
-        color: #43d1ff;
-    }
-    
     .team-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
     }
     
     .team-member {
-        background-color: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(67, 209, 255, 0.3);
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(67, 209, 255, 0.2);
         border-radius: 12px;
         padding: 1.5rem;
         text-align: center;
@@ -141,277 +113,136 @@
     
     .team-member:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        border-color: rgba(67, 209, 255, 0.6);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(67, 209, 255, 0.4);
     }
     
-    .member-avatar {
-        width: 120px;
-        height: 120px;
+    .team-avatar {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         margin: 0 auto 1rem;
-        overflow: hidden;
-        border: 3px solid rgba(67, 209, 255, 0.5);
+        border: 3px solid rgba(67, 209, 255, 0.3);
     }
     
-    .member-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .member-name {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-        color: white;
-    }
-    
-    .member-role {
-        font-size: 0.9rem;
-        color: #43d1ff;
-        margin-bottom: 0.75rem;
-    }
-    
-    .member-bio {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-    }
-    
-    /* Contact section */
-    .contact-section {
-        margin-top: 3rem;
-        background-color: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(67, 209, 255, 0.3);
-        border-radius: 12px;
-        padding: 2rem;
-    }
-    
-    .contact-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group.full-width {
-        grid-column: span 2;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-    }
-    
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 0.75rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(67, 209, 255, 0.3);
-        border-radius: 6px;
-        color: white;
-        font-size: 1rem;
-    }
-    
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #43d1ff;
-    }
-    
-    .submit-button {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
-        color: white;
-        border: none;
-        border-radius: 6px;
+    .team-name {
+        font-size: 1.25rem;
         font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
     }
     
-    .submit-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
+    .team-role {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
     }
     
-    /* Responsive design */
+    .team-bio {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
     @media (max-width: 768px) {
-        .about-cards,
-        .team-grid {
+        .feature-grid, .team-grid {
             grid-template-columns: 1fr;
-        }
-        
-        .contact-form {
-            grid-template-columns: 1fr;
-        }
-        
-        .form-group.full-width {
-            grid-column: span 1;
-        }
-        
-        .page-title {
-            font-size: 2rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <!-- About Header -->
-    <section class="about-section">
-        <!-- Background orbs -->
-        <div class="orb-bg orb-1" id="orb1"></div>
-        <div class="orb-bg orb-2" id="orb2"></div>
-        
-        <div class="container about-container">
-            <h1 class="page-title">About Proof of Humanity</h1>
-            <p class="page-subtitle">Learn about our mission and the technology behind our human verification network</p>
-            
-            <!-- About Cards -->
-            <div class="about-cards">
-                <!-- Mission Card -->
-                <div class="about-card">
-                    <div class="card-header">
-                        <div class="card-icon">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <h3 class="card-title">Our Mission</h3>
-                    </div>
-                    <div class="card-content">
-                        <p>Proof of Humanity is a revolutionary system designed to verify human identity in the digital world. By creating a decentralized registry of unique human identities, we aim to solve one of the most challenging problems of the digital age - proving that a digital user is indeed a unique human being.</p>
-                        <p>Our mission is to build a more trustworthy and fair digital environment where verified humans can interact with confidence.</p>
-                    </div>
-                </div>
-                
-                <!-- Technology Card -->
-                <div class="about-card">
-                    <div class="card-header">
-                        <div class="card-icon">
-                            <i class="fas fa-microchip"></i>
-                        </div>
-                        <h3 class="card-title">Our Technology</h3>
-                    </div>
-                    <div class="card-content">
-                        <p>We use decentralized identity technology to ensure users maintain control of their personal data while still providing proof of their humanity.</p>
-                        <p>Our unique verification system builds a network of trust through family trees, where each verified member can vouch for new members, creating a robust web of verified humans.</p>
-                        <p>Encrypted verification calls ensure secure and private identity confirmation while protecting personal information.</p>
-                    </div>
-                </div>
-                
-                <!-- How It Works Card -->
-                <div class="about-card">
-                    <div class="card-header">
-                        <div class="card-icon">
-                            <i class="fas fa-cogs"></i>
-                        </div>
-                        <h3 class="card-title">How It Works</h3>
-                    </div>
-                    <div class="card-content">
-                        <ol>
-                            <li><strong>Join the Network</strong> - Create an account and connect with existing members who can vouch for your humanity.</li>
-                            <li><strong>Complete Verification</strong> - Participate in verification calls with existing members who will confirm your unique identity.</li>
-                            <li><strong>Grow the Network</strong> - Once verified, help verify new members and build your family tree.</li>
-                            <li><strong>Access Benefits</strong> - Enjoy the benefits of a verified identity, including exclusive access to services.</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Team Section -->
-            <div class="team-section">
-                <h2 class="section-title">Our Team</h2>
-                
-                <div class="team-grid">
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <img src="{{ url_for('static', filename='images/team-placeholder-1.jpg') }}" alt="Team Member">
-                        </div>
-                        <h3 class="member-name">Sarah Johnson</h3>
-                        <p class="member-role">Founder & CEO</p>
-                        <p class="member-bio">Former cryptography researcher with a passion for decentralized identity solutions.</p>
-                    </div>
-                    
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <img src="{{ url_for('static', filename='images/team-placeholder-2.jpg') }}" alt="Team Member">
-                        </div>
-                        <h3 class="member-name">Michael Chen</h3>
-                        <p class="member-role">CTO</p>
-                        <p class="member-bio">Blockchain expert with 10+ years experience in decentralized systems.</p>
-                    </div>
-                    
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <img src="{{ url_for('static', filename='images/team-placeholder-3.jpg') }}" alt="Team Member">
-                        </div>
-                        <h3 class="member-name">Elena Rodriguez</h3>
-                        <p class="member-role">Head of Research</p>
-                        <p class="member-bio">PhD in Computer Science with expertise in network theory and social graphs.</p>
-                    </div>
-                    
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <img src="{{ url_for('static', filename='images/team-placeholder-4.jpg') }}" alt="Team Member">
-                        </div>
-                        <h3 class="member-name">David Okafor</h3>
-                        <p class="member-role">Head of Security</p>
-                        <p class="member-bio">Cybersecurity expert focused on privacy-preserving verification systems.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Contact Section -->
-            <div class="contact-section">
-                <h2 class="section-title">Get In Touch</h2>
-                
-                <form id="contactForm" action="{{ url_for('contact') }}" method="post" class="contact-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="subject">Subject</label>
-                        <input type="text" id="subject" name="subject" required>
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="submit-button">Send Message</button>
-                    </div>
-                </form>
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="page-title about-gradient">About Proof of Humanity</h1>
+                <p class="page-subtitle">Learn about our mission to create a trusted network of verified humans through a unique web of trust approach.</p>
             </div>
         </div>
-    </section>
+    </div>
 </div>
 
+<div class="about-section">
+    <div class="container">
+        <div class="about-container">
+            <div class="about-content">
+                <p>Proof of Humanity is a revolutionary system designed to verify human identity through trusted social connections rather than relying on centralized authorities or invasive identity verification methods.</p>
+                
+                <p>Our invitation-only network creates a web of trust where each member is personally verified by existing members, ensuring a high level of trust and protection against fraudulent accounts and sybil attacks.</p>
+                
+                <p>By focusing on human relationships as the foundation of verification, we enable a wide range of applications that require trusted identity verification while protecting privacy and personal data.</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3 class="feature-title">Web of Trust Verification</h3>
+                    <p class="feature-description">Our unique approach uses social connections and personal vouching to verify identity, creating a strong network of trust without central authorities.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3 class="feature-title">Privacy-Preserving</h3>
+                    <p class="feature-description">We use advanced privacy technologies to ensure that verification happens without exposing personal data to third parties.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3 class="feature-title">Sybil-Resistant</h3>
+                    <p class="feature-description">Our multi-layered verification process makes it extremely difficult for individuals to create multiple fake identities within the network.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="about-container team-section">
+            <h2 class="section-title about-gradient">Our Team</h2>
+            <p class="mb-4">Meet the dedicated team behind Proof of Humanity, working to build a more trusted digital world.</p>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Team Member" class="team-avatar">
+                    <h3 class="team-name">Alex Robinson</h3>
+                    <p class="team-role">Founder & CEO</p>
+                    <p class="team-bio">Expert in decentralized identity systems with over 10 years experience in cybersecurity and blockchain technology.</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Team Member" class="team-avatar">
+                    <h3 class="team-name">Sarah Chen</h3>
+                    <p class="team-role">CTO</p>
+                    <p class="team-bio">Ph.D. in Computer Science specializing in cryptography and privacy-preserving technologies.</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Team Member" class="team-avatar">
+                    <h3 class="team-name">Michael Jordan</h3>
+                    <p class="team-role">Head of Research</p>
+                    <p class="team-bio">Specializes in graph theory and social network analysis with a focus on trust metrics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Ensure orbs are visible
-        const orbs = document.querySelectorAll('.orb-bg');
-        orbs.forEach(orb => {
-            orb.style.opacity = '1';
-        });
+        console.log('About page loaded - testing new layout');
         
-        console.log('About page loaded, background orbs activated');
+        // Animate orbs slightly for visual interest
+        function animateOrbs() {
+            const orb1 = document.querySelector('.orb-1');
+            const orb2 = document.querySelector('.orb-2');
+            
+            if (orb1 && orb2) {
+                // Simple fade in
+                setTimeout(() => {
+                    orb1.style.opacity = '0.3';
+                    orb2.style.opacity = '0.3';
+                }, 300);
+            }
+        }
+        
+        animateOrbs();
     });
 </script>
 {% endblock %} 

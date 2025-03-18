@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Verification - Proof of Humanity{% endblock %}
+
+{% block styles %}
+<style>
+    /* Verification page specific styles */
+    .verification-section {
+        position: relative;
+        padding: 2rem 0;
+    }
+    
+    /* Background orbs - properly positioned */
+    .background-decoration {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -5;
+        pointer-events: none;
+    }
+    
+    .orb-bg {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: -10;
+        opacity: 0.3;
+    }
+    
+    .orb-1 {
+        width: 500px;
+        height: 500px;
+        top: 20%;
+        right: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
+    }
+    
+    .orb-2 {
+        width: 400px;
+        height: 400px;
+        bottom: 10%;
+        left: -100px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.4) 0%, rgba(67, 209, 255, 0.1) 70%);
+    }
+    
+    /* Main content styles with proper positioning */
+    .verification-container {
+        background-color: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+    
+    .page-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .verification-content p {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Verification steps */
+    .verification-steps {
+        margin: 2rem 0;
+    }
+    
+    .step {
+        display: flex;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .step:hover {
+        border-color: rgba(67, 209, 255, 0.4);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(67, 209, 255, 0.2);
+        color: #43d1ff;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .step-content {
+        flex: 1;
+    }
+    
+    .step-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .step-description {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    /* Verification levels */
+    .verification-levels {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .level-card {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .level-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(67, 209, 255, 0.4);
+    }
+    
+    .level-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(67, 209, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: #43d1ff;
+        font-size: 1.5rem;
+    }
+    
+    .level-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+    
+    .level-description {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    /* CTA Section */
+    .cta-box {
+        background: linear-gradient(135deg, rgba(67, 209, 255, 0.1) 0%, rgba(67, 209, 255, 0.2) 100%);
+        border: 1px solid rgba(67, 209, 255, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .cta-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+    
+    .cta-description {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #43d1ff 0%, #43d1ff 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 209, 255, 0.4);
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .verification-levels {
+            grid-template-columns: 1fr;
+        }
+        
+        .step {
+            flex-direction: column;
+        }
+        
+        .step-number {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .orb-1 {
+            top: 10%;
+            width: 300px;
+            height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background decorations that stay fixed - commented out to test layout fix -->
+<!--
+<div class="background-decoration">
+    <div class="orb-bg orb-1"></div>
+    <div class="orb-bg orb-2"></div>
+</div>
+-->
+
+<!-- Page container ensures content is properly positioned -->
+<div class="page-container">
+    <section class="verification-section">
+        <div class="verification-container">
+            <h1 class="page-title">Verification Process</h1>
+            <p class="page-subtitle">How to verify your humanity and join our trusted network</p>
+            
+            <div class="verification-content">
+                <p>
+                    Proof of Humanity verifies identity through a web of trust, creating a 
+                    decentralized registry of unique human identities where the community 
+                    itself performs the verification.
+                </p>
+                
+                <div class="verification-steps">
+                    <h2 class="section-title">Verification Steps</h2>
+                    
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Create an Account</h3>
+                            <p class="step-description">
+                                Sign up to create your profile in the Proof of Humanity network. 
+                                This is your first step toward becoming a verified member of our community.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Find a Parent Node</h3>
+                            <p class="step-description">
+                                Connect with an existing verified member who can vouch for your humanity. 
+                                This person will become your "parent" in our network's family tree.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Complete Verification Call</h3>
+                            <p class="step-description">
+                                Participate in a secure video verification call where your parent 
+                                node confirms your identity. This call is private and secure.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Receive Confirmation</h3>
+                            <p class="step-description">
+                                After successful verification, you'll receive confirmation of your 
+                                status in the network and can begin to verify others.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="verification-container">
+            <h2 class="section-title">Verification Levels</h2>
+            <div class="verification-levels">
+                <div class="level-card">
+                    <div class="level-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="level-title">Child Node</h3>
+                    <p class="level-description">
+                        New members start as Child Nodes. At this level, you're verified 
+                        but cannot yet verify others. Focus on learning about the network.
+                    </p>
+                </div>
+                
+                <div class="level-card">
+                    <div class="level-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="level-title">Adult Node</h3>
+                    <p class="level-description">
+                        After being in the network for some time and completing additional 
+                        requirements, you'll advance to an Adult Node capable of verifying 
+                        new members.
+                    </p>
+                </div>
+                
+                <div class="level-card">
+                    <div class="level-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="level-title">Network Node</h3>
+                    <p class="level-description">
+                        The most trusted members become Network Nodes with the ability to 
+                        verify multiple new members and participate in governance decisions.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="cta-box">
+                <h3 class="cta-title">Ready to Join Our Network?</h3>
+                <p class="cta-description">
+                    Start your verification journey today and become part of our growing
+                    community of verified humans.
+                </p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="cta-button">Log In to Start</a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}" class="cta-button">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Verification page loaded - testing new layout');
+        
+        // Animate orbs slightly for visual interest
+        function animateOrbs() {
+            const orb1 = document.querySelector('.orb-1');
+            const orb2 = document.querySelector('.orb-2');
+            
+            if (orb1 && orb2) {
+                // Simple fade in
+                setTimeout(() => {
+                    orb1.style.opacity = '0.3';
+                    orb2.style.opacity = '0.3';
+                }, 300);
+            }
+        }
+        
+        animateOrbs();
+    });
+</script>
+{% endblock %} 

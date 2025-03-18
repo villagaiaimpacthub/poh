@@ -87,6 +87,9 @@ function detectBrowser() {
     };
 }
 
+// Define the gold color as a constant at the top of the file
+const GOLD_COLOR = '#FFD700';  // Pure gold
+
 /**
  * Circular Family Tree Visualization
  * D3.js-based visualization with concentric circles of family relationships
@@ -154,10 +157,10 @@ class CircularFamilyTree {
         
         // Set color scheme with browser-specific adjustments - store as class property
         this.nodeColors = {
-            1: this.isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
-            2: this.isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
-            3: this.isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
-            4: this.isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
+            1: GOLD_COLOR,  // Gold for level 1 - using the constant
+            2: '#800080',   // Purple for level 2
+            3: '#43D1FF',   // Light blue for level 3
+            4: '#1f77b4'    // Dark blue for level 4
         };
         
         // Log the actual colors being used
@@ -353,17 +356,17 @@ class CircularFamilyTree {
         if (this.isMobile) {
             console.log('[CIRCULAR-TREE] Configuring mobile-specific gold color scheme');
             
-            // For mobile devices, create a uniform gold color scheme for better visual appearance
-            const goldColor = this.isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700';
+            // Use the exact same hex gold color for all nodes
+            const goldColor = GOLD_COLOR;
             
             // Special case for mobile: initialize all nodes as gold for better appearance
             // We'll keep a reference to original colors for when switching back to original state
             this.originalNodeColors = { ...this.nodeColors };
             
-            // Override colors for mobile to match iPhone screenshot (all gold)
+            // Override colors for mobile to make all levels gold
             this.mobileGoldMode = true;
             
-            // Keep a consistent set of colors for level-based operations
+            // Keep a consistent set of colors for level-based operations - all gold
             this.nodeColors = {
                 1: goldColor,
                 2: goldColor,
@@ -394,7 +397,7 @@ class CircularFamilyTree {
             this.createCircularTree();
             
             // Add pulsing animation to gold nodes
-            this.addPulsingToGoldNodes();
+            this.addPulsingToAllGoldNodes();
             
             // Mark as initialized
             this.initialized = true;
@@ -615,51 +618,25 @@ class CircularFamilyTree {
             .attr("stroke-width", d => Math.min(1.5, d.radius * 0.15)) // Scale stroke based on radius
             .attr("opacity", 0.9);
         
-        // Add pulse animation for founders/gold nodes only (level 1)
+        // Add pulse animation specifically for the central gold nodes - we'll keep track of these
         if (founderNodes.length > 0) {
-            console.log('[DEBUG-VISUALIZATION] Adding pulse animations for founders nodes');
-            const pulseGroup = this.vizGroup.append("g").attr("class", "pulse-group");
+            console.log('[DEBUG-VISUALIZATION] Adding pulse animations for gold nodes');
+            this.pulseGroup = this.vizGroup.append("g").attr("class", "pulse-group");
             
-            // Add individual pulse animations around each founder node for emphasis
+            // Add the pulse elements - these will be referenced later
             founderNodes.forEach((node, i) => {
-                pulseGroup.append("circle")
+                this.pulseGroup.append("circle")
                     .attr("class", `node-pulse node-pulse-${i}`)
+                    .attr("data-id", node.id)
                     .attr("cx", node.x)
                     .attr("cy", node.y)
                     .attr("r", node.radius * 1.5)
                     .attr("fill", "none")
-                    .attr("stroke", this.nodeColors[1])
+                    .attr("stroke", GOLD_COLOR)
                     .attr("stroke-width", 1.5)
                     .attr("opacity", 0.6)
-                    .style("animation-delay", `${i * 0.2}s`); // Stagger animation
+                    .style("animation-delay", `${i * 0.2}s`);
             });
-            
-            // Add CSS for pulse animations
-            if (!document.querySelector('#pulse-animation')) {
-                const style = document.createElement('style');
-                style.id = 'pulse-animation';
-                style.textContent = `
-                    @keyframes nodePulse {
-                        0% { 
-                            transform: scale(1);
-                            opacity: 0.6;
-                        }
-                        70% { 
-                            transform: scale(1.8);
-                            opacity: 0;
-                        }
-                        100% { 
-                            transform: scale(1);
-                            opacity: 0;
-                        }
-                    }
-                    
-                    .node-pulse {
-                        animation: nodePulse 3s infinite;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
         }
         
         // Add legend and buttons
@@ -811,53 +788,38 @@ class CircularFamilyTree {
     }
 
     /**
-     * Add pulsing animation to gold nodes
-     * This makes all nodes with currentLevel=1 (gold) pulse, including those that
-     * have been promoted from other levels. On mobile, we may want all gold nodes to pulse.
+     * Add hollow gold circles around ALL gold nodes (level 1)
+     * Creates a simple static ring around gold nodes - better performance and visual clarity
      */
-    addPulsingToGoldNodes() {
-        console.log('[VISUALIZATION] Adding pulsing animation to gold nodes');
+    addPulsingToAllGoldNodes() {
+        console.log('[VISUALIZATION] Adding hollow gold ring effect to gold nodes');
         
-        // Different selection logic for mobile gold mode vs. desktop
-        let goldNodes;
+        // Remove any existing ring effects
+        this.svg.selectAll(".gold-ring").remove();
         
-        if (this.isMobile && this.mobileGoldMode) {
-            // In mobile gold mode, all nodes are gold, but we only want to animate those at level 1
-            goldNodes = this.vizGroup.selectAll(".node")
-                .filter(function(d) { 
-                    return d.currentLevel === 1; 
-                });
-            
-            console.log('[VISUALIZATION] Mobile gold mode: animating only level 1 nodes');
-        } else {
-            // Standard behavior - animate all nodes with currentLevel=1
-            goldNodes = this.vizGroup.selectAll(".node")
-                .filter(function(d) { 
-                    return d.currentLevel === 1; 
-                });
-        }
+        // Find all nodes that are currently level 1 (gold)
+        const goldNodes = this.nodes.filter(node => node.currentLevel === 1);
         
-        if (goldNodes.empty()) {
-            console.log('[VISUALIZATION] No gold nodes found to animate');
+        if (goldNodes.length === 0) {
+            console.log('[VISUALIZATION] No gold nodes found to highlight');
             return;
         }
         
-        console.log(`[VISUALIZATION] Found ${goldNodes.size()} gold nodes to animate`);
+        console.log(`[VISUALIZATION] Found ${goldNodes.length} gold nodes to highlight with hollow rings`);
         
-        // Define the pulse animation
-        const pulse = () => {
-            goldNodes.selectAll("circle")
-                .transition()
-                .duration(1000)
-                .attr("r", d => d.radius * 1.2)
-                .transition()
-                .duration(1000)
-                .attr("r", d => d.radius)
-                .on("end", pulse);
-        };
-        
-        // Start the animation
-        pulse();
+        // Add simple hollow gold rings around each gold node - NO ANIMATION for better performance
+        goldNodes.forEach((node, i) => {
+            // Add a static circle around each gold node
+            this.svg.append("circle")
+                .attr("class", "gold-ring")
+                .attr("cx", node.x)
+                .attr("cy", node.y)
+                .attr("r", node.radius * 1.5)  // Make the ring 1.5x the radius of the node
+                .attr("fill", "none")
+                .attr("stroke", GOLD_COLOR)  // Use the constant for consistent color
+                .attr("stroke-width", 2)
+                .attr("pointer-events", "none"); // Don't intercept mouse events
+        });
     }
 
     addStyles() {
@@ -1142,7 +1104,7 @@ class CircularFamilyTree {
         this.createCircularTree();
         
         // Add pulsing animation to gold nodes
-        this.addPulsingToGoldNodes();
+        this.addPulsingToAllGoldNodes();
     }
     
     /**
@@ -1210,85 +1172,103 @@ class CircularFamilyTree {
     }
 
     /**
-     * Level up all nodes (change color based on level) in a single animation
+     * Level up all nodes (change color based on level) with optimized performance
      */
     levelUpNodes() {
-        console.log("[VISUALIZATION] Starting level up sequence");
+        console.log('[CIRCULAR-TREE] Starting level-up process');
         
-        // For mobile, just keep everything gold
-        if (this.isMobile && this.mobileGoldMode) {
-            console.log('[VISUALIZATION] Mobile gold mode active - skipping color transitions');
+        // Store original levels
+        const originalLevels = this.nodes.map(node => ({ id: node.id, level: node.currentLevel }));
+        
+        // Increment levels immediately
+        this.nodes.forEach(node => {
+            node.previousLevel = node.currentLevel;
+            node.currentLevel = Math.max(1, node.currentLevel - 1); // Ensure level isn't below 1
             
-            // Update currentLevel values without changing colors (they're already gold)
-            this.nodes.forEach(node => {
-                if (node.currentLevel > 1) {
-                    node.currentLevel -= 1; // Level up the node's internal level
-                }
-            });
-            
-            // Refresh the pulsing for nodes that became level 1
-            setTimeout(() => {
-                this.addPulsingToGoldNodes();
-            }, 100);
-            
-            return;
+            // Apply color change immediately with consistent gold for level 1
+            if (node.currentLevel === 1) {
+                node.color = GOLD_COLOR;
+            } else {
+                node.color = this.nodeColors[node.currentLevel];
+            }
+        });
+        
+        // Apply visual changes without delay
+        this.nodeElements
+            .transition()
+            .duration(300)  // Faster transition
+            .attr("fill", d => d.currentLevel === 1 ? GOLD_COLOR : this.nodeColors[d.currentLevel]);
+        
+        // Update the display immediately
+        this.addPulsingToAllGoldNodes();
+        
+        console.log('[CIRCULAR-TREE] Level-up complete');
+    }
+
+    /**
+     * Show visual feedback while leveling up nodes
+     */
+    showLevelingUpFeedback() {
+        // Create or update a visual indicator to show the leveling up is in progress
+        const container = d3.select(this.container);
+        let feedbackElement = container.select(".level-up-feedback");
+        
+        if (feedbackElement.empty()) {
+            feedbackElement = container.append("div")
+                .attr("class", "level-up-feedback")
+                .style("position", "absolute")
+                .style("top", "50%")
+                .style("left", "50%")
+                .style("transform", "translate(-50%, -50%)")
+                .style("background-color", "rgba(0,0,0,0.7)")
+                .style("color", "white")
+                .style("padding", "10px 20px")
+                .style("border-radius", "20px")
+                .style("z-index", "100")
+                .style("pointer-events", "none")
+                .style("opacity", "0")
+                .text("Growing Network...")
+                .transition()
+                .duration(200)
+                .style("opacity", "1");
         }
+    }
+
+    /**
+     * Hide the level up feedback
+     */
+    hideLevelingUpFeedback() {
+        d3.select(this.container).select(".level-up-feedback")
+            .transition()
+            .duration(200)
+            .style("opacity", "0")
+            .remove();
+    }
+
+    // Update the simulation tick function to also update gold ring positions
+    tick() {
+        // Update node positions
+        this.nodeElements
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
         
-        // Standard level-up animation for desktop
-        const level4Nodes = this.nodes.filter(n => n.currentLevel === 4);
-        const level3Nodes = this.nodes.filter(n => n.currentLevel === 3);
-        const level2Nodes = this.nodes.filter(n => n.currentLevel === 2);
+        // Update gold rings to match node positions
+        this.svg.selectAll(".gold-ring")
+            .data(this.nodes.filter(node => node.currentLevel === 1))
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
         
-        console.log(`Level 4 nodes: ${level4Nodes.length}, Level 3: ${level3Nodes.length}, Level 2: ${level2Nodes.length}`);
+        // Update link positions
+        this.linkElements
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
         
-        // Promote green nodes to blue (level 4 to 3)
-        level4Nodes.forEach(node => {
-            // Select the node using the data-id attribute
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            console.log(`Looking for node ${node.id}, found: ${!nodeElement.empty()}`);
-            
-            if (!nodeElement.empty()) {
-                const delay = Math.random() * 300; // Staggered animation
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[3]);
-                node.currentLevel = 3;
-            }
-        });
-        
-        // Promote blue nodes to purple (level 3 to 2)
-        level3Nodes.forEach(node => {
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            if (!nodeElement.empty()) {
-                const delay = 300 + Math.random() * 300;
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[2]);
-                node.currentLevel = 2;
-            }
-        });
-        
-        // Promote purple nodes to gold (level 2 to 1)
-        level2Nodes.forEach(node => {
-            const nodeElement = this.vizGroup.select(`.node[data-id="${node.id}"]`).select("circle");
-            if (!nodeElement.empty()) {
-                const delay = 600 + Math.random() * 300;
-                nodeElement.transition()
-                    .delay(delay)
-                    .duration(800)
-                    .attr("fill", this.nodeColors[1]);
-                node.currentLevel = 1;
-            }
-        });
-        
-        console.log("[VISUALIZATION] Level up sequence complete");
-        
-        // Add a delay before applying the pulsing animation to the newly gold nodes
-        setTimeout(() => {
-            this.addPulsingToGoldNodes();
-        }, 1200); // Wait for all transitions to complete
+        // Update label positions
+        this.labelElements
+            .attr("x", d => d.x)
+            .attr("y", d => d.y + 3);
     }
 }
 

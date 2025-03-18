@@ -126,20 +126,19 @@
     /* Verification cards */
     .verification-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 2rem;
     }
     
     .verification-card {
-        background-color: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(67, 209, 255, 0.3);
+        background: rgba(15, 23, 42, 0.6);
         border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
     .verification-card:hover {
@@ -210,14 +209,14 @@
     }
     
     .card-content {
-        margin-bottom: 1rem;
+        padding: 15px;
+        flex-grow: 1;
     }
     
     .card-description {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 1rem;
-        font-size: 0.95rem;
-        line-height: 1.5;
     }
     
     .card-progress {
@@ -271,11 +270,11 @@
     
     /* Card details */
     .verification-details {
-        background-color: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(67, 209, 255, 0.3);
+        margin-top: 2rem;
+        background: rgba(15, 23, 42, 0.6);
         border-radius: 12px;
-        padding: 1.5rem;
-        margin-top: 1.5rem;
+        border: 1px solid rgba(67, 209, 255, 0.2);
+        padding: 20px;
         display: none;
     }
     
@@ -358,39 +357,39 @@
         gap: 1rem;
     }
     
-    /* Responsive design */
-    @media (max-width: 768px) {
+    /* Responsive layout */
+    @media (max-width: 1024px) {
+        .verification-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 640px) {
         .verification-cards {
             grid-template-columns: 1fr;
-        }
-        
-        .progress-step {
-            width: 30px;
-            height: 30px;
-        }
-        
-        .progress-step-label {
-            font-size: 0.7rem;
-        }
-        
-        .page-title {
-            font-size: 2rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <!-- Verification Header -->
-    <section class="verification-section">
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="page-title verification-gradient">Verification Journey</h1>
+                <p class="page-subtitle">Track your progress through the verification process and unlock new capabilities</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="verification-section">
+    <div class="container">
         <div class="orb-bg orb-1"></div>
         <div class="orb-bg orb-2"></div>
         
-        <div class="container verification-container">
-            <h1 class="page-title">Verification Journey</h1>
-            <p class="page-subtitle">Track your progress through the verification process and unlock new capabilities</p>
-            
+        <div class="verification-container">
             <!-- Progress Indicator -->
             <div class="progress-indicator">
                 <div class="progress-bar">
@@ -800,72 +799,72 @@
                 </div>
             </div>
         </div>
-    </section>
-    
-    <!-- JavaScript for card interactivity -->
-    <script>
-        function showDetails(cardType) {
-            // Hide all detail sections first
-            document.querySelectorAll('.verification-details').forEach(el => {
-                el.classList.remove('active');
-            });
-            
-            // Show the selected detail section
-            let detailsId = '';
-            switch(cardType) {
-                case 'child':
-                    detailsId = 'childDetails';
-                    break;
-                case 'parent':
-                    detailsId = 'parentDetails';
-                    break;
-                case 'grandparent':
-                    detailsId = 'grandparentDetails';
-                    break;
-                case 'full-network':
-                    detailsId = 'fullNetworkDetails';
-                    break;
-            }
-            
-            if (detailsId) {
-                document.getElementById(detailsId).classList.add('active');
-                // Scroll to the details section
-                document.getElementById(detailsId).scrollIntoView({behavior: 'smooth', block: 'nearest'});
-            }
-        }
-        
-        function hideDetails(cardType) {
-            let detailsId = '';
-            switch(cardType) {
-                case 'child':
-                    detailsId = 'childDetails';
-                    break;
-                case 'parent':
-                    detailsId = 'parentDetails';
-                    break;
-                case 'grandparent':
-                    detailsId = 'grandparentDetails';
-                    break;
-                case 'full-network':
-                    detailsId = 'fullNetworkDetails';
-                    break;
-            }
-            
-            if (detailsId) {
-                document.getElementById(detailsId).classList.remove('active');
-            }
-        }
-        
-        // Function to load background orbs after content
-        document.addEventListener('DOMContentLoaded', function() {
-            // Give a small delay to ensure content is rendered first
-            setTimeout(function() {
-                // Fade in orbs
-                document.querySelectorAll('.orb-bg').forEach(orb => {
-                    orb.style.opacity = '0.3';
-                });
-            }, 300);
+    </div>
+</section>
+
+<!-- JavaScript for card interactivity -->
+<script>
+    function showDetails(cardType) {
+        // Hide all detail sections first
+        document.querySelectorAll('.verification-details').forEach(el => {
+            el.classList.remove('active');
         });
-    </script>
-</div>
+        
+        // Show the selected detail section
+        let detailsId = '';
+        switch(cardType) {
+            case 'child':
+                detailsId = 'childDetails';
+                break;
+            case 'parent':
+                detailsId = 'parentDetails';
+                break;
+            case 'grandparent':
+                detailsId = 'grandparentDetails';
+                break;
+            case 'full-network':
+                detailsId = 'fullNetworkDetails';
+                break;
+        }
+        
+        if (detailsId) {
+            document.getElementById(detailsId).classList.add('active');
+            // Scroll to the details section
+            document.getElementById(detailsId).scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+    }
+    
+    function hideDetails(cardType) {
+        let detailsId = '';
+        switch(cardType) {
+            case 'child':
+                detailsId = 'childDetails';
+                break;
+            case 'parent':
+                detailsId = 'parentDetails';
+                break;
+            case 'grandparent':
+                detailsId = 'grandparentDetails';
+                break;
+            case 'full-network':
+                detailsId = 'fullNetworkDetails';
+                break;
+        }
+        
+        if (detailsId) {
+            document.getElementById(detailsId).classList.remove('active');
+        }
+    }
+    
+    // Function to load background orbs after content
+    document.addEventListener('DOMContentLoaded', function() {
+        // Give a small delay to ensure content is rendered first
+        setTimeout(function() {
+            // Fade in orbs
+            document.querySelectorAll('.orb-bg').forEach(orb => {
+                orb.style.opacity = '0.3';
+            });
+        }, 300);
+    });
+</script>
 {% endblock %} 

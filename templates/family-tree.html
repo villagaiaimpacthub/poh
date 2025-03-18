@@ -152,17 +152,21 @@
     <div class="network-container">
         <div class="visualization-container">
             <div class="visualization-header">
-                <h2 class="visualization-title">Your Family Network</h2>
-                <!-- Controls now embedded in the visualization -->
-                <div class="controls-container">
-                    <!-- Controls from original design, now hidden -->
+                <h1 class="page-title network-gradient">Your Family Network</h1>
+                <div class="visualization-actions">
+                    <button id="growNetworkBtn" class="btn-action">
+                        <i class="fas fa-sitemap"></i> Grow Network
+                    </button>
+                    <button id="resetNetworkBtn" class="btn-action">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
                 </div>
             </div>
             <div id="family-tree-container"></div>
         </div>
         
         <div class="family-info-container">
-            <h2 class="section-title">Your Verification Family</h2>
+            <h2 class="section-title network-gradient">Your Verification Family</h2>
             <p class="section-description">
                 Your verification family represents your trusted connections in the Proof of Humanity network. 
                 Each member plays a crucial role in building a web of trust that verifies human identity.

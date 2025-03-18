@@ -3,11 +3,19 @@
 {% block title %}Login - Proof of Humanity{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="page-title login-gradient">Welcome Back</h1>
+                <p class="page-subtitle">Sign in to access the invite-only Proof of Humanity platform</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container auth-container">
     <div class="auth-form-container">
-        <h2 class="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle">Sign in to access the invite-only platform</p>
-        
         <form id="loginForm" action="{{ url_for('login') }}" method="post" class="auth-form">
             <div class="form-group">
                 <label for="email">Email</label>
@@ -51,8 +59,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 200px);
-        padding: 40px 0;
+        padding: 0 0 60px;
         position: relative;
         z-index: 1;
     }
@@ -68,21 +75,6 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
                     0 0 15px rgba(122, 67, 255, 0.1),
                     0 0 30px rgba(67, 209, 255, 0.1);
-    }
-    
-    .auth-title {
-        font-size: 32px;
-        margin-bottom: 10px;
-        text-align: center;
-        color: #fff;
-        text-shadow: 0 0 10px rgba(67, 209, 255, 0.5);
-    }
-    
-    .auth-subtitle {
-        font-size: 16px;
-        margin-bottom: 30px;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.7);
     }
     
     .auth-form {
@@ -149,7 +141,7 @@
     
     .btn-auth {
         padding: 16px;
-        background: linear-gradient(135deg, #43d1ff 0%, #38b8e0 100%);
+        background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%);
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -230,6 +222,33 @@
         color: rgba(255, 255, 255, 0.7);
         padding-top: 20px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Background orbs for visual interest */
+    .page-header::before,
+    .page-header::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(70px);
+        z-index: -1;
+        opacity: 0.5;
+    }
+    
+    .page-header::before {
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(67, 209, 255, 0.3) 0%, rgba(67, 209, 255, 0.1) 70%);
+    }
+    
+    .page-header::after {
+        bottom: -100px;
+        left: -100px;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(122, 67, 255, 0.3) 0%, rgba(122, 67, 255, 0.1) 70%);
     }
 </style>
 {% endblock %} 

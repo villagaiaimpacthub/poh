@@ -2006,4 +2006,164 @@ textarea.form-input {
 
 .mobile-auth-button.logout:hover {
     background: rgba(255, 87, 87, 0.3);
+}
+
+/*
+ * Standardized Page Headers System
+ * This creates consistent styling across all pages with customizable gradients
+ */
+
+/* Base styling for all page headers */
+.page-header, .header-container {
+    position: relative;
+    padding: 4rem 0 2rem;
+    margin-bottom: 2rem;
+    z-index: 1;
+}
+
+/* Page titles with gradient - the base styling */
+.page-title, 
+h1.mb-4, 
+.auth-title, 
+.hero-title,
+.verification-title,
+.section-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+/* Section titles (h2) are slightly smaller */
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+/* Page subtitles */
+.page-subtitle, 
+.lead.mb-5,
+.auth-subtitle,
+.hero-description,
+.verification-subtitle,
+.section-description {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    max-width: 700px;
+    line-height: 1.6;
+}
+
+/* Consistent container padding */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Gradient background classes for different pages */
+.home-gradient {
+    background: linear-gradient(135deg, #7a43ff 0%, #43d1ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.about-gradient {
+    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.services-gradient {
+    background: linear-gradient(135deg, #7a43ff 20%, #ff6b6b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.verification-gradient {
+    background: linear-gradient(135deg, #43d1ff 0%, #7a43ff 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-gradient {
+    background: linear-gradient(135deg, #7a43ff 30%, #43d1ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.network-gradient {
+    background: linear-gradient(135deg, #FFD700 0%, #ff6b00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+/* Header content spacing */
+.header-content {
+    padding: 2rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-title, 
+    .verification-title,
+    .dashboard-title,
+    .hero-title,
+    .main-title {
+        font-size: 2.2rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .page-subtitle, 
+    .verification-subtitle,
+    .dashboard-subtitle,
+    .hero-subtitle,
+    .section-description {
+        font-size: 1rem;
+    }
+    
+    .page-header, .header-container {
+        padding: 3rem 0 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-title, 
+    .verification-title,
+    .dashboard-title,
+    .hero-title,
+    .main-title {
+        font-size: 1.8rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
 } 

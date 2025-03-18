@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Proof of Humanity{% endblock %}</title>
     
+    <!-- Preconnect to critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
     
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Icons -->
@@ -26,6 +29,11 @@
             padding: 0;
         }
 
+        /* Fallback backgrounds for any missing images */
+        [style*="background-image"] {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+        }
+        
         /* Dark theme variables defined at root level */
         :root {
             /* Primary colors */
@@ -210,10 +218,14 @@
         }
         
         .main-content {
-            padding-top: 60px !important;
-            background-color: #0f172a !important;
-            color: #ffffff !important;
-            flex: 1 0 auto !important;
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 60px);
+            padding-top: 80px;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow-x: hidden;
         }
         /* Footer styling fixes */
         .footer {
@@ -580,6 +592,47 @@
         .mobile-btn.btn-web5:hover {
             box-shadow: 0 6px 14px rgba(122, 67, 255, 0.4);
         }
+
+        /* Background decorations must be behind content */
+        .background-decoration {
+            position: absolute;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* All page containers need consistent styling */
+        .page-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Force background elements to behave properly */
+        .background-decoration, 
+        .orb-bg, 
+        .orb-1, 
+        .orb-2,
+        [class*="orb-"],
+        .web5-background,
+        div[class*="orb-"] {
+            position: absolute !important;
+            z-index: -999 !important;
+            pointer-events: none !important;
+        }
+
+        /* Ensure content is always above background */
+        .page-container,
+        .about-container,
+        .verification-container,
+        .about-section,
+        .verification-section {
+            position: relative !important;
+            z-index: 10 !important;
+        }
     </style>
     
     <!-- Stylesheets -->
@@ -723,12 +776,14 @@
     <button class="debug-toggle" id="globalDebugToggle">Debug</button>
     <div class="debug-box" id="globalDebugBox"></div>
 
-    <!-- Web5 Background Elements -->
+    <!-- Web5 Background Elements - Commented out to fix layout issues -->
+    <!--
     <div class="web5-background">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
+    -->
 
     <!-- Header -->
     <header class="main-header">
@@ -1056,6 +1111,7 @@
             }
             
             // Animate background orbs for web5 feel
+            /* Commented out to fix layout issues
             const orbs = document.querySelectorAll('.orb');
             if (orbs.length) {
                 orbs.forEach(orb => {
@@ -1066,6 +1122,7 @@
                     }, 3000);
                 });
             }
+            */
         });
     </script>
 
