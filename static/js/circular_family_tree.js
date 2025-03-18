@@ -131,10 +131,10 @@ class CircularFamilyTree {
         
         // Set color scheme with browser-specific adjustments
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 1 (was gold)
+            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
             2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
-            3: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66',   // Green for level 3
-            4: isSafariOrIOS ? 'rgb(255, 128, 0)' : '#ff8000'    // Orange for level 4
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
+            4: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
         };
         
         console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name} browser`);
@@ -369,10 +369,10 @@ class CircularFamilyTree {
         
         // Set the custom colors - using rgb for better cross-browser compatibility
         this.nodeColors = {
-            1: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 1 (was gold)
+            1: isSafariOrIOS ? 'rgb(255, 215, 0)' : '#ffd700',  // Gold for level 1 (center)
             2: isSafariOrIOS ? 'rgb(122, 67, 255)' : '#7a43ff',  // Purple for level 2
-            3: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66',   // Green for level 3
-            4: isSafariOrIOS ? 'rgb(255, 128, 0)' : '#ff8000'    // Orange for level 4
+            3: isSafariOrIOS ? 'rgb(67, 209, 255)' : '#43d1ff',  // Blue for level 3
+            4: isSafariOrIOS ? 'rgb(0, 255, 102)' : '#00ff66'    // Green for level 4
         };
         
         console.log(`[CIRCULAR-TREE] Using ${isSafariOrIOS ? 'RGB' : 'HEX'} colors for ${browser.name}`);
@@ -858,6 +858,11 @@ class CircularFamilyTree {
         });
         
         console.log("[VISUALIZATION] Level up sequence complete");
+        
+        // Add a delay before applying the pulsing animation to the newly gold nodes
+        setTimeout(() => {
+            this.addPulsingToGoldNodes();
+        }, 1200); // Wait for all transitions to complete
     }
 
     /**
@@ -1004,12 +1009,14 @@ class CircularFamilyTree {
 
     /**
      * Add pulsing animation to gold nodes
-     * This makes all level 1 nodes pulse similar to the central nodes
+     * This makes all nodes with currentLevel=1 (gold) pulse, including those that
+     * have been promoted from other levels
      */
     addPulsingToGoldNodes() {
         console.log('[VISUALIZATION] Adding pulsing animation to gold nodes');
         
-        // Find all level 1 (gold) nodes
+        // Find all nodes that currently have level 1 (gold) - this includes
+        // both original gold nodes and any that have been promoted
         const goldNodes = this.vizGroup.selectAll(".node")
             .filter(function(d) { 
                 return d.currentLevel === 1; 
@@ -1139,7 +1146,7 @@ class CircularFamilyTree {
             }
             
             .legend-founder-connection {
-                border-top: 2px dashed #FFC857;
+                border-top: 2px dashed #ffd700;
             }
             
             /* Mobile-specific styles */
