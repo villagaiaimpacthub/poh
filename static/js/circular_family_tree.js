@@ -330,46 +330,16 @@ class CircularFamilyTree {
         }
         
         try {
-            console.log(`[CIRCULAR-TREE] Initializing with dimensions ${this.width}x${this.height}`);
+            console.log(`[CIRCULAR-TREE] Beginning initialization of circular family tree`);
             
-            // Create SVG element - use selector string instead of referencing this.container
-            // This provides an additional layer of safety
-            this.svg = d3.select(`#${this.containerId}`)
-                .append("svg")
-                .attr("width", "100%")
-                .attr("height", "100%")
-                .attr("viewBox", `0 0 ${this.width} ${this.height}`)
-                .attr("preserveAspectRatio", "xMidYMid meet")
-                .style("background", "rgba(15, 15, 35, 0.3)")
-                .style("border-radius", "8px");
-            
-            // Add a background
-            this.svg.append("rect")
-                .attr("width", "100%")
-                .attr("height", "100%")
-                .attr("fill", "rgba(15, 15, 35, 0.3)")
-                .attr("rx", 8)
-                .attr("ry", 8);
-                
-            // Add title
-            this.svg.append("text")
-                .attr("x", this.width / 2)
-                .attr("y", 30)
-                .attr("text-anchor", "middle")
-                .attr("fill", "white")
-                .style("font-size", "18px")
-                .style("font-weight", "bold")
-                .text(this.title);
-                
-            // Create visualization group centered in the SVG
-            this.vizGroup = this.svg.append("g")
-                .attr("transform", `translate(${this.width / 2}, ${this.height / 2})`);
-                
-            // Create the visualization
+            // Create the main visualization
             this.createCircularTree();
             
-            // Add buttons
+            // Add legend
             this.addLegend();
+            
+            // Add pulsing animation to gold nodes
+            this.addPulsingToGoldNodes();
             
             // Mark as initialized
             this.initialized = true;
@@ -657,6 +627,22 @@ class CircularFamilyTree {
         const legendContainer = document.createElement('div');
         legendContainer.className = 'legend-container';
         
+        // Position legend differently for mobile vs desktop
+        if (this.isMobile) {
+            // For mobile, position at the top to give more space to the visualization
+            legendContainer.style.position = 'absolute';
+            legendContainer.style.top = '10px';
+            legendContainer.style.left = '50%';
+            legendContainer.style.transform = 'translateX(-50%)';
+            legendContainer.style.width = '90%';
+            legendContainer.style.maxWidth = '300px';
+        } else {
+            // Keep default positioning for desktop
+            legendContainer.style.position = 'absolute';
+            legendContainer.style.top = '10px';
+            legendContainer.style.right = '10px';
+        }
+        
         // Define legend data
         const legendData = [
             { color: this.nodeColors[1], text: 'Full Network Nodes' },
@@ -747,6 +733,9 @@ class CircularFamilyTree {
         // Clear the visualization and recreate it
         this.vizGroup.selectAll("*").remove();
         this.createCircularTree();
+        
+        // Add pulsing animation to gold nodes
+        this.addPulsingToGoldNodes();
     }
     
     /**
@@ -1011,6 +1000,42 @@ class CircularFamilyTree {
             .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle");
+    }
+
+    /**
+     * Add pulsing animation to gold nodes
+     * This makes all level 1 nodes pulse similar to the central nodes
+     */
+    addPulsingToGoldNodes() {
+        console.log('[VISUALIZATION] Adding pulsing animation to gold nodes');
+        
+        // Find all level 1 (gold) nodes
+        const goldNodes = this.vizGroup.selectAll(".node")
+            .filter(function(d) { 
+                return d.currentLevel === 1; 
+            });
+        
+        if (goldNodes.empty()) {
+            console.log('[VISUALIZATION] No gold nodes found to animate');
+            return;
+        }
+        
+        console.log(`[VISUALIZATION] Found ${goldNodes.size()} gold nodes to animate`);
+        
+        // Define the pulse animation
+        const pulse = () => {
+            goldNodes.selectAll("circle")
+                .transition()
+                .duration(1000)
+                .attr("r", d => d.radius * 1.2)
+                .transition()
+                .duration(1000)
+                .attr("r", d => d.radius)
+                .on("end", pulse);
+        };
+        
+        // Start the animation
+        pulse();
     }
 
     addStyles() {

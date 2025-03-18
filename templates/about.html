@@ -19,7 +19,8 @@
         border-radius: 50%;
         filter: blur(80px);
         z-index: 0;
-        opacity: 0.3;
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
     }
     
     .orb-1 {
@@ -401,4 +402,17 @@
         </div>
     </section>
 </div>
+
+<script>
+    // Function to load background orbs after content
+    document.addEventListener('DOMContentLoaded', function() {
+        // Give a small delay to ensure content is rendered first
+        setTimeout(function() {
+            // Fade in orbs
+            document.querySelectorAll('.orb-bg').forEach(orb => {
+                orb.style.opacity = '0.3';
+            });
+        }, 300);
+    });
+</script>
 {% endblock %} 
